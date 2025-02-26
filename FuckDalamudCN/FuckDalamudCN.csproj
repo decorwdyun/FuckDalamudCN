@@ -1,0 +1,19 @@
+﻿<Project Sdk="Dalamud.NET.Sdk/11.0.0">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0-windows</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <Platforms>x64</Platforms>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Content Include="FuckDalamudCN.yaml" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Dalamud.Extensions.MicrosoftLogging" Version="4.0.1" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.2" />
+    </ItemGroup>
+
+</Project>

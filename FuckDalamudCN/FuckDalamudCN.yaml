@@ -1,0 +1,12 @@
+name: FuckDalamudCN
+author: decorwdyun
+description: |-
+  解除国服 Dalamud 中不合理的插件封锁。
+punchline: 解除国服 Dalamud 中不合理的插件封锁，安装即可，无需任何配置。
+tags:
+  - unban
+  - FuckDalamudCN
+  - 插件封锁
+  - dontban
+load_priority: 0
+load_required_state: 0
