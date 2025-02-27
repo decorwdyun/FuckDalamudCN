@@ -15,7 +15,7 @@ internal sealed class UnbanController : IDisposable
     private readonly object _pluginManager = null!;
     private uint _tickCount = 0;
     private DateTime _nextCheckTime = DateTime.MinValue;
-
+    
     public UnbanController(
         IDalamudPluginInterface pluginInterface,
         ILogger<UnbanController> logger,
@@ -36,7 +36,7 @@ internal sealed class UnbanController : IDisposable
 
     public void Start()
     {
-        _logger.LogInformation("UnbanController 服务现在开始运行。");
+        _logger.LogInformation("服务现在开始运行。");
         _framework.Update += Tick;
     }
 
@@ -46,10 +46,10 @@ internal sealed class UnbanController : IDisposable
         {
             _nextCheckTime = DateTime.Now.AddSeconds(3);
             _tickCount++;
-            if (_tickCount > 10)
+            if (_tickCount > 20)
             {
                 _framework.Update -= Tick;
-                _logger.LogInformation("UnbanController 服务现在已停止（应该不需要了）。");
+                _logger.LogInformation("服务现在已停止（应该不需要了）。");
                 return;
             }
             ClearManifestBanned();

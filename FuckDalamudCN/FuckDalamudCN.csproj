@@ -5,10 +5,13 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <Platforms>x64</Platforms>
+        <Version>1.0.0.1</Version>
     </PropertyGroup>
 
     <ItemGroup>
       <Content Include="FuckDalamudCN.yaml" />
+      <Content Include="LICENSE" />
+      <Content Include="README.md" />
     </ItemGroup>
 
     <ItemGroup>
