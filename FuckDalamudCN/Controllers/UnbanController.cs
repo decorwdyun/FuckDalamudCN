@@ -4,7 +4,7 @@ using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using Microsoft.Extensions.Logging;
 
-namespace FuckDalamudCN.Unban;
+namespace FuckDalamudCN.Controllers;
 
 internal sealed class UnbanController : IDisposable
 {
@@ -36,7 +36,7 @@ internal sealed class UnbanController : IDisposable
 
     public void Start()
     {
-        _logger.LogInformation("服务现在开始运行。");
+        _logger.LogInformation("解除插件封锁服务现在开始运行。");
         _framework.Update += Tick;
     }
 

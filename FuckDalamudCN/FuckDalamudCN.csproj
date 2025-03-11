@@ -10,12 +10,11 @@
 
     <ItemGroup>
       <Content Include="FuckDalamudCN.yaml" />
-      <Content Include="LICENSE" />
-      <Content Include="README.md" />
     </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="Dalamud.Extensions.MicrosoftLogging" Version="4.0.1" />
+      <PackageReference Include="DnsClient" Version="1.8.0" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.2" />
     </ItemGroup>
 

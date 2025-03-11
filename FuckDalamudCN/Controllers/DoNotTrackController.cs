@@ -1,15 +1,14 @@
 ﻿using System.Reflection;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
-using FuckDalamudCN.Unban;
 using Microsoft.Extensions.Logging;
 
-namespace FuckDalamudCN.DoNotTrack;
+namespace FuckDalamudCN.Controllers;
 
 internal sealed class DoNotTrackController: IDisposable
 {
     private readonly IDalamudPluginInterface _dalamudPluginInterface;
-    private readonly ILogger<UnbanController> _logger;
+    private readonly ILogger<DoNotTrackController> _logger;
     private readonly IFramework _framework;
     private readonly IClientState _clientState;
 
@@ -18,7 +17,7 @@ internal sealed class DoNotTrackController: IDisposable
     public DoNotTrackController(
         IDalamudPluginInterface pluginInterface,
         IClientState clientState,
-        ILogger<UnbanController> logger,
+        ILogger<DoNotTrackController> logger,
         IFramework framework)
     {
         _logger = logger;
