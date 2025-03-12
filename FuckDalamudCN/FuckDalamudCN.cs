@@ -57,6 +57,9 @@ public sealed class FuckDalamudCN: IDalamudPlugin
             serviceCollection.AddSingleton(new WindowSystem(nameof(FuckDalamudCN)));
             serviceCollection.AddSingleton<DalamudInitializer>();
             
+            serviceCollection.AddSingleton<DynamicHttpWindowsProxy.DynamicHttpWindowsProxy>();
+            serviceCollection.AddSingleton<HappyEyeballsCallback>();
+            
             serviceCollection.AddSingleton<GithubProxyPool>();
             serviceCollection.AddSingleton<UnbanController>();
             serviceCollection.AddSingleton<DoNotTrackController>();
@@ -68,6 +71,7 @@ public sealed class FuckDalamudCN: IDalamudPlugin
             _serviceProvider = serviceCollection.BuildServiceProvider();
             try
             {
+                _serviceProvider.GetRequiredService<DynamicHttpWindowsProxy.DynamicHttpWindowsProxy>().Start();
                 _serviceProvider.GetRequiredService<UnbanController>().Start();
                 _serviceProvider.GetRequiredService<DoNotTrackController>().Enable();
                 _serviceProvider.GetRequiredService<FastGithubController>();

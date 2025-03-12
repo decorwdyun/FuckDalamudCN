@@ -12,7 +12,6 @@ namespace FuckDalamudCN.FastGithub
         {
             "https://gh-proxy.com/https://github.com/decorwdyun/DalamudPlugins/blob/7a52313df6c4ae0ae4ea049e92627b4ed61e6421/FuckDalamudCN/icon.png",
             "https://ghfast.top/https://github.com/decorwdyun/DalamudPlugins/blob/7a52313df6c4ae0ae4ea049e92627b4ed61e6421/FuckDalamudCN/icon.png",
-            "https://ghp.ci/https://github.com/decorwdyun/DalamudPlugins/blob/7a52313df6c4ae0ae4ea049e92627b4ed61e6421/FuckDalamudCN/icon.png",
         };
         
         private const long ExpectedContentLength = 24009;
@@ -21,16 +20,20 @@ namespace FuckDalamudCN.FastGithub
         public readonly ConcurrentDictionary<string, long> ProxyResponseTimes;
         private readonly Timer _timer;
 
-        private int _handledRequestCount = 0;
+        private int _handledRequestCount;
     
         public int AcceleratedCount => _handledRequestCount;
         
         public GithubProxyPool(
-            ILogger<GithubProxyPool> logger
+            ILogger<GithubProxyPool> logger,
+            DynamicHttpWindowsProxy.DynamicHttpWindowsProxy dynamicHttpWindowsProxy
             )
         {
             _logger = logger;
-            _httpClient = new HttpClient()
+            _httpClient = new HttpClient(new HttpClientHandler()
+            {
+                Proxy = dynamicHttpWindowsProxy
+            })
             {
                 Timeout = TimeSpan.FromSeconds(10)
             };
@@ -41,7 +44,7 @@ namespace FuckDalamudCN.FastGithub
                 ProxyResponseTimes[GetPrefix(proxy)] = 9999999;
             }
             
-            _timer = new Timer(state => CheckProxies().Wait(), null, TimeSpan.Zero, TimeSpan.FromSeconds(60 * 10));
+            _timer = new Timer(state => CheckProxies().Wait(), null, TimeSpan.Zero, TimeSpan.FromSeconds(60 * 3));
         }
         
         public Task CheckProxies()

@@ -18,18 +18,20 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
         ILogger logger, 
         string dalamudVersion,
         Configuration configuration,
-        GithubProxyPool githubProxyPool
+        GithubProxyPool githubProxyPool,
+        DynamicHttpWindowsProxy.DynamicHttpWindowsProxy dynamicHttpWindowsProxy,
+        HappyEyeballsCallback happyEyeballsCallback
     )
     {
         _logger = logger;
         _dalamudVersion = dalamudVersion;
         _configuration = configuration;
         _githubProxyPool = githubProxyPool;
-        SharedHappyEyeballsCallback = new HappyEyeballsCallback();
         InnerHandler = new SocketsHttpHandler
         {
+            Proxy = dynamicHttpWindowsProxy,
             AutomaticDecompression = DecompressionMethods.All,
-            ConnectCallback = SharedHappyEyeballsCallback.ConnectCallback,
+            ConnectCallback = happyEyeballsCallback.ConnectCallback,
         };
     }
 
@@ -85,7 +87,7 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
                 if (fastestDomain != null)
                 {
                     var replacedUri = new Uri(fastestDomain + request.RequestUri);
-                    _logger.LogDebug($"Replacing {request.RequestUri} to {replacedUri}");
+                    // _logger.LogDebug($"Replacing {request.RequestUri} to {replacedUri}");
                     request.RequestUri = replacedUri;
                 }
             }

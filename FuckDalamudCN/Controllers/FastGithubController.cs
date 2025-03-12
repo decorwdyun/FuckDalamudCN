@@ -14,7 +14,9 @@ internal sealed class FastGithubController : IDisposable
     private readonly IFramework _framework;
     private readonly GithubProxyPool _proxyPool;
     private readonly Configuration _configuration;
-    
+    private readonly DynamicHttpWindowsProxy.DynamicHttpWindowsProxy _dynamicHttpWindowsProxy;
+    private readonly HappyEyeballsCallback _happyEyeballsCallback;
+
     private readonly object _happyHttpClient = null!;
     private readonly Assembly _dalamudAssembly;
     
@@ -25,14 +27,18 @@ internal sealed class FastGithubController : IDisposable
         ILogger<FastGithubController> logger,
         IFramework framework,
         GithubProxyPool proxyPool,
-        Configuration configuration
-        )
+        Configuration configuration,
+        DynamicHttpWindowsProxy.DynamicHttpWindowsProxy dynamicHttpWindowsProxy,
+        HappyEyeballsCallback happyEyeballsCallback
+    )
     {
         _pluginInterface = pluginInterface;
         _logger = logger;
         _framework = framework;
         _proxyPool = proxyPool;
         _configuration = configuration;
+        _dynamicHttpWindowsProxy = dynamicHttpWindowsProxy;
+        _happyEyeballsCallback = happyEyeballsCallback;
         _dalamudAssembly = pluginInterface.GetType().Assembly;
         var dalamudService = _dalamudAssembly.GetType("Dalamud.Service`1", throwOnError: true);
         ArgumentNullException.ThrowIfNull(_dalamudAssembly);
@@ -45,7 +51,7 @@ internal sealed class FastGithubController : IDisposable
         var util = _dalamudAssembly.GetType("Dalamud.Utility.Util");
         var assemblyVersion = util?.GetProperty("AssemblyVersion", BindingFlags.Public | BindingFlags.Static);
         _dalamudAssemblyVersion = assemblyVersion?.GetValue(util) as string ?? _dalamudAssembly.GetName().Version?.ToString() ?? "Unknown";
-    
+        
         if (_configuration.EnableFastGithub && _happyHttpClient != null) Enable();
     }
 
@@ -63,7 +69,10 @@ internal sealed class FastGithubController : IDisposable
             _logger, 
             _dalamudAssemblyVersion,
             _configuration,
-            _proxyPool));
+            _proxyPool,
+            _dynamicHttpWindowsProxy,
+            _happyEyeballsCallback
+            ));
 
         httpClient.SetValue(_happyHttpClient, newHttpClient);
         _logger.LogInformation($"Github 加速已开启, Dalamud/{_dalamudAssemblyVersion}, 随机机器码: {MachineCodeGenerator.Instance.MachineCode}");

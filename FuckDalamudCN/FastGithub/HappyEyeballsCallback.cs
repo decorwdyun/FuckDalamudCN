@@ -16,18 +16,23 @@ public class HappyEyeballsCallback : IDisposable
      * cached lookups between different clients. We just need to be able to easily expire those lookups first.
      */
 
-    private readonly AddressFamily forcedAddressFamily;
-    private readonly int connectionBackoff;
+    private readonly AddressFamily forcedAddressFamily = AddressFamily.Unspecified;
+    private readonly ILogger _logger;
+    private readonly DynamicHttpWindowsProxy.DynamicHttpWindowsProxy _dynamicHttpWindowsProxy;
+    private readonly int connectionBackoff = 75;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="HappyEyeballsCallback"/> class.
     /// </summary>
-    /// <param name="forcedAddressFamily">Optional override to force a specific AddressFamily.</param>
-    /// <param name="connectionBackoff">Backoff time between concurrent connection attempts.</param>
-    public HappyEyeballsCallback(AddressFamily? forcedAddressFamily = null, int connectionBackoff = 75)
+    /// <param name="logger"></param>
+    /// <param name="dynamicHttpWindowsProxy"></param>
+    public HappyEyeballsCallback(
+        ILogger<HappyEyeballsCallback> logger,
+        DynamicHttpWindowsProxy.DynamicHttpWindowsProxy dynamicHttpWindowsProxy
+        )
     {
-        this.forcedAddressFamily = forcedAddressFamily ?? AddressFamily.Unspecified;
-        this.connectionBackoff = connectionBackoff;
+        _logger = logger;
+        _dynamicHttpWindowsProxy = dynamicHttpWindowsProxy;
     }
 
     /// <inheritdoc/>
