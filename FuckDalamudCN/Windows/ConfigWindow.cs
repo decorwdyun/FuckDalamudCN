@@ -79,14 +79,14 @@ internal class ConfigWindow: Window
         using (ImRaii.Disabled(alwaysTrue)){
             ImGui.Checkbox("解除插件封锁（Unban）", ref alwaysTrue);
         }
-        ImGuiComponents.HelpMarker("某插件搜不到、插件被自动禁用、提示兼容性问题？\n" +
-                                   "这都有可能是因为 OtterCorp Dalamud 的插件封锁政策。"
+        ImGuiComponents.HelpMarker($"某插件搜不到、插件被自动禁用、提示兼容性问题？{Environment.NewLine}"+
+                                   $"这都有可能是因为 OtterCorp Dalamud 的插件封锁政策。{Environment.NewLine}"
                                    + "我们将帮你解除不合理的封锁政策");
         using (ImRaii.Disabled(alwaysTrue)){
             ImGui.Checkbox("阻止 Dalamud CN 收集用户隐私数据", ref alwaysTrue);
         }
-        ImGuiComponents.HelpMarker("OtterCorp Dalamud 会在每次登录时都收集大量数据上传到服务器" +
-                                   "\n包括但不限于机器码、用户账号ID、角色ID、已安装的插件列表，是否使用外置 exe 进行 Unban 等等\n" +
+        ImGuiComponents.HelpMarker($"OtterCorp Dalamud 会在每次登录时都收集大量数据上传到服务器{Environment.NewLine}" +
+                                   $"包括但不限于机器码、用户账号ID、角色ID、已安装的插件列表，是否使用外置 exe 进行 Unban 等等{Environment.NewLine}" +
                                    "我们将帮你完全阻止这个数据的上传");
     }
 
@@ -111,8 +111,9 @@ internal class ConfigWindow: Window
             using (ImRaii.Disabled(alwaysTrue)){
                 ImGui.Checkbox("优化 Dalamud 识别系统代理的行为", ref alwaysTrue);
             }
-            ImGuiComponents.HelpMarker("将忽略卫月本体的代理配置，转为固定使用系统代理\n优化了之前必须在卫月中手动设置代理，否则就时灵时不灵的问题。");
-            
+            ImGuiComponents.HelpMarker($"将忽略卫月本体的代理配置，转为固定使用系统代理{Environment.NewLine}"
+                                       + "这将解决卫月本体偶尔无法识别系统代理导致无法加载插件列表的问题");
+
             ImGui.TextColored(ImGuiColors.HealerGreen, $"自本次启动以来共为你加速 {_githubProxyPool.AcceleratedCount} 次");
             if (ImGui.CollapsingHeader("Debug###FuckDalamudCN-Debug"))
             {
@@ -155,7 +156,7 @@ internal class ConfigWindow: Window
             return;
 
         ImGui.TextColored(ImGuiColors.DalamudRed, "本插件完全开源免费，从未委托任何人在任何渠道售卖。");
-        ImGui.TextColored(ImGuiColors.DalamudRed, "如果你是付费购买的本插件，请立即退款并举报。");
+        ImGui.TextColored(ImGuiColors.DalamudRed, "如果你是付费购买的本插件，请立即退款并差评举报。");
         ImGui.Separator();
         ImGui.TextColored(ImGuiColors.HealerGreen, "插件主页：");
         ImGui.TextColored(ImGuiColors.TankBlue, "https://github.com/decorwdyun/FuckDalamudCN");

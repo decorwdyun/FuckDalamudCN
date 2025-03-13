@@ -1,8 +1,8 @@
 name: FuckDalamudCN
 author: decorwdyun
 description: |-
-  解除国服 Dalamud 中不合理的插件封锁、数据上传，额外提供 Github 第三方库加载和下载加速服务（请在配置界面手动开启）
-punchline: 解除国服 Dalamud 中不合理的插件封锁、数据上传，额外提供 Github 第三方库加载和下载加速服务（请在配置界面手动开启）
+  解除国服 Dalamud 中不合理的插件封锁、隐私数据上传，还额外提供卫月第三方库（Github Only）加载和下载加速服务（请在配置界面手动开启）
+punchline: 解除国服 Dalamud 中不合理的插件封锁、隐私数据上传，还额外提供卫月第三方库（Github Only）加载和下载加速服务（请在配置界面手动开启）
 tags:
   - unban
   - FuckDalamudCN

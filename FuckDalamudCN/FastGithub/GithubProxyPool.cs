@@ -10,8 +10,8 @@ namespace FuckDalamudCN.FastGithub
 
         private readonly List<string> _proxies = new()
         {
-            "https://gh-proxy.com/https://github.com/decorwdyun/DalamudPlugins/blob/7a52313df6c4ae0ae4ea049e92627b4ed61e6421/FuckDalamudCN/icon.png",
-            "https://ghfast.top/https://github.com/decorwdyun/DalamudPlugins/blob/7a52313df6c4ae0ae4ea049e92627b4ed61e6421/FuckDalamudCN/icon.png",
+            "https://gh-proxy.com/https://github.com/decorwdyun/DalamudPlugins/blob/7a52313df6c4ae0ae4ea049e92627b4ed61e6421/FuckDalamudCN/icon.png?raw=true",
+            "https://ghfast.top/https://github.com/decorwdyun/DalamudPlugins/blob/7a52313df6c4ae0ae4ea049e92627b4ed61e6421/FuckDalamudCN/icon.png?raw=true",
         };
         
         private const long ExpectedContentLength = 24009;

@@ -29,6 +29,7 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
         _githubProxyPool = githubProxyPool;
         InnerHandler = new SocketsHttpHandler
         {
+            ConnectTimeout = TimeSpan.FromSeconds(10),
             Proxy = dynamicHttpWindowsProxy,
             AutomaticDecompression = DecompressionMethods.All,
             ConnectCallback = happyEyeballsCallback.ConnectCallback,

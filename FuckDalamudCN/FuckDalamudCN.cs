@@ -21,7 +21,8 @@ public sealed class FuckDalamudCN: IDalamudPlugin
         IPluginLog pluginLog,
         IFramework framework,
         INotificationManager notificationManager,
-        IChatGui chatGui
+        IChatGui chatGui,
+        ICommandManager commandManager
     )
     {
         _pluginInterface = pluginInterface;
@@ -53,9 +54,11 @@ public sealed class FuckDalamudCN: IDalamudPlugin
             serviceCollection.AddSingleton(framework);
             serviceCollection.AddSingleton(clientState);
             serviceCollection.AddSingleton(chatGui);
+            serviceCollection.AddSingleton(commandManager);
             serviceCollection.AddSingleton((Configuration?)pluginInterface.GetPluginConfig() ?? new Configuration());
             serviceCollection.AddSingleton(new WindowSystem(nameof(FuckDalamudCN)));
             serviceCollection.AddSingleton<DalamudInitializer>();
+            serviceCollection.AddSingleton<CommandHandler>();
             
             serviceCollection.AddSingleton<DynamicHttpWindowsProxy.DynamicHttpWindowsProxy>();
             serviceCollection.AddSingleton<HappyEyeballsCallback>();
@@ -69,6 +72,7 @@ public sealed class FuckDalamudCN: IDalamudPlugin
             serviceCollection.AddSingleton<ConfigWindow>();
             
             _serviceProvider = serviceCollection.BuildServiceProvider();
+            _serviceProvider.GetRequiredService<CommandHandler>();
             try
             {
                 _serviceProvider.GetRequiredService<DynamicHttpWindowsProxy.DynamicHttpWindowsProxy>().Start();
