@@ -13,8 +13,10 @@ internal sealed class UnbanController : IDisposable
     private readonly IFramework _framework;
     
     private readonly object _pluginManager = null!;
-    private uint _tickCount = 0;
+    private uint _tickCount;
     private DateTime _nextCheckTime = DateTime.MinValue;
+    
+    public List<(string pluginName, string note, DateTime time)> UnbannedRecord { get; } = [];
     
     public UnbanController(
         IDalamudPluginInterface pluginInterface,
@@ -129,6 +131,11 @@ internal sealed class UnbanController : IDisposable
                             ?.SetValue(installedPlugin, 0);
                         await (Task)pluginType.GetMethod("LoadAsync")?.Invoke(installedPlugin, [3, false])!;
                         _logger.LogInformation($"已尝试加载插件: {pluginName}({pluginType.Name})");
+                        UnbannedRecord.Add((pluginName, "插件已解禁并自动启用。", DateTime.Now));
+                    }
+                    else
+                    {
+                        UnbannedRecord.Add((pluginName, "插件已解禁但不会自动加载（用户手动禁用）", DateTime.Now));
                     }
                 }
             }
@@ -136,6 +143,7 @@ internal sealed class UnbanController : IDisposable
         }
         catch (Exception e)
         {
+            if (UnbannedRecord.Count < 100) UnbannedRecord.Add(("Unknown Plugin", "严重错误：" + e, DateTime.Now));
             _logger.LogError(e, "解除 Dalamud CN 插件封锁时发生错误。");
         }
     }
@@ -144,5 +152,8 @@ internal sealed class UnbanController : IDisposable
     public void Dispose()
     {
         _framework.Update -= Tick;
+        UnbannedRecord.Clear();
+        _nextCheckTime = DateTime.MinValue;
+        _tickCount = 0;
     }
 }

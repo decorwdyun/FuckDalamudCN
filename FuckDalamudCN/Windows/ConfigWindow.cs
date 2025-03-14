@@ -19,6 +19,7 @@ internal class ConfigWindow: Window
     private readonly Configuration _configuration;
     private readonly GithubProxyPool _githubProxyPool;
     private readonly FastGithubController _fastGithubController;
+    private readonly UnbanController _unbanController;
 
     internal readonly StyleModel? Style = StyleModel.Deserialize(
         "DS1H4sIAAAAAAAACqVYy27bRhT9FYOrBDAMksN5UDs/2ngRF0bkIml3lDSWGNEiS1GOEyNAkF233XcVoJsC7bYfVAP5jM7MnRcpBSjJbJQZzzlz3/cOH4MsmEQn4XEwCyaPwRuxCOXqp2BCT8KPx8E8mCC5sQgm6g9cHzOnwhOExbFbATwOlnp/pTlzDc5meuOtRmONTtQda32s0PA7fYq0Tm06u0Ttlno30bux2q32pJS7vwSTVG7U+ner7230eqcB93r/nf590NK/t6xYs0rVPxy8K8v0NtLbCMxZCiUfgxv+0FgYC1EaR0SDmVxgehz8LFcpJozEVNz3WgkhKCT2It9ms4IvLAfBYcrCRHMQyhIUJZpDLRBNPI7X+WZRvjtbOtGJ+keNBnapGKIQMxYjDBRCKkRoyBgVTOervFgMJpKyXJfVrvIZBHtEo9QwpEIxbJWJMMNpiGJPmbOyXvDa4uMooiShkca7pcIj36DCgWGUkpBZlukqE4YZoc33dXbHPW0i6U3CDIO8TfpDM8RAyIw0iRQWO5rL8p7Xnptjqq404Re3/IxwnCYRWCY8SRzL6bzJ713iokQFiyFxFlEsiYk/xUL0hTLu8qZoaRamNEnC2GgGS+snGrGQyKh2gQsEHWkETiWAo9FLTRPjJJWXdGnOy6LIqq1nnN5MV3yzO8vqYd4Cium8FnLMWiT9g8ayvKhlqRwtjKQZHDoHuAYHEHCdr/h8fZXV62+UK5bKLDQZSmSxiv3AmRa5SM2WbfpqYxlGqnK2a5rSdCJxIFZ3mZCz5xUaewEH+QjormcSiFNDglv1ikD5MoUXxHVcHXWwPBuaVkIMB1yA9kkueeaXzl7FCkF+IUszolgxSzLSP1NeZXXWlIN06lCMzSDDM1KlV3ybf+Av6rwarpPjGKmUIxqp1c2wQidCRZdP4BgRcypVcAo8I1pki+fHzW0537W6Uh/lUtWkOlQjLX1Rztf5Znld8/ucu9EmkcVJSKNpKEyhdu5s1S5qpyRN9t1d1bz3Wp6pXabZ+iFzXZTNy3zDt676m9nM1fzoEKDr3NT4D+ok2MFITCAucIfoMt825VLMQY6lVSOZNF5irEfM6jDHnkDt0V2byZZ/IWzkZ6FwasGhzLVmDhsaB6ynMHo2bepy43DIWFH+R8f3YeDLfLlyzw3ZB8BZNgj3cK9GPA7aJKeFuVk9oQSB+hVI9QsIop81U17wecP990SfMEVwNJZxWmfLi7qsbrJ6yZvevhcnbcj/kN1fCgMWLSNiMaKIq63jpQlMmXFRYY0qOODJJXKnS/Ztu9AO8iK/8yzDjBb6WlNDpPpX5SIrAPf/QOIRL5/Y4rkQTILzrKmq3Xyeb46eTfO7quBHp4u3u21zhJ4fPfv62+enP/7695/fn379++unT09f/jy6yh+eB+IbATxus8EJO+szyETm+0TfMQqAi/5DHABdJWYExamt7EIbSkxKpYm4zn9x3w597i+HVpvVgBwCZO7c0DJpO18YtFMPZ77uSE7Z86Q1wH8SZl1BVRx4uPXA2lxYnE1AUNB2SFDQtlyLdN3AYEzy+j7bDHyvlEPLhJvwKMhsP+iY+wG5bwrxaWtYlLhB2VoJcK0xJYUa78vq2nkfpwmgaKHiLx//A3sPPNh6FAAA"
@@ -31,16 +32,17 @@ internal class ConfigWindow: Window
         IDalamudPluginInterface pluginInterface,
         Configuration configuration,
         GithubProxyPool githubProxyPool,
-        FastGithubController fastGithubController
+        FastGithubController fastGithubController,
+        UnbanController unbanController
     ) : base("FuckDalamudCN - 配置")
     {
         _pluginInterface = pluginInterface;
         _configuration = configuration;
         _githubProxyPool = githubProxyPool;
         _fastGithubController = fastGithubController;
-        Flags = ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar |
-                ImGuiWindowFlags.NoScrollWithMouse;
-        Size = new Vector2(400, 300);
+        _unbanController = unbanController;
+        Flags = ImGuiWindowFlags.AlwaysAutoResize;
+        // Size = new Vector2(500, 300);
         SizeCondition = ImGuiCond.Always;
     }
 
@@ -77,7 +79,7 @@ internal class ConfigWindow: Window
             return;
         var alwaysTrue = true;
         using (ImRaii.Disabled(alwaysTrue)){
-            ImGui.Checkbox("解除插件封锁（Unban）", ref alwaysTrue);
+            ImGui.Checkbox($"解除插件封锁（Unban）###{_unbanController.UnbannedRecord.Count}", ref alwaysTrue);
         }
         ImGuiComponents.HelpMarker($"某插件搜不到、插件被自动禁用、提示兼容性问题？{Environment.NewLine}"+
                                    $"这都有可能是因为 OtterCorp Dalamud 的插件封锁政策。{Environment.NewLine}"
@@ -88,6 +90,26 @@ internal class ConfigWindow: Window
         ImGuiComponents.HelpMarker($"OtterCorp Dalamud 会在每次登录时都收集大量数据上传到服务器{Environment.NewLine}" +
                                    $"包括但不限于机器码、用户账号ID、角色ID、已安装的插件列表，是否使用外置 exe 进行 Unban 等等{Environment.NewLine}" +
                                    "我们将帮你完全阻止这个数据的上传");
+        if (_unbanController.UnbannedRecord.Count > 0)
+        {
+            ImGui.TextColored(ImGuiColors.HealerGreen, "Unban 记录：");
+            if (_unbanController.UnbannedRecord.Count < 5)
+            {
+                foreach (var (pluginName, note, time) in _unbanController.UnbannedRecord)
+                {
+                    ImGui.Text($"{time:yyyy-MM-dd HH:mm:ss} {pluginName} {note}");
+                }
+            }
+            else
+            {
+                ImGui.TextColored(ImGuiColors.DalamudRed, "严重错误，请联系作者");
+                foreach (var (pluginName, note, time) in _unbanController.UnbannedRecord.TakeLast(100))
+                {
+                    ImGui.TextColored(ImGuiColors.DalamudRed,$"{time:yyyy-MM-dd HH:mm:ss} {pluginName} {note}");
+                }
+           
+            }
+        }
     }
 
     private void DrawFastGithubTab()
