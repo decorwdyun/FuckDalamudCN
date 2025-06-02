@@ -11,5 +11,5 @@ tags:
   - Github
   - 加速
 icon_url: https://raw.githubusercontent.com/decorwdyun/DalamudPlugins/main/FuckDalamudCN/icon.png
-load_priority: 0
+load_priority: 1001
 load_required_state: 0

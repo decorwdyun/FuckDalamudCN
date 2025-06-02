@@ -13,7 +13,7 @@ internal sealed class MachineCodeGenerator
     
     public string MachineCode { get; }
 
-    private string GenerateRandomHexString(int length)
+    private static string GenerateRandomHexString(int length)
     {
         var random = new Random();
         var buffer = new byte[length / 2];

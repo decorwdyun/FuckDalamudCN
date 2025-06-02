@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using Microsoft.Extensions.Logging;
+using Polly;
 
 namespace FuckDalamudCN.FastGithub;
 
@@ -10,10 +11,11 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
     private readonly Configuration _configuration;
     private readonly GithubProxyPool _githubProxyPool;
 
-    private int _errorCount = 0;
+    private int _errorCount;
     private const int MaxErrorCount = 10;
-
-    private HappyEyeballsCallback SharedHappyEyeballsCallback { get; set; }
+    
+    private static string OfficialRepoPattern => "https://aonyx.ffxiv.wang/Plugin/PluginMaster";
+    
     public HttpDelegatingHandler(
         ILogger logger, 
         string dalamudVersion,
@@ -44,33 +46,72 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
         {
             request.Headers.Add("X-Machine-Token", MachineCodeGenerator.Instance.MachineCode);
         }
+        var originalUri = request.RequestUri;
 
-        ReplaceRequestUri(request);
-        
-        var response = await base.SendAsync(request, cancellationToken);
-        
-        if (!response.IsSuccessStatusCode)
-        {
-            _errorCount++;
+        var retryPolicy = Policy
+            .Handle<Exception>()
+            .OrResult<HttpResponseMessage>(r => !r.IsSuccessStatusCode)
+            .WaitAndRetryAsync(
+                retryCount: 5,
+                sleepDurationProvider: retryAttempt => TimeSpan.FromMilliseconds(500 * retryAttempt),
+                onRetry: (exception, timeSpan, retryCount, context) =>
+                {
+                    _logger.LogWarning("Retry {RetryCount} for request {RequestUri} after {TimeSpan}",
+                        retryCount, request.RequestUri, timeSpan);
+                    ReplaceRequestUri(request, originalUri);
+                });
 
-            if (_errorCount >= MaxErrorCount)
-            {
-                _ = _githubProxyPool.CheckProxies();
-            }
-        }
-        else
-        {
-            _errorCount = 0;
-            if (_configuration.EnableFastGithub)
-            {
-                _githubProxyPool.IncreaseSuccessCount();
-            }
-        }
+                try
+                {
+                    ReplaceRequestUri(request, originalUri);
+                    var response = await retryPolicy.ExecuteAsync(() => base.SendAsync(request, cancellationToken));
         
-        return response;
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        _errorCount++;
+
+                        if (_errorCount >= MaxErrorCount)
+                        {
+                            _ = _githubProxyPool.CheckProxies();
+                        }
+                    }
+                    else
+                    {
+                        _errorCount = 0;
+                        if (_configuration.EnableFastGithub)
+                        {
+                            _githubProxyPool.IncreaseSuccessCount();
+                        }
+                    }
+    
+                    return response;
+                }
+                catch (Exception e)
+                {
+                    _errorCount++;
+
+                    if (_errorCount >= MaxErrorCount)
+                    {
+                        _ = _githubProxyPool.CheckProxies();
+                    }
+    
+                    if (request.RequestUri != null &&
+                        request.RequestUri.ToString().StartsWith(OfficialRepoPattern))
+                    {
+                        var fakeResponse = new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent("[]", System.Text.Encoding.UTF8, "application/json"),
+                            RequestMessage = request
+                        };
+                        _logger.LogWarning(e, "Failed to send HTTP request to official repo, returning fake response: {RequestUri}", request.RequestUri);
+                        return fakeResponse;
+                    }
+                    _logger.LogError(e, "Failed to send HTTP request: {RequestUri}", request.RequestUri);
+                    throw;
+                }
     }
 
-    private void ReplaceRequestUri(HttpRequestMessage request)
+    private void ReplaceRequestUri(HttpRequestMessage request, Uri? originalUri)
     {
         if (!_configuration.EnableFastGithub) return;
         var patterns = new[]
@@ -79,16 +120,16 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
             "https://github.com",
             "https://gist.github.com",
         };
-        
+
         foreach (var pattern in patterns)
         {
-            if (request.RequestUri != null && request.RequestUri.ToString().StartsWith(pattern))
+            if (originalUri != null && originalUri.ToString().StartsWith(pattern))
             {
                 var fastestDomain = _githubProxyPool.GetFastestDomain();
                 if (fastestDomain != null)
                 {
-                    var replacedUri = new Uri(fastestDomain + request.RequestUri);
-                    // _logger.LogDebug($"Replacing {request.RequestUri} to {replacedUri}");
+                    var replacedUri = new Uri(fastestDomain + originalUri);
+                    _logger.LogDebug($"Replacing {originalUri} to {replacedUri}");
                     request.RequestUri = replacedUri;
                 }
             }

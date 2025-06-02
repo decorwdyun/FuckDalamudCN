@@ -67,7 +67,6 @@ public sealed class FuckDalamudCN: IDalamudPlugin
             serviceCollection.AddSingleton<UnbanController>();
             serviceCollection.AddSingleton<DoNotTrackController>();
             serviceCollection.AddSingleton<FastGithubController>();
-            serviceCollection.AddSingleton<AnnouncementController>();
             
             serviceCollection.AddSingleton<ConfigWindow>();
             
@@ -79,9 +78,7 @@ public sealed class FuckDalamudCN: IDalamudPlugin
                 _serviceProvider.GetRequiredService<UnbanController>().Start();
                 _serviceProvider.GetRequiredService<DoNotTrackController>().Enable();
                 _serviceProvider.GetRequiredService<FastGithubController>();
-                _serviceProvider.GetRequiredService<AnnouncementController>();
                 _serviceProvider.GetRequiredService<DalamudInitializer>();
-                
             }
             catch (Exception e)
             {
@@ -90,7 +87,7 @@ public sealed class FuckDalamudCN: IDalamudPlugin
         }
         catch (Exception e)
         {
-            pluginLog.Error(e, "Failed to initialize plugin.");
+            pluginLog.Error(e, "Failed to initialize plugin...");
             throw;
         }
     }

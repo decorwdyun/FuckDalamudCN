@@ -1,124 +1,149 @@
 ﻿using System.Collections.Concurrent;
+using FuckDalamudCN;
 using Microsoft.Extensions.Logging;
 
 
-namespace FuckDalamudCN.FastGithub
+namespace FuckDalamudCN.FastGithub;
+
+internal sealed class GithubProxyPool : IDisposable
 {
-    public class GithubProxyPool : IDisposable
+    private readonly ILogger<GithubProxyPool> _logger;
+    private readonly Configuration _configuration;
+
+    private readonly List<string> _proxies =
+    [
+        "https://gh-proxy.com/https://github.com/decorwdyun/DalamudPlugins/blob/main/FuckDalamudCN/icon.png?raw=true",
+        "https://ghfast.top/https://github.com/decorwdyun/DalamudPlugins/blob/main/FuckDalamudCN/icon.png?raw=true",
+        "https://fastgit.cc/https://raw.githubusercontent.com/decorwdyun/DalamudPlugins/main/FuckDalamudCN/icon.png",
+        "https://github.moeyy.xyz/https://raw.githubusercontent.com/decorwdyun/DalamudPlugins/main/FuckDalamudCN/icon.png",
+        "https://github.fxxk.dedyn.io/https://raw.githubusercontent.com/decorwdyun/DalamudPlugins/main/FuckDalamudCN/icon.png",
+        "https://gh-proxy.ygxz.in/https://raw.githubusercontent.com/decorwdyun/DalamudPlugins/main/FuckDalamudCN/icon.png"
+    ];
+
+    private const string ExpectedSha256 = "2fc7fa19f3a3b1f2ce526611dac9b2668170d5ee367d60d42c5db0115ec0f679";
+
+
+    private readonly HttpClient _httpClient;
+    public readonly ConcurrentDictionary<string, long> ProxyResponseTimes;
+    private readonly Timer _timer;
+
+    public int AcceleratedCount { get; private set; }
+
+    public GithubProxyPool(
+        ILogger<GithubProxyPool> logger,
+        Configuration configuration,
+        DynamicHttpWindowsProxy.DynamicHttpWindowsProxy dynamicHttpWindowsProxy
+    )
     {
-        private readonly ILogger<GithubProxyPool> _logger;
-
-        private readonly List<string> _proxies = new()
+        _logger = logger;
+        _configuration = configuration;
+        _httpClient = new HttpClient(new HttpClientHandler()
         {
-            "https://gh-proxy.com/https://github.com/decorwdyun/DalamudPlugins/blob/7a52313df6c4ae0ae4ea049e92627b4ed61e6421/FuckDalamudCN/icon.png?raw=true",
-            "https://ghfast.top/https://github.com/decorwdyun/DalamudPlugins/blob/7a52313df6c4ae0ae4ea049e92627b4ed61e6421/FuckDalamudCN/icon.png?raw=true",
+            Proxy = dynamicHttpWindowsProxy
+        })
+        {
+            Timeout = TimeSpan.FromSeconds(10)
         };
-        
-        private const long ExpectedContentLength = 24009;
-        
-        private readonly HttpClient _httpClient;
-        public readonly ConcurrentDictionary<string, long> ProxyResponseTimes;
-        private readonly Timer _timer;
+        ProxyResponseTimes = new ConcurrentDictionary<string, long>();
 
-        private int _handledRequestCount;
-    
-        public int AcceleratedCount => _handledRequestCount;
-        
-        public GithubProxyPool(
-            ILogger<GithubProxyPool> logger,
-            DynamicHttpWindowsProxy.DynamicHttpWindowsProxy dynamicHttpWindowsProxy
-            )
+        foreach (var proxy in _proxies)
         {
-            _logger = logger;
-            _httpClient = new HttpClient(new HttpClientHandler()
-            {
-                Proxy = dynamicHttpWindowsProxy
-            })
-            {
-                Timeout = TimeSpan.FromSeconds(10)
-            };
-            ProxyResponseTimes = new ConcurrentDictionary<string, long>();
-            
-            foreach (var proxy in _proxies)
-            {
-                ProxyResponseTimes[GetPrefix(proxy)] = 9999999;
-            }
-            
-            _timer = new Timer(state => CheckProxies().Wait(), null, TimeSpan.Zero, TimeSpan.FromSeconds(60 * 3));
+            ProxyResponseTimes[GetPrefix(proxy)] = 9999999;
         }
-        
-        public Task CheckProxies()
+
+        _timer = new Timer(state => CheckProxies().Wait(), null, TimeSpan.Zero, TimeSpan.FromSeconds(60 * 3));
+    }
+
+    public Task CheckProxies()
+    {
+        if (!_configuration.EnableFastGithub) return Task.CompletedTask;
+
+        var tasks = _proxies.Select(proxy => CheckDomainWithRetry(proxy, retries: 2)).ToList();
+        return Task.WhenAll(tasks);
+    }
+
+    private async Task CheckDomainWithRetry(string url, int retries)
+    {
+        for (var i = 0; i < retries; i++)
         {
-            var tasks = _proxies.Select(proxy => CheckDomainWithRetry(proxy, retries: 2)).ToList();
-            return Task.WhenAll(tasks);
-        }
-        
-        private async Task CheckDomainWithRetry(string url, int retries)
-        {
-            for (var i = 0; i < retries; i++)
+            var uri = new Uri(url);
+            var prefix = GetPrefix(url);
+            try
             {
-                var uri = new Uri(url);
-                var prefix = GetPrefix(url);
-                try
+                var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
+                var response = await _httpClient.GetAsync(uri);
+                stopwatch.Stop();
+
+                if (response is { IsSuccessStatusCode: true, Content.Headers.ContentLength: not null })
                 {
-                    var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-
-                    var response = await _httpClient.GetAsync(uri);
-                    stopwatch.Stop();
-
-                    if (response is { IsSuccessStatusCode: true, Content.Headers.ContentLength: not null })
-                    {
-                        var contentLength = response.Content.Headers.ContentLength.Value;
-                        if (contentLength != ExpectedContentLength)
-                        {
-                            ProxyResponseTimes[prefix] = long.MaxValue;
-                        }
-                        else
-                        {
-                            ProxyResponseTimes[prefix] = stopwatch.ElapsedMilliseconds;
-                        }
-                    }
-                    else
+                    var contentBytes = await response.Content.ReadAsByteArrayAsync();
+                    var sha256 = System.Security.Cryptography.SHA256.HashData(contentBytes);
+                    var hashString = BitConverter.ToString(sha256).Replace("-", "").ToLowerInvariant();
+                   
+                    if (hashString != ExpectedSha256)
                     {
                         ProxyResponseTimes[prefix] = long.MaxValue;
                     }
+                    else
+                    {
+                        ProxyResponseTimes[prefix] = stopwatch.ElapsedMilliseconds;
+                    }
                 }
-                catch
+                else
                 {
                     ProxyResponseTimes[prefix] = long.MaxValue;
                 }
             }
-        }
-        
-        public string? GetFastestDomain()
-        {
-            var fastestDomain = ProxyResponseTimes.OrderBy(kvp => kvp.Value).FirstOrDefault();
-            if (fastestDomain.Value > 300000)
+            catch
             {
-                return null;
+                ProxyResponseTimes[prefix] = long.MaxValue;
             }
-            return fastestDomain.Key;
         }
-        
-        private string GetPrefix(string url)
+    }
+
+    public string? GetFastestDomain()
+    {
+        var ordered = ProxyResponseTimes
+            .Where(kvp => kvp.Value < 300000)
+            .OrderBy(kvp => kvp.Value)
+            .ToList();
+
+        if (ordered.Count == 0)
+            return null;
+
+        var minLatency = ordered[0].Value;
+        var candidates = ordered
+            .Where(kvp => kvp.Value <= minLatency + 120)
+            .Select(kvp => kvp.Key)
+            .ToList();
+
+        if (candidates.Count == 0)
+            return null;
+
+        var random = new Random();
+        return candidates[random.Next(candidates.Count)];
+    }
+
+    private string GetPrefix(string url)
+    {
+        var uri = new Uri(url);
+        if (uri.Port != 80 && uri.Port != 443)
         {
-            var uri = new Uri(url);
-            if (uri.Port != 80 && uri.Port != 443)
-            {
-                return $"{uri.Scheme}://{uri.Host}:{uri.Port}/";
-            }
-            return $"{uri.Scheme}://{uri.Host}/";
+            return $"{uri.Scheme}://{uri.Host}:{uri.Port}/";
         }
-        
-        public void IncreaseSuccessCount()
-        {
-            _handledRequestCount++;
-        }
-        
-        public void Dispose()
-        {
-            _timer.Dispose();
-            _httpClient.Dispose();
-        }
+
+        return $"{uri.Scheme}://{uri.Host}/";
+    }
+
+    public void IncreaseSuccessCount()
+    {
+        AcceleratedCount++;
+    }
+
+    public void Dispose()
+    {
+        _timer.Dispose();
+        _httpClient.Dispose();
     }
 }

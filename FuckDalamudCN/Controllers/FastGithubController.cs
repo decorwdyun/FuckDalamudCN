@@ -57,6 +57,7 @@ internal sealed class FastGithubController : IDisposable
 
     public void Enable()
     {
+        _proxyPool.CheckProxies();
         var httpClient = _happyHttpClient.GetType()
             .GetField("<SharedHttpClient>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance);
         if (httpClient is null)

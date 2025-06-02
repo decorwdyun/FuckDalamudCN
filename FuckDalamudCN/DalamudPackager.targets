@@ -1,5 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project>
+    <Target Name="PrintDALAMUD_HOME" BeforeTargets="Build">
+        <Message Text="DALAMUD_HOME is $(DALAMUD_HOME)" Importance="High" />
+    </Target>
     <Target Name="PackagePluginDebug" AfterTargets="Build" Condition="'$(Configuration)' == 'Debug'">
         <DalamudPackager
                 ProjectDir="$(ProjectDir)"

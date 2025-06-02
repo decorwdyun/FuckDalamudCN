@@ -1,17 +1,17 @@
-﻿<Project Sdk="Dalamud.NET.Sdk/11.0.0">
+﻿<Project Sdk="Dalamud.NET.Sdk/11.2.0">
 
     <PropertyGroup>
         <TargetFramework>net8.0-windows</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <Platforms>x64</Platforms>
-        <Version>1.0.0.5</Version>
+        <Version>1.0.0.6</Version>
     </PropertyGroup>
 
     <ItemGroup>
       <PackageReference Include="Dalamud.Extensions.MicrosoftLogging" Version="4.0.1" />
-      <PackageReference Include="DnsClient" Version="1.8.0" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.2" />
+      <PackageReference Include="Polly" Version="8.5.2" />
     </ItemGroup>
 
     <ItemGroup>
