@@ -12,17 +12,14 @@ internal sealed class GithubProxyPool : IDisposable
 
     private readonly List<string> _proxies =
     [
-        "https://gh-proxy.com/https://github.com/decorwdyun/DalamudPlugins/blob/main/FuckDalamudCN/icon.png?raw=true",
-        "https://ghfast.top/https://github.com/decorwdyun/DalamudPlugins/blob/main/FuckDalamudCN/icon.png?raw=true",
+        "https://gh-proxy.com/https://github.com/decorwdyun/DalamudPlugins/blob/main/FuckDalamudCN/icon.png",
+        "https://ghfast.top/https://github.com/decorwdyun/DalamudPlugins/blob/main/FuckDalamudCN/icon.png",
         "https://github.moeyy.xyz/https://raw.githubusercontent.com/decorwdyun/DalamudPlugins/main/FuckDalamudCN/icon.png",
-        "https://github.fxxk.dedyn.io/https://raw.githubusercontent.com/decorwdyun/DalamudPlugins/main/FuckDalamudCN/icon.png",
-        "https://gh-proxy.ygxz.in/https://raw.githubusercontent.com/decorwdyun/DalamudPlugins/main/FuckDalamudCN/icon.png",
         "https://slink.ltd/https://raw.githubusercontent.com/decorwdyun/DalamudPlugins/main/FuckDalamudCN/icon.png",
         "https://proxy.yaoyaoling.net/https://raw.githubusercontent.com/decorwdyun/DalamudPlugins/main/FuckDalamudCN/icon.png"
     ];
 
     private const string ExpectedSha256 = "2fc7fa19f3a3b1f2ce526611dac9b2668170d5ee367d60d42c5db0115ec0f679";
-
 
     private readonly HttpClient _httpClient;
     public readonly ConcurrentDictionary<string, long> ProxyResponseTimes;
@@ -52,7 +49,7 @@ internal sealed class GithubProxyPool : IDisposable
             ProxyResponseTimes[GetPrefix(proxy)] = 9999999;
         }
 
-        _timer = new Timer(state => CheckProxies().Wait(), null, TimeSpan.Zero, TimeSpan.FromMinutes(30));
+        _timer = new Timer(_ => CheckProxies().Wait(), null, Timeout.InfiniteTimeSpan, TimeSpan.FromMinutes(30));
     }
     public Task CheckProxies()
     {
