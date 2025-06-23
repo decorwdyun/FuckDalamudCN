@@ -21,7 +21,6 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
         string dalamudVersion,
         Configuration configuration,
         GithubProxyPool githubProxyPool,
-        DynamicHttpWindowsProxy.DynamicHttpWindowsProxy dynamicHttpWindowsProxy,
         HappyEyeballsCallback happyEyeballsCallback
     )
     {
@@ -31,8 +30,8 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
         _githubProxyPool = githubProxyPool;
         InnerHandler = new SocketsHttpHandler
         {
-            ConnectTimeout = TimeSpan.FromSeconds(10),
-            Proxy = dynamicHttpWindowsProxy,
+            UseProxy = true,
+            ConnectTimeout = TimeSpan.FromSeconds(5),
             AutomaticDecompression = DecompressionMethods.All,
             ConnectCallback = happyEyeballsCallback.ConnectCallback,
         };
@@ -55,7 +54,7 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
             .OrResult<HttpResponseMessage>(r => !r.IsSuccessStatusCode)
             .WaitAndRetryAsync(
                 retryCount: 5,
-                sleepDurationProvider: retryAttempt => TimeSpan.FromMilliseconds(500 * retryAttempt),
+                sleepDurationProvider: retryAttempt => TimeSpan.FromMilliseconds(2000),
                 onRetry: (exception, timeSpan, retryCount, context) =>
                 {
                     _logger.LogWarning("Retry {RetryCount} for request {RequestUri} after {TimeSpan}",

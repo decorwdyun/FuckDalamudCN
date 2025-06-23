@@ -14,7 +14,6 @@ internal sealed class FastGithubController : IDisposable
     private readonly IFramework _framework;
     private readonly GithubProxyPool _proxyPool;
     private readonly Configuration _configuration;
-    private readonly DynamicHttpWindowsProxy.DynamicHttpWindowsProxy _dynamicHttpWindowsProxy;
     private readonly HappyEyeballsCallback _happyEyeballsCallback;
 
     private readonly object _happyHttpClient = null!;
@@ -28,7 +27,6 @@ internal sealed class FastGithubController : IDisposable
         IFramework framework,
         GithubProxyPool proxyPool,
         Configuration configuration,
-        DynamicHttpWindowsProxy.DynamicHttpWindowsProxy dynamicHttpWindowsProxy,
         HappyEyeballsCallback happyEyeballsCallback
     )
     {
@@ -37,7 +35,6 @@ internal sealed class FastGithubController : IDisposable
         _framework = framework;
         _proxyPool = proxyPool;
         _configuration = configuration;
-        _dynamicHttpWindowsProxy = dynamicHttpWindowsProxy;
         _happyEyeballsCallback = happyEyeballsCallback;
         _dalamudAssembly = pluginInterface.GetType().Assembly;
         var dalamudService = _dalamudAssembly.GetType("Dalamud.Service`1", throwOnError: true);
@@ -71,7 +68,6 @@ internal sealed class FastGithubController : IDisposable
             _dalamudAssemblyVersion,
             _configuration,
             _proxyPool,
-            _dynamicHttpWindowsProxy,
             _happyEyeballsCallback
             ));
 

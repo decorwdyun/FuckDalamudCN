@@ -18,7 +18,6 @@ public class HappyEyeballsCallback : IDisposable
 
     private readonly AddressFamily forcedAddressFamily = AddressFamily.Unspecified;
     private readonly ILogger _logger;
-    private readonly DynamicHttpWindowsProxy.DynamicHttpWindowsProxy _dynamicHttpWindowsProxy;
     private readonly int connectionBackoff = 75;
 
     /// <summary>
@@ -27,12 +26,10 @@ public class HappyEyeballsCallback : IDisposable
     /// <param name="logger"></param>
     /// <param name="dynamicHttpWindowsProxy"></param>
     public HappyEyeballsCallback(
-        ILogger<HappyEyeballsCallback> logger,
-        DynamicHttpWindowsProxy.DynamicHttpWindowsProxy dynamicHttpWindowsProxy
+        ILogger<HappyEyeballsCallback> logger
         )
     {
         _logger = logger;
-        _dynamicHttpWindowsProxy = dynamicHttpWindowsProxy;
     }
 
     /// <inheritdoc/>
