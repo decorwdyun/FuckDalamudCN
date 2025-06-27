@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Polly;
 
@@ -10,6 +11,7 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
     private readonly string _dalamudVersion;
     private readonly Configuration _configuration;
     private readonly GithubProxyPool _githubProxyPool;
+    private readonly MemoryCache _responseCache = new(new MemoryCacheOptions());
 
     private int _errorCount;
     private const int MaxErrorCount = 10;
@@ -37,7 +39,42 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
         };
     }
 
+    private class CachedHttpResponse
+    {
+        private HttpStatusCode StatusCode { get; }
+        private IReadOnlyDictionary<string, IEnumerable<string>> Headers { get; }
+        private IReadOnlyDictionary<string, IEnumerable<string>> ContentHeaders { get; }
+        private byte[] Content { get; }
 
+        public CachedHttpResponse(HttpResponseMessage response, byte[] content)
+        {
+            StatusCode = response.StatusCode;
+            Content = content;
+            Headers = response.Headers.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+            ContentHeaders = response.Content.Headers.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+        }
+
+        public HttpResponseMessage ToHttpResponseMessage(HttpRequestMessage request)
+        {
+            var response = new HttpResponseMessage(StatusCode)
+            {
+                Content = new ByteArrayContent(Content),
+                RequestMessage = request,
+            };
+
+            foreach (var header in Headers)
+            {
+                response.Headers.TryAddWithoutValidation(header.Key, header.Value);
+            }
+            foreach (var header in ContentHeaders)
+            {
+                response.Content.Headers.TryAddWithoutValidation(header.Key, header.Value);
+            }
+
+            return response;
+        }
+    }
+    
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
         CancellationToken cancellationToken)
     {
@@ -49,6 +86,21 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
 
         var originalUri = request.RequestUri;
 
+        if (request.Method == HttpMethod.Get && originalUri != null && ShouldHandle(originalUri) && !originalUri.ToString().EndsWith("zip"))
+        {
+            if (_responseCache.TryGetValue(originalUri.ToString(), out CachedHttpResponse? cachedItem))
+            {
+                if (cachedItem != null)
+                {
+                    if (_configuration.EnableFastGithub)
+                    {
+                        _githubProxyPool.IncreaseSuccessCount();
+                    }
+                    return cachedItem.ToHttpResponseMessage(request);
+                }
+            }
+        }
+        
         var retryPolicy = Policy
             .Handle<Exception>()
             .OrResult<HttpResponseMessage>(r => !r.IsSuccessStatusCode)
@@ -83,6 +135,13 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
                 {
                     _githubProxyPool.IncreaseSuccessCount();
                 }
+                if (request.Method == HttpMethod.Get && originalUri != null && ShouldHandle(originalUri) && !originalUri.ToString().EndsWith("zip"))
+                {
+                    var contentBytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
+                    var cacheEntry = new CachedHttpResponse(response, contentBytes);
+                    _responseCache.Set(originalUri.ToString(), cacheEntry, TimeSpan.FromMinutes(10));
+                    return cacheEntry.ToHttpResponseMessage(request);
+                }
             }
 
             return response;
@@ -115,9 +174,10 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
         }
     }
 
-    private void ReplaceRequestUri(HttpRequestMessage request, Uri? originalUri)
+    private bool ShouldHandle(Uri? originalUri)
     {
-        if (!_configuration.EnableFastGithub) return;
+        if (originalUri == null) return false;
+
         var patterns = new[]
         {
             "https://raw.githubusercontent.com",
@@ -125,18 +185,20 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
             "https://gist.github.com",
         };
 
-        foreach (var pattern in patterns)
+        return patterns.Any(pattern => originalUri.ToString().StartsWith(pattern));
+    }
+    
+    private void ReplaceRequestUri(HttpRequestMessage request, Uri? originalUri)
+    {
+        if (!_configuration.EnableFastGithub) return;
+        if (!ShouldHandle(originalUri)) return;
+        
+        var fastestDomain = _githubProxyPool.GetFastestDomain();
+        if (fastestDomain != null)
         {
-            if (originalUri != null && originalUri.ToString().StartsWith(pattern))
-            {
-                var fastestDomain = _githubProxyPool.GetFastestDomain();
-                if (fastestDomain != null)
-                {
-                    var replacedUri = new Uri(fastestDomain + originalUri);
-                    // _logger.LogDebug($"Replacing {originalUri} to {replacedUri}");
-                    request.RequestUri = replacedUri;
-                }
-            }
+            var replacedUri = new Uri(fastestDomain + originalUri);
+            // _logger.LogDebug($"Replacing {originalUri} to {replacedUri}");
+            request.RequestUri = replacedUri;
         }
     }
 }

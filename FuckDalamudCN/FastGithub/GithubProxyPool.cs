@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Net;
 using FuckDalamudCN;
 using Microsoft.Extensions.Logging;
 
@@ -13,9 +14,9 @@ internal sealed class GithubProxyPool : IDisposable
     private readonly List<string> _proxies =
     [
         "https://gh-proxy.com/https://github.com/decorwdyun/DalamudPlugins/blob/main/FuckDalamudCN/icon.png?raw=true",
-        "https://ghfast.top/https://github.com/decorwdyun/DalamudPlugins/blob/main/FuckDalamudCN/icon.png?raw=true",
+        "https://ghfast.top/https://raw.githubusercontent.com/decorwdyun/DalamudPlugins/main/FuckDalamudCN/icon.png",
         "https://github.moeyy.xyz/https://github.com/decorwdyun/DalamudPlugins/blob/main/FuckDalamudCN/icon.png?raw=true",
-        "https://proxy.yaoyaoling.net/https://github.com/decorwdyun/DalamudPlugins/blob/main/FuckDalamudCN/icon.png?raw=true"
+        "https://fb.xuolu.com/https://github.com/decorwdyun/DalamudPlugins/blob/main/FuckDalamudCN/icon.png?raw=true",
     ];
 
     private const string ExpectedSha256 = "2fc7fa19f3a3b1f2ce526611dac9b2668170d5ee367d60d42c5db0115ec0f679";
@@ -75,7 +76,7 @@ internal sealed class GithubProxyPool : IDisposable
                 {
                     var contentBytes = await response.Content.ReadAsByteArrayAsync();
                     var sha256 = System.Security.Cryptography.SHA256.HashData(contentBytes);
-                    var hashString = BitConverter.ToString(sha256).Replace("-", "").ToLowerInvariant();
+                    var hashString = Convert.ToHexStringLower(sha256);
                    
                     if (hashString != ExpectedSha256)
                     {

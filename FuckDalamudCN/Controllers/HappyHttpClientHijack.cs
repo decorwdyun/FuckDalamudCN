@@ -7,10 +7,10 @@ using Microsoft.Extensions.Logging;
 
 namespace FuckDalamudCN.Controllers;
 
-internal sealed class FastGithubController : IDisposable
+internal sealed class HappyHttpClientHijack : IDisposable
 {
     private readonly IDalamudPluginInterface _pluginInterface;
-    private readonly ILogger<FastGithubController> _logger;
+    private readonly ILogger<HappyHttpClientHijack> _logger;
     private readonly IFramework _framework;
     private readonly GithubProxyPool _proxyPool;
     private readonly Configuration _configuration;
@@ -21,9 +21,9 @@ internal sealed class FastGithubController : IDisposable
     
     private string _dalamudAssemblyVersion;
     
-    public FastGithubController(
+    public HappyHttpClientHijack(
         IDalamudPluginInterface pluginInterface,
-        ILogger<FastGithubController> logger,
+        ILogger<HappyHttpClientHijack> logger,
         IFramework framework,
         GithubProxyPool proxyPool,
         Configuration configuration,
@@ -69,7 +69,8 @@ internal sealed class FastGithubController : IDisposable
             _configuration,
             _proxyPool,
             _happyEyeballsCallback
-            ));
+            )
+        );
 
         httpClient.SetValue(_happyHttpClient, newHttpClient);
         _logger.LogInformation($"Github 加速已开启, Dalamud/{_dalamudAssemblyVersion}, 随机机器码: {MachineCodeGenerator.Instance.MachineCode}");

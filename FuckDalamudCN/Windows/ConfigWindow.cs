@@ -18,7 +18,7 @@ internal class ConfigWindow: Window
     private readonly IDalamudPluginInterface _pluginInterface;
     private readonly Configuration _configuration;
     private readonly GithubProxyPool _githubProxyPool;
-    private readonly FastGithubController _fastGithubController;
+    private readonly HappyHttpClientHijack _happyHttpClientHijack;
     private readonly UnbanController _unbanController;
 
     internal readonly StyleModel? Style = StyleModel.Deserialize(
@@ -32,14 +32,14 @@ internal class ConfigWindow: Window
         IDalamudPluginInterface pluginInterface,
         Configuration configuration,
         GithubProxyPool githubProxyPool,
-        FastGithubController fastGithubController,
+        HappyHttpClientHijack happyHttpClientHijack,
         UnbanController unbanController
     ) : base("FuckDalamudCN - 配置")
     {
         _pluginInterface = pluginInterface;
         _configuration = configuration;
         _githubProxyPool = githubProxyPool;
-        _fastGithubController = fastGithubController;
+        _happyHttpClientHijack = happyHttpClientHijack;
         _unbanController = unbanController;
         Flags = ImGuiWindowFlags.AlwaysAutoResize;
         // Size = new Vector2(500, 300);
@@ -124,7 +124,7 @@ internal class ConfigWindow: Window
         {
             _configuration.EnableFastGithub = enableFastGithub;
             Save();
-            if (enableFastGithub) _fastGithubController.Enable();
+            if (enableFastGithub) _happyHttpClientHijack.Enable();
         }
 
         if (_configuration.EnableFastGithub)
