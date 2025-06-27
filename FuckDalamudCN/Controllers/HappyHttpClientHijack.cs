@@ -16,7 +16,7 @@ internal sealed class HappyHttpClientHijack : IDisposable
     private readonly Configuration _configuration;
     private readonly HappyEyeballsCallback _happyEyeballsCallback;
 
-    private readonly object _happyHttpClient = null!;
+    private readonly object? _happyHttpClient;
     private readonly Assembly _dalamudAssembly;
     
     private string _dalamudAssemblyVersion;
@@ -54,6 +54,7 @@ internal sealed class HappyHttpClientHijack : IDisposable
 
     public void Enable()
     {
+        if (_happyHttpClient == null) return;
         _proxyPool.CheckProxies();
         var httpClient = _happyHttpClient.GetType()
             .GetField("<SharedHttpClient>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance);

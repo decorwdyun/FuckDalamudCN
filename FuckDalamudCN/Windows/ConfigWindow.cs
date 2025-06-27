@@ -19,6 +19,7 @@ internal class ConfigWindow: Window
     private readonly Configuration _configuration;
     private readonly GithubProxyPool _githubProxyPool;
     private readonly HappyHttpClientHijack _happyHttpClientHijack;
+    private readonly PluginRepositoryHijack _pluginRepositoryHijack;
     private readonly UnbanController _unbanController;
 
     internal readonly StyleModel? Style = StyleModel.Deserialize(
@@ -33,6 +34,7 @@ internal class ConfigWindow: Window
         Configuration configuration,
         GithubProxyPool githubProxyPool,
         HappyHttpClientHijack happyHttpClientHijack,
+        PluginRepositoryHijack pluginRepositoryHijack,
         UnbanController unbanController
     ) : base("FuckDalamudCN - 配置")
     {
@@ -40,6 +42,7 @@ internal class ConfigWindow: Window
         _configuration = configuration;
         _githubProxyPool = githubProxyPool;
         _happyHttpClientHijack = happyHttpClientHijack;
+        _pluginRepositoryHijack = pluginRepositoryHijack;
         _unbanController = unbanController;
         Flags = ImGuiWindowFlags.AlwaysAutoResize;
         // Size = new Vector2(500, 300);
@@ -124,7 +127,11 @@ internal class ConfigWindow: Window
         {
             _configuration.EnableFastGithub = enableFastGithub;
             Save();
-            if (enableFastGithub) _happyHttpClientHijack.Enable();
+            if (enableFastGithub)
+            {
+                _happyHttpClientHijack.Enable();
+                _pluginRepositoryHijack.TryHijackPluginRepository();
+            }
         }
 
         if (_configuration.EnableFastGithub)
@@ -139,6 +146,7 @@ internal class ConfigWindow: Window
             ImGui.TextColored(ImGuiColors.HealerGreen, $"自本次启动以来共为你加速 {_githubProxyPool.AcceleratedCount} 次");
             if (ImGui.CollapsingHeader("Debug###FuckDalamudCN-Debug"))
             {
+                ImGui.Text("以下代理中任意一个可用即可");
                 ImGui.BeginDisabled(_lastCanCheckTime > DateTime.Now);
 
                 var buttonText = "立即测速";

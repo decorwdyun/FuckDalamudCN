@@ -59,12 +59,11 @@ internal sealed class PluginRepositoryHijack : IDisposable
             .GetMethod("Get")
             .Invoke(null, BindingFlags.Default, null, [], null);
 
-        if (_configuration.EnableFastGithub && _pluginManager != null) Start();
+        if (_pluginManager != null) Start();
     }
 
     private void Start()
     {
-        _logger.LogInformation("PluginRepositoryHijack Running。");
         _framework.Update += Tick;
     }
 
@@ -77,8 +76,10 @@ internal sealed class PluginRepositoryHijack : IDisposable
         }
     }
 
-    private void TryHijackPluginRepository()
+    public void TryHijackPluginRepository()
     {
+        if (!_configuration.EnableFastGithub) return;
+    
         if (_pluginManager is null)
         {
             _logger.LogError("插件管理器未找到，无法启用插件仓库加速。");
