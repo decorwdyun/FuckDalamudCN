@@ -49,16 +49,17 @@ internal sealed class GithubProxyPool : IDisposable
             ProxyResponseTimes[GetPrefix(proxy)] = 9999999;
         }
 
-        _timer = new Timer(_ => CheckProxies().Wait(), null, Timeout.InfiniteTimeSpan, TimeSpan.FromMinutes(30));
+        CheckProxies(true);
+        _timer = new Timer(_ => CheckProxies(false).Wait(), null, Timeout.InfiniteTimeSpan, TimeSpan.FromMinutes(30));
     }
-    public Task CheckProxies()
+    public Task CheckProxies(bool force = false)
     {
-        if (!_configuration.EnableFastGithub) return Task.CompletedTask;
-
+        if (!_configuration.EnableFastGithub && !force) return Task.CompletedTask;
         var tasks = _proxies.Select(proxy => CheckDomainWithRetry(proxy, retries: 2)).ToList();
         return Task.WhenAll(tasks);
     }
-
+    
+    
     private async Task CheckDomainWithRetry(string url, int retries)
     {
         for (var i = 0; i < retries; i++)

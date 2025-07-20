@@ -47,7 +47,8 @@ internal sealed class PluginRepositoryHijack : IDisposable
             dalamudAssemblyVersion,
             _configuration,
             _proxyPool,
-            _happyEyeballsCallback))
+            _happyEyeballsCallback,
+            true))
         {
             Timeout = TimeSpan.FromSeconds(10)
         };
@@ -120,7 +121,6 @@ internal sealed class PluginRepositoryHijack : IDisposable
                     if (patterns.Any(p => pluginMasterUrl!.StartsWith(p)))
                     {
                         httpClientField.SetValue(thirdRepo, _newHttpClient);
-                        _logger.LogDebug("已接管 {PluginMasterUrl}。", pluginMasterUrl);
                     };
                 }
             }

@@ -90,7 +90,7 @@ internal class ConfigWindow: Window
         using (ImRaii.Disabled(alwaysTrue)){
             ImGui.Checkbox("阻止 Dalamud CN 收集用户隐私数据", ref alwaysTrue);
         }
-        ImGuiComponents.HelpMarker($"OtterCorp Dalamud 会在每次登录时都收集大量数据上传到服务器{Environment.NewLine}" +
+        ImGuiComponents.HelpMarker($"OtterCorp Dalamud 会在每次登录时都收集数据上传到服务器{Environment.NewLine}" +
                                    $"包括但不限于机器码、用户账号ID、角色ID、已安装的插件列表，是否使用外置 exe 进行 Unban 等等{Environment.NewLine}" +
                                    "我们将帮你完全阻止这个数据的上传");
         if (_unbanController.UnbannedRecord.Count > 0)
@@ -129,7 +129,6 @@ internal class ConfigWindow: Window
             Save();
             if (enableFastGithub)
             {
-                _happyHttpClientHijack.Enable();
                 _pluginRepositoryHijack.TryHijackPluginRepository();
             }
         }
