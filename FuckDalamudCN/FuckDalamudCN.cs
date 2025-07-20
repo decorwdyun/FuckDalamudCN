@@ -64,7 +64,6 @@ public sealed class FuckDalamudCN: IDalamudPlugin
             
             serviceCollection.AddSingleton<GithubProxyPool>();
             serviceCollection.AddSingleton<UnbanController>();
-            serviceCollection.AddSingleton<DoNotTrackController>();
             serviceCollection.AddSingleton<HappyHttpClientHijack>();
             serviceCollection.AddSingleton<PluginRepositoryHijack>();
             
@@ -75,7 +74,6 @@ public sealed class FuckDalamudCN: IDalamudPlugin
             try
             {
                 _serviceProvider.GetRequiredService<UnbanController>().Start();
-                _serviceProvider.GetRequiredService<DoNotTrackController>().Enable();
                 _serviceProvider.GetRequiredService<HappyHttpClientHijack>();
                 _serviceProvider.GetRequiredService<PluginRepositoryHijack>();
                 _serviceProvider.GetRequiredService<DalamudInitializer>();

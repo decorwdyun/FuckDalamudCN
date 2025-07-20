@@ -49,13 +49,12 @@ internal sealed class HappyHttpClientHijack : IDisposable
         var assemblyVersion = util?.GetProperty("AssemblyVersion", BindingFlags.Public | BindingFlags.Static);
         _dalamudAssemblyVersion = assemblyVersion?.GetValue(util) as string ?? _dalamudAssembly.GetName().Version?.ToString() ?? "Unknown";
         
-        if (_configuration.EnableFastGithub && _happyHttpClient != null) Enable();
+        if (_happyHttpClient != null) Enable();
     }
 
     public void Enable()
     {
         if (_happyHttpClient == null) return;
-        _proxyPool.CheckProxies();
         var httpClient = _happyHttpClient.GetType()
             .GetField("<SharedHttpClient>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance);
         if (httpClient is null)
@@ -69,12 +68,13 @@ internal sealed class HappyHttpClientHijack : IDisposable
             _dalamudAssemblyVersion,
             _configuration,
             _proxyPool,
-            _happyEyeballsCallback
+            _happyEyeballsCallback,
+            false
             )
         );
 
         httpClient.SetValue(_happyHttpClient, newHttpClient);
-        _logger.LogInformation($"Github 加速已开启, Dalamud/{_dalamudAssemblyVersion}, 随机机器码: {MachineCodeGenerator.Instance.MachineCode}");
+        _logger.LogInformation($"已屏蔽数据上报, Dalamud/{_dalamudAssemblyVersion}, 随机机器码: {MachineCodeGenerator.Instance.MachineCode}");
     }
     
 
