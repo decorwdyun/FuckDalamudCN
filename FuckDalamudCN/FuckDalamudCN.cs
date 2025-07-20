@@ -3,6 +3,7 @@ using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using FuckDalamudCN.Controllers;
+using FuckDalamudCN.IPC;
 using FuckDalamudCN.Network;
 using FuckDalamudCN.Utils;
 using FuckDalamudCN.Windows;
@@ -77,6 +78,8 @@ public sealed class FuckDalamudCN : IDalamudPlugin
             serviceCollection.AddSingleton<ConfigWindow>();
 
             serviceCollection.AddSingleton<DalamudBranchDetector>();
+            serviceCollection.AddSingleton<HijackDalamudController>();
+            serviceCollection.AddSingleton<FuckDalamudCNIPC>();
 
             _serviceProvider = serviceCollection.BuildServiceProvider();
             _serviceProvider.GetRequiredService<CommandHandler>();
@@ -87,9 +90,13 @@ public sealed class FuckDalamudCN : IDalamudPlugin
                 _serviceProvider.GetRequiredService<HappyHttpClientHijack>();
                 _serviceProvider.GetRequiredService<PluginRepositoryHijack>();
                 _serviceProvider.GetRequiredService<UnbanController>().Start();
+                var delay = _pluginInterface.Reason == PluginLoadReason.Boot ? TimeSpan.FromSeconds(10) : TimeSpan.Zero;
+                _serviceProvider.GetRequiredService<HijackDalamudController>().Hijack(delay);
+                _serviceProvider.GetRequiredService<FuckDalamudCNIPC>();
             }
             catch (Exception e)
             {
+                _serviceProvider?.Dispose();
                 pluginLog.Error(e.ToString());
             }
         }

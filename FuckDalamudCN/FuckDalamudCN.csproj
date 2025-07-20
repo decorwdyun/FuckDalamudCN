@@ -19,4 +19,11 @@
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
     </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\DalamudHijack\DalamudHijack.csproj">
+          <Private>false</Private>
+          <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      </ProjectReference>
+    </ItemGroup>
 </Project>

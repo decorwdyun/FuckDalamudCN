@@ -3,6 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FuckDalamudCN", "FuckDalamudCN\FuckDalamudCN.csproj", "{EDC18C9D-5B98-4AF8-9E6C-A1E2D7D28426}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FuckDalamudCN.Translator", "FuckDalamudCN.Translator\FuckDalamudCN.Translator.csproj", "{0400030E-60FD-466E-8165-D712D20208DE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DalamudHijack", "DalamudHijack\DalamudHijack.csproj", "{DA2803BF-9E05-4843-8A6B-11BF1C9FF142}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,5 +19,9 @@ Global
 		{0400030E-60FD-466E-8165-D712D20208DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0400030E-60FD-466E-8165-D712D20208DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0400030E-60FD-466E-8165-D712D20208DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA2803BF-9E05-4843-8A6B-11BF1C9FF142}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA2803BF-9E05-4843-8A6B-11BF1C9FF142}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA2803BF-9E05-4843-8A6B-11BF1C9FF142}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA2803BF-9E05-4843-8A6B-11BF1C9FF142}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

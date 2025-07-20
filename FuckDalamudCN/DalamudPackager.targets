@@ -3,6 +3,18 @@
     <Target Name="PrintDALAMUD_HOME" BeforeTargets="Build">
         <Message Text="DALAMUD_HOME is $(DALAMUD_HOME)" Importance="High" />
     </Target>
+    <PropertyGroup>
+        <DalamudHijackOutDir>$(SolutionDir)DalamudHijack\bin\$(Configuration)\net9.0-windows\</DalamudHijackOutDir>
+    </PropertyGroup>
+    <Target Name="CopyHijackFiles" AfterTargets="Build" BeforeTargets="PackagePlugin;PackagePluginDebug">
+        <MakeDir Directories="$(OutputPath)Hijack" />
+        <ItemGroup>
+            <HijackFiles Include="$(DalamudHijackOutDir)DalamudHijack.dll" />
+            <HijackFiles Include="$(DalamudHijackOutDir)0Harmony.dll" />
+        </ItemGroup>
+        <Copy SourceFiles="@(HijackFiles)" DestinationFolder="$(OutputPath)Hijack" />
+    </Target>
+
     <Target Name="PackagePluginDebug" AfterTargets="Build" Condition="'$(Configuration)' == 'Debug'">
         <DalamudPackager
                 ProjectDir="$(ProjectDir)"
