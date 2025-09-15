@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Colors;
 using Dalamud.Interface.Components;
 using Dalamud.Interface.Style;
@@ -9,7 +10,7 @@ using Dalamud.Plugin;
 using Dalamud.Utility;
 using FuckDalamudCN.Controllers;
 using FuckDalamudCN.FastGithub;
-using ImGuiNET;
+
 
 namespace FuckDalamudCN.Windows;
 

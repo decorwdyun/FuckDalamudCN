@@ -133,10 +133,10 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
         var retryPolicy = Policy
             .Handle<Exception>()
             .OrResult<HttpResponseMessage>(r => !r.IsSuccessStatusCode)
-            .WaitAndRetryAsync(5, _ => TimeSpan.FromSeconds(2), (exception, timeSpan, retryCount, context) =>
+            .WaitAndRetryAsync(5, _ => TimeSpan.FromSeconds(1), (exception, timeSpan, retryCount, context) =>
             {
-                _logger.LogWarning("Retry {RetryCount} for request {RequestUri} after {TimeSpan}", retryCount,
-                    request.RequestUri, timeSpan);
+                _logger.LogWarning("在 {timeSpan} 后进行第 {RetryCount} 次重试，请求URL：{RequestUri}", timeSpan, retryCount,
+                    request.RequestUri);
                 ReplaceRequestUri(request, originalUri);
             });
 
@@ -166,7 +166,7 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
         }
 
         if (_enableCaching &&
-            request.Method == HttpMethod.Get 
+            request.Method == HttpMethod.Get
             && originalUri != null
             && ShouldHandle(originalUri) &&
             !originalUri.ToString().EndsWith("zip"))
@@ -196,7 +196,11 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
             return fakeResponse;
         }
 
-        _logger.LogError(e, "Failed to send HTTP request: {RequestUri}", request.RequestUri);
+        _logger.LogWarning("================================");
+        _logger.LogWarning($"如果你能看到这个错误，一般是你自己的网络问题，或者这个网址真的访问不了，你可以复制 {request.RequestUri} 试试浏览器能不能打开。");
+        _logger.LogWarning("这并不是插件报错/崩溃，不会导致任何后果，仅作为提示而已，不要截图到处问问问。");
+        _logger.LogWarning(e, "错误: 无法访问: {RequestUri}", request.RequestUri);
+        _logger.LogWarning("================================");
         throw e;
     }
 
@@ -227,7 +231,7 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
                 RequestMessage = request,
             };
         }
-        
+
         if (request.RequestUri?.ToString() == "https://aonyx.ffxiv.wang/Dalamud/ToS?tosHash=true")
         {
             return new HttpResponseMessage(HttpStatusCode.Forbidden)
@@ -235,7 +239,7 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
                 RequestMessage = request,
             };
         }
-        
+
         if (request.RequestUri?.Host == "aonyx.ffxiv.wang" &&
             request.RequestUri.ToString().EndsWith("/Dalamud/Analytics/Start"))
         {
