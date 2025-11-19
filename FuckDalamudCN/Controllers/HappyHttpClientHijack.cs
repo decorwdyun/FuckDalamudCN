@@ -9,17 +9,14 @@ namespace FuckDalamudCN.Controllers;
 
 internal sealed class HappyHttpClientHijack : IDisposable
 {
-    private readonly IDalamudPluginInterface _pluginInterface;
     private readonly ILogger<HappyHttpClientHijack> _logger;
-    private readonly IFramework _framework;
     private readonly GithubProxyPool _proxyPool;
     private readonly Configuration _configuration;
     private readonly HappyEyeballsCallback _happyEyeballsCallback;
 
     private readonly object? _happyHttpClient;
-    private readonly Assembly _dalamudAssembly;
-    
-    private string _dalamudAssemblyVersion;
+
+    private readonly string _dalamudAssemblyVersion;
     
     public HappyHttpClientHijack(
         IDalamudPluginInterface pluginInterface,
@@ -30,29 +27,27 @@ internal sealed class HappyHttpClientHijack : IDisposable
         HappyEyeballsCallback happyEyeballsCallback
     )
     {
-        _pluginInterface = pluginInterface;
         _logger = logger;
-        _framework = framework;
         _proxyPool = proxyPool;
         _configuration = configuration;
         _happyEyeballsCallback = happyEyeballsCallback;
-        _dalamudAssembly = pluginInterface.GetType().Assembly;
-        var dalamudService = _dalamudAssembly.GetType("Dalamud.Service`1", throwOnError: true);
-        ArgumentNullException.ThrowIfNull(_dalamudAssembly);
+        var dalamudAssembly = pluginInterface.GetType().Assembly;
+        var dalamudService = dalamudAssembly.GetType("Dalamud.Service`1", throwOnError: true);
+        ArgumentNullException.ThrowIfNull(dalamudAssembly);
         
         _happyHttpClient = dalamudService?
-            .MakeGenericType(_dalamudAssembly.GetType("Dalamud.Networking.Http.HappyHttpClient", throwOnError: true))
+            .MakeGenericType(dalamudAssembly.GetType("Dalamud.Networking.Http.HappyHttpClient", throwOnError: true))
             .GetMethod("Get")
             ?.Invoke(null, BindingFlags.Default, null, [], null);
 
-        var util = _dalamudAssembly.GetType("Dalamud.Utility.Util");
+        var util = dalamudAssembly.GetType("Dalamud.Utility.Util");
         var assemblyVersion = util?.GetProperty("AssemblyVersion", BindingFlags.Public | BindingFlags.Static);
-        _dalamudAssemblyVersion = assemblyVersion?.GetValue(util) as string ?? _dalamudAssembly.GetName().Version?.ToString() ?? "Unknown";
+        _dalamudAssemblyVersion = assemblyVersion?.GetValue(util) as string ?? dalamudAssembly.GetName().Version?.ToString() ?? "Unknown";
         
         if (_happyHttpClient != null) Enable();
     }
 
-    public void Enable()
+    private void Enable()
     {
         if (_happyHttpClient == null) return;
         var httpClient = _happyHttpClient.GetType()

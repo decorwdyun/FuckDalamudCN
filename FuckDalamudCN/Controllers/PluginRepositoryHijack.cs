@@ -112,16 +112,18 @@ internal sealed class PluginRepositoryHijack : IDisposable
 
                 if (!replaced)
                 {
-                    var patterns = new[]
-                    {
-                        "https://raw.githubusercontent.com",
-                        "https://github.com",
-                        "https://gist.github.com",
-                    };
-                    if (patterns.Any(p => pluginMasterUrl!.StartsWith(p)))
-                    {
-                        httpClientField.SetValue(thirdRepo, _newHttpClient);
-                    };
+                    httpClientField.SetValue(thirdRepo, _newHttpClient);
+                    // var patterns = new[]
+                    // {
+                    //     "https://raw.githubusercontent.com",
+                    //     "https://github.com",
+                    //     "https://gist.github.com",
+                    //     "https://aonyx.ffxiv.wang/Plugin/PluginMaster"
+                    // };
+                    // if (patterns.Any(p => pluginMasterUrl!.StartsWith(p)))
+                    // {
+                    //     httpClientField.SetValue(thirdRepo, _newHttpClient);
+                    // };
                 }
             }
         }

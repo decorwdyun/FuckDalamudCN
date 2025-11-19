@@ -6,20 +6,52 @@ using Microsoft.Extensions.Logging;
 
 namespace FuckDalamudCN.FastGithub;
 
+internal sealed class ProxyConfig
+{
+    public string Url { get; init; } = string.Empty;
+    public List<string> Tags { get; init; } = [];
+}
+
 internal sealed class GithubProxyPool : IDisposable
 {
     private readonly ILogger<GithubProxyPool> _logger;
     private readonly Configuration _configuration;
 
-    private readonly List<string> _proxies =
+    private readonly List<ProxyConfig> _proxies =
     [
-        "https://gh-proxy.com/https://github.com/decorwdyun/DalamudPlugins/blob/main/FuckDalamudCN/icon.png?raw=true",
-        "https://ghfast.top/https://raw.githubusercontent.com/decorwdyun/DalamudPlugins/main/FuckDalamudCN/icon.png",
-        "https://github.moeyy.xyz/https://github.com/decorwdyun/DalamudPlugins/blob/main/FuckDalamudCN/icon.png?raw=true",
-        "https://fb.xuolu.com/https://github.com/decorwdyun/DalamudPlugins/blob/main/FuckDalamudCN/icon.png?raw=true",
+        new()
+        {
+            Url =
+                "https://gh-proxy.org/https://github.com/decorwdyun/DalamudPlugins/blob/main/FuckDalamudCN/random.bin",
+            Tags = []
+        },
+        new()
+        {
+            Url =
+                "https://hk.gh-proxy.org/https://github.com/decorwdyun/DalamudPlugins/blob/main/FuckDalamudCN/random.bin",
+            Tags = []
+        },
+        new()
+        {
+            Url =
+                "https://edgeone.gh-proxy.org/https://github.com/decorwdyun/DalamudPlugins/blob/main/FuckDalamudCN/random.bin",
+            Tags = []
+        },
+        new()
+        {
+            Url =
+                "https://ghfast.top/https://raw.githubusercontent.com/decorwdyun/DalamudPlugins/main/FuckDalamudCN/random.bin",
+            Tags = []
+        },
+        new()
+        {
+            Url =
+                "https://fb.xuolu.com/https://github.com/decorwdyun/DalamudPlugins/blob/main/FuckDalamudCN/random.bin",
+            Tags = ["short-cache"]
+        },
     ];
 
-    private const string ExpectedSha256 = "2fc7fa19f3a3b1f2ce526611dac9b2668170d5ee367d60d42c5db0115ec0f679";
+    private const string ExpectedSha256 = "1a17f2c74ee9a1c22cb0f04bee90902e0e0c5b1fa739fd3957fcee4f42365c27";
 
     private readonly HttpClient _httpClient;
     public readonly ConcurrentDictionary<string, long> ProxyResponseTimes;
@@ -46,20 +78,31 @@ internal sealed class GithubProxyPool : IDisposable
 
         foreach (var proxy in _proxies)
         {
-            ProxyResponseTimes[GetPrefix(proxy)] = 9999999;
+            ProxyResponseTimes[GetPrefix(proxy.Url)] = 9999999;
         }
 
         CheckProxies(true);
-        _timer = new Timer(_ => CheckProxies(false).Wait(), null, Timeout.InfiniteTimeSpan, TimeSpan.FromMinutes(30));
+        _timer = new Timer(async void (_) =>
+        {
+            try
+            {
+                await CheckProxies(false);
+            }
+            catch (Exception e)
+            {
+                // ignored
+            }
+        }, null, Timeout.InfiniteTimeSpan, TimeSpan.FromMinutes(30));
     }
+
     public Task CheckProxies(bool force = false)
     {
         if (!_configuration.EnableFastGithub && !force) return Task.CompletedTask;
-        var tasks = _proxies.Select(proxy => CheckDomainWithRetry(proxy, retries: 2)).ToList();
+        var tasks = _proxies.Select(proxy => CheckDomainWithRetry(proxy.Url, retries: 2)).ToList();
         return Task.WhenAll(tasks);
     }
-    
-    
+
+
     private async Task CheckDomainWithRetry(string url, int retries)
     {
         for (var i = 0; i < retries; i++)
@@ -78,10 +121,11 @@ internal sealed class GithubProxyPool : IDisposable
                     var contentBytes = await response.Content.ReadAsByteArrayAsync();
                     var sha256 = System.Security.Cryptography.SHA256.HashData(contentBytes);
                     var hashString = Convert.ToHexStringLower(sha256);
-                   
+
                     if (hashString != ExpectedSha256)
                     {
                         ProxyResponseTimes[prefix] = long.MaxValue;
+                        return;
                     }
                     else
                     {
@@ -90,18 +134,36 @@ internal sealed class GithubProxyPool : IDisposable
                 }
                 else
                 {
+                    _logger.LogWarning($"{url} {response.ReasonPhrase} ({response.StatusCode})");
                     ProxyResponseTimes[prefix] = long.MaxValue;
                 }
             }
-            catch
+            catch (Exception e)
             {
                 ProxyResponseTimes[prefix] = long.MaxValue;
             }
         }
     }
 
-    public string? GetFastestDomain()
+    public string? GetFastestDomain(string requestUrl)
     {
+        if (requestUrl.EndsWith(".zip"))
+        {
+            var preferredProxies = _proxies
+                .Where(p => p.Tags.Contains("short-cache"))
+                .Select(p => GetPrefix(p.Url))
+                .Where(prefix => ProxyResponseTimes.ContainsKey(prefix) && ProxyResponseTimes[prefix] < 300)
+                .ToList();
+
+            if (preferredProxies.Count > 0)
+            {
+                var selectedProxy = preferredProxies[Random.Shared.Next(preferredProxies.Count)];
+                _logger.LogDebug("URL  {Url} is a zip file, using short-cache proxy {Proxy}", requestUrl,
+                    selectedProxy);
+                return selectedProxy;
+            }
+        }
+
         var ordered = ProxyResponseTimes
             .Where(kvp => kvp.Value < 300000)
             .OrderBy(kvp => kvp.Value)
@@ -119,8 +181,8 @@ internal sealed class GithubProxyPool : IDisposable
         if (candidates.Count == 0)
             return null;
 
-        var random = new Random();
-        return candidates[random.Next(candidates.Count)];
+        var defaultRandom = new Random();
+        return candidates[defaultRandom.Next(candidates.Count)];
     }
 
     private string GetPrefix(string url)
