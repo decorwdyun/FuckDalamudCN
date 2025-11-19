@@ -130,18 +130,18 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
     private Task<HttpResponseMessage> ExecuteRequestWithRetryAsync(HttpRequestMessage request, Uri? originalUri,
         CancellationToken cancellationToken)
     {
+        if (originalUri == null) return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound));
         var retryPolicy = Policy
             .Handle<Exception>()
             .OrResult<HttpResponseMessage>(r => !r.IsSuccessStatusCode)
-            .WaitAndRetryAsync(5, _ => TimeSpan.FromSeconds(1), (exception, timeSpan, retryCount, context) =>
+            .WaitAndRetryAsync(3, _ => TimeSpan.FromSeconds(1), (exception, timeSpan, retryCount, context) =>
             {
+                ReplaceRequestUri(request, originalUri);
                 _logger.LogWarning("在 {timeSpan} 后进行第 {RetryCount} 次重试，请求URL：{RequestUri}", timeSpan, retryCount,
                     request.RequestUri);
-                ReplaceRequestUri(request, originalUri);
             });
 
-        ReplaceRequestUri(request, originalUri);
-        if (_configuration.EnableFastGithub)
+        if (_configuration.EnableFastGithub && ReplaceRequestUri(request, originalUri))
         {
             _logger.LogDebug("FuckDalamudCN 已接管请求: {Method} {originalUri} 至 {RequestUri}", request.Method, originalUri,
                 request.RequestUri);
@@ -153,8 +153,11 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
     private async Task<HttpResponseMessage> HandleSuccessfulResponseAsync(HttpResponseMessage response,
         HttpRequestMessage request, Uri? originalUri, CancellationToken cancellationToken)
     {
-        if (!response.IsSuccessStatusCode)
+        if (!response.IsSuccessStatusCode && originalUri != null && !originalUri.ToString().EndsWith("png"))
         {
+            _logger.LogWarning("警告: 无法访问: {RequestUri} 状态码：{StatusCode}", originalUri, (int)response.StatusCode);
+            _logger.LogWarning($"如果这是你添加的错误/失效的库链，请在你的卫月仓库删除这一条");
+            _logger.LogWarning("这并不是插件报错/崩溃，应该不会导致任何后果，不要截图到处问问问。");
             HandleFailedRequest();
             return response;
         }
@@ -183,7 +186,7 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
     private HttpResponseMessage HandleRequestException(Exception e, HttpRequestMessage request)
     {
         HandleFailedRequest();
-
+        
         if (request.RequestUri != null && request.RequestUri.ToString().StartsWith(OfficialRepoPattern))
         {
             var fakeResponse = new HttpResponseMessage(HttpStatusCode.OK)
@@ -268,17 +271,18 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
         return patterns.Any(pattern => originalUri.ToString().StartsWith(pattern));
     }
 
-    private void ReplaceRequestUri(HttpRequestMessage request, Uri? originalUri)
+    private bool ReplaceRequestUri(HttpRequestMessage request, Uri originalUri)
     {
-        if (!_configuration.EnableFastGithub) return;
-        if (!ShouldHandle(originalUri)) return;
+        if (!_configuration.EnableFastGithub) return false;
+        if (!ShouldHandle(originalUri)) return false;
 
-        var fastestDomain = _githubProxyPool.GetFastestDomain();
+        var fastestDomain = _githubProxyPool.GetFastestDomain(originalUri.ToString());
         if (fastestDomain != null)
         {
             var replacedUri = new Uri(fastestDomain + originalUri);
-            // _logger.LogDebug($"Replacing {originalUri} to {replacedUri}");
             request.RequestUri = replacedUri;
+            return true;
         }
+        return false;
     }
 }
