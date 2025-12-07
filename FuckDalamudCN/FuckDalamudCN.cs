@@ -4,6 +4,7 @@ using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using FuckDalamudCN.Controllers;
 using FuckDalamudCN.FastGithub;
+using FuckDalamudCN.Utils;
 using FuckDalamudCN.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -11,11 +12,11 @@ using Microsoft.Extensions.Logging;
 namespace FuckDalamudCN;
 
 // ReSharper disable once InconsistentNaming
-public sealed class FuckDalamudCN: IDalamudPlugin
+public sealed class FuckDalamudCN : IDalamudPlugin
 {
     private readonly IDalamudPluginInterface _pluginInterface;
     private readonly ServiceProvider? _serviceProvider;
-    
+
     public FuckDalamudCN(IDalamudPluginInterface pluginInterface,
         IClientState clientState,
         IPluginLog pluginLog,
@@ -58,25 +59,31 @@ public sealed class FuckDalamudCN: IDalamudPlugin
             serviceCollection.AddSingleton((Configuration?)pluginInterface.GetPluginConfig() ?? new Configuration());
             serviceCollection.AddSingleton(new WindowSystem(nameof(FuckDalamudCN)));
             serviceCollection.AddSingleton<DalamudInitializer>();
+            serviceCollection.AddSingleton<DalamudVersionProvider>();
             serviceCollection.AddSingleton<CommandHandler>();
-            
+
             serviceCollection.AddSingleton<HappyEyeballsCallback>();
-            
+
             serviceCollection.AddSingleton<GithubProxyPool>();
             serviceCollection.AddSingleton<UnbanController>();
             serviceCollection.AddSingleton<HappyHttpClientHijack>();
+            serviceCollection.AddSingleton<DeviceUtilsHijack>();
             serviceCollection.AddSingleton<PluginRepositoryHijack>();
-            
+
+
             serviceCollection.AddSingleton<ConfigWindow>();
-            
+
+            serviceCollection.AddSingleton<DalamudBranchDetector>();
+
             _serviceProvider = serviceCollection.BuildServiceProvider();
             _serviceProvider.GetRequiredService<CommandHandler>();
             try
             {
-                _serviceProvider.GetRequiredService<UnbanController>().Start();
+                _serviceProvider.GetRequiredService<DalamudInitializer>();
+                _serviceProvider.GetRequiredService<DeviceUtilsHijack>();
                 _serviceProvider.GetRequiredService<HappyHttpClientHijack>();
                 _serviceProvider.GetRequiredService<PluginRepositoryHijack>();
-                _serviceProvider.GetRequiredService<DalamudInitializer>();
+                _serviceProvider.GetRequiredService<UnbanController>().Start();
             }
             catch (Exception e)
             {

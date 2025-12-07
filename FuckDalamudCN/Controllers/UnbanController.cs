@@ -2,38 +2,49 @@
 using System.Reflection;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
+using FuckDalamudCN.Utils;
 using Microsoft.Extensions.Logging;
 
 namespace FuckDalamudCN.Controllers;
 
 internal sealed class UnbanController : IDisposable
 {
-    private readonly IDalamudPluginInterface _dalamudPluginInterface;
-    private readonly ILogger<UnbanController> _logger;
     private readonly IFramework _framework;
-    
+    private readonly ILogger<UnbanController> _logger;
+    private readonly DalamudBranchDetector _dalamudBranchDetector;
+
     private readonly object _pluginManager = null!;
-    private uint _tickCount;
     private DateTime _nextCheckTime = DateTime.MinValue;
-    
-    public List<(string pluginName, string note, DateTime time)> UnbannedRecord { get; } = [];
-    
+    private uint _tickCount;
+
     public UnbanController(
         IDalamudPluginInterface pluginInterface,
         ILogger<UnbanController> logger,
+        DalamudBranchDetector dalamudBranchDetector,
         IFramework framework)
     {
         _logger = logger;
-        _dalamudPluginInterface = pluginInterface;
+        _dalamudBranchDetector = dalamudBranchDetector;
         _framework = framework;
-        
-        var dalamudAssembly = _dalamudPluginInterface.GetType().Assembly;
-        var dalamudService = dalamudAssembly.GetType("Dalamud.Service`1", throwOnError: true);
+
+        var dalamudAssembly = pluginInterface.GetType().Assembly;
+        var dalamudService = dalamudAssembly.GetType("Dalamud.Service`1", true);
         ArgumentNullException.ThrowIfNull(dalamudService);
-        _pluginManager = dalamudService.MakeGenericType(dalamudAssembly.GetType("Dalamud.Plugin.Internal.PluginManager", throwOnError: true))
+        _pluginManager = dalamudService
+            .MakeGenericType(dalamudAssembly.GetType("Dalamud.Plugin.Internal.PluginManager", true))
             .GetMethod("Get")
             .Invoke(null, BindingFlags.Default, null, [], null);
-        
+    }
+
+    public List<(string pluginName, string note, DateTime time)> UnbannedRecord { get; } = [];
+
+
+    public void Dispose()
+    {
+        _framework.Update -= Tick;
+        UnbannedRecord.Clear();
+        _nextCheckTime = DateTime.MinValue;
+        _tickCount = 0;
     }
 
     public void Start()
@@ -54,22 +65,25 @@ internal sealed class UnbanController : IDisposable
                 _logger.LogInformation("服务现在已停止（应该不需要了）。");
                 return;
             }
+
             ClearManifestBanned();
             LoadInstalledPlugins();
         }
     }
-    
+
     private void ClearManifestBanned()
     {
         try
         {
-            var bannedPlugins = _pluginManager.GetType().GetField("bannedPlugins", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(_pluginManager);
+            var bannedPlugins = _pluginManager.GetType()
+                .GetField("bannedPlugins", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(_pluginManager);
             var elementType = bannedPlugins?.GetType().GetElementType();
             var bannedLength = (int)(bannedPlugins?.GetType().GetProperty("Length")?.GetValue(bannedPlugins) ?? 0);
             if (elementType != null)
             {
                 var newBannedPlugins = Array.CreateInstance(elementType, bannedLength);
-                _pluginManager.GetType().GetField("bannedPlugins", BindingFlags.Instance | BindingFlags.NonPublic)?.SetValue(_pluginManager, newBannedPlugins);
+                _pluginManager.GetType().GetField("bannedPlugins", BindingFlags.Instance | BindingFlags.NonPublic)
+                    ?.SetValue(_pluginManager, newBannedPlugins);
             }
         }
         catch (Exception e)
@@ -92,7 +106,7 @@ internal sealed class UnbanController : IDisposable
 
             foreach (var installedPlugin in installedPlugins)
             {
-                Type pluginType = installedPlugin.GetType();
+                var pluginType = installedPlugin.GetType();
                 var pluginName = (string)pluginType.GetProperty("Name", BindingFlags.Public | BindingFlags.Instance)
                     ?.GetValue(installedPlugin)!;
                 var state = pluginType.GetProperty("State", BindingFlags.Public | BindingFlags.Instance)
@@ -139,21 +153,11 @@ internal sealed class UnbanController : IDisposable
                     }
                 }
             }
-
         }
         catch (Exception e)
         {
             if (UnbannedRecord.Count < 100) UnbannedRecord.Add(("Unknown Plugin", "严重错误：" + e, DateTime.Now));
             _logger.LogError(e, "解除 Dalamud CN 插件封锁时发生错误。");
         }
-    }
-    
-    
-    public void Dispose()
-    {
-        _framework.Update -= Tick;
-        UnbannedRecord.Clear();
-        _nextCheckTime = DateTime.MinValue;
-        _tickCount = 0;
     }
 }

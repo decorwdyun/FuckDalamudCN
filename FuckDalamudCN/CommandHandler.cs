@@ -4,7 +4,7 @@ using FuckDalamudCN.Windows;
 
 namespace FuckDalamudCN;
 
-internal sealed class CommandHandler: IDisposable
+internal sealed class CommandHandler : IDisposable
 {
     private readonly ICommandManager _commandManager;
     private readonly ConfigWindow _configWindow;
@@ -26,14 +26,14 @@ internal sealed class CommandHandler: IDisposable
         });
     }
 
-    private void OnCommand(string command, string arguments)
-    {
-        _configWindow.Toggle();
-    }
-    
     public void Dispose()
     {
         _commandManager.RemoveHandler("/fdcn");
         _commandManager.RemoveHandler("/fuckdalamudcn");
+    }
+
+    private void OnCommand(string command, string arguments)
+    {
+        _configWindow.Toggle();
     }
 }

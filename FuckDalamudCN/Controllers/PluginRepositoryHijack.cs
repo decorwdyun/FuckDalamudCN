@@ -3,22 +3,19 @@ using System.Reflection;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using FuckDalamudCN.FastGithub;
+using FuckDalamudCN.Utils;
 using Microsoft.Extensions.Logging;
 
 namespace FuckDalamudCN.Controllers;
 
 internal sealed class PluginRepositoryHijack : IDisposable
 {
-    private readonly IDalamudPluginInterface _pluginInterface;
-    private readonly ILogger<HappyHttpClientHijack> _logger;
-    private readonly IFramework _framework;
-    private readonly GithubProxyPool _proxyPool;
     private readonly Configuration _configuration;
-    private readonly HappyEyeballsCallback _happyEyeballsCallback;
-    private readonly Assembly _dalamudAssembly;
-    private readonly object? _pluginManager;
+    private readonly IFramework _framework;
+    private readonly ILogger<HappyHttpClientHijack> _logger;
 
     private readonly HttpClient _newHttpClient;
+    private readonly object? _pluginManager;
     private DateTime _nextCheckTime;
 
     public PluginRepositoryHijack(
@@ -27,40 +24,38 @@ internal sealed class PluginRepositoryHijack : IDisposable
         IFramework framework,
         GithubProxyPool proxyPool,
         Configuration configuration,
+        DalamudVersionProvider dalamudVersionProvider,
         HappyEyeballsCallback happyEyeballsCallback
     )
     {
-        _pluginInterface = pluginInterface;
         _logger = logger;
         _framework = framework;
-        _proxyPool = proxyPool;
         _configuration = configuration;
-        _happyEyeballsCallback = happyEyeballsCallback;
-        _dalamudAssembly = pluginInterface.GetType().Assembly;
-
-        var util = _dalamudAssembly.GetType("Dalamud.Utility.Util");
-        var assemblyVersion = util?.GetProperty("AssemblyVersion", BindingFlags.Public | BindingFlags.Static);
-        var dalamudAssemblyVersion = assemblyVersion?.GetValue(util) as string ??
-                                     _dalamudAssembly.GetName().Version?.ToString() ?? "Unknown";
+        var dalamudAssembly = pluginInterface.GetType().Assembly;
 
         _newHttpClient = new HttpClient(new HttpDelegatingHandler(_logger,
-            dalamudAssemblyVersion,
+            dalamudVersionProvider,
             _configuration,
-            _proxyPool,
-            _happyEyeballsCallback,
+            proxyPool,
+            happyEyeballsCallback,
             true))
         {
             Timeout = TimeSpan.FromSeconds(10)
         };
 
-        var dalamudService = _dalamudAssembly.GetType("Dalamud.Service`1", throwOnError: true);
-        ArgumentNullException.ThrowIfNull(_dalamudAssembly);
+        var dalamudService = dalamudAssembly.GetType("Dalamud.Service`1", true);
+        ArgumentNullException.ThrowIfNull(dalamudAssembly);
         _pluginManager = dalamudService!
-            .MakeGenericType(_dalamudAssembly!.GetType("Dalamud.Plugin.Internal.PluginManager", throwOnError: true))
+            .MakeGenericType(dalamudAssembly!.GetType("Dalamud.Plugin.Internal.PluginManager", true))
             .GetMethod("Get")
             .Invoke(null, BindingFlags.Default, null, [], null);
 
         if (_pluginManager != null) Start();
+    }
+
+    public void Dispose()
+    {
+        _framework.Update -= Tick;
     }
 
     private void Start()
@@ -80,7 +75,7 @@ internal sealed class PluginRepositoryHijack : IDisposable
     public void TryHijackPluginRepository()
     {
         if (!_configuration.EnableFastGithub) return;
-    
+
         if (_pluginManager is null)
         {
             _logger.LogError("插件管理器未找到，无法启用插件仓库加速。");
@@ -99,10 +94,11 @@ internal sealed class PluginRepositoryHijack : IDisposable
                  throw new InvalidOperationException()).Cast<object>().ToList();
             foreach (var thirdRepo in thirdRepos)
             {
-                var pluginMasterUrlProperty = thirdRepo.GetType().GetProperty("PluginMasterUrl", BindingFlags.Instance | BindingFlags.Public);
+                var pluginMasterUrlProperty = thirdRepo.GetType()
+                    .GetProperty("PluginMasterUrl", BindingFlags.Instance | BindingFlags.Public);
                 if (pluginMasterUrlProperty == null) continue;
                 var pluginMasterUrl = pluginMasterUrlProperty.GetValue(thirdRepo) as string;
-                
+
                 var httpClientField = thirdRepo.GetType()
                     .GetField("httpClient", BindingFlags.Instance | BindingFlags.NonPublic);
                 if (httpClientField == null) continue;
@@ -113,29 +109,13 @@ internal sealed class PluginRepositoryHijack : IDisposable
                 if (!replaced)
                 {
                     httpClientField.SetValue(thirdRepo, _newHttpClient);
-                    // var patterns = new[]
-                    // {
-                    //     "https://raw.githubusercontent.com",
-                    //     "https://github.com",
-                    //     "https://gist.github.com",
-                    //     "https://aonyx.ffxiv.wang/Plugin/PluginMaster"
-                    // };
-                    // if (patterns.Any(p => pluginMasterUrl!.StartsWith(p)))
-                    // {
-                    //     httpClientField.SetValue(thirdRepo, _newHttpClient);
-                    // };
+                    _logger.LogTrace($"已接管 {pluginMasterUrl}");
                 }
             }
         }
         catch (Exception e)
         {
             _logger.LogError(e, "启用插件仓库加速失败。");
-            return;
         }
-    }
-
-    public void Dispose()
-    {
-        _framework.Update -= Tick;
     }
 }

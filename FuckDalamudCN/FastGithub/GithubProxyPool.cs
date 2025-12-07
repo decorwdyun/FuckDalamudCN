@@ -1,199 +1,65 @@
 ﻿using System.Collections.Concurrent;
-using System.Net;
-using FuckDalamudCN;
+using System.Diagnostics;
+using System.Security.Cryptography;
 using Microsoft.Extensions.Logging;
-
 
 namespace FuckDalamudCN.FastGithub;
 
-internal sealed class ProxyConfig
+internal sealed class ProxyNode
 {
-    public string Url { get; init; } = string.Empty;
-    public List<string> Tags { get; init; } = [];
+    public string CheckUrl { get; init; } = string.Empty;
+    public string Prefix { get; init; } = string.Empty;
+    public HashSet<string> Tags { get; init; } = [];
 }
 
 internal sealed class GithubProxyPool : IDisposable
 {
-    private readonly ILogger<GithubProxyPool> _logger;
-    private readonly Configuration _configuration;
-
-    private readonly List<ProxyConfig> _proxies =
-    [
-        new()
-        {
-            Url =
-                "https://gh-proxy.org/https://github.com/decorwdyun/DalamudPlugins/blob/main/FuckDalamudCN/random.bin",
-            Tags = []
-        },
-        new()
-        {
-            Url =
-                "https://hk.gh-proxy.org/https://github.com/decorwdyun/DalamudPlugins/blob/main/FuckDalamudCN/random.bin",
-            Tags = []
-        },
-        new()
-        {
-            Url =
-                "https://edgeone.gh-proxy.org/https://github.com/decorwdyun/DalamudPlugins/blob/main/FuckDalamudCN/random.bin",
-            Tags = []
-        },
-        new()
-        {
-            Url =
-                "https://ghfast.top/https://raw.githubusercontent.com/decorwdyun/DalamudPlugins/main/FuckDalamudCN/random.bin",
-            Tags = []
-        },
-        new()
-        {
-            Url =
-                "https://fb.xuolu.com/https://github.com/decorwdyun/DalamudPlugins/blob/main/FuckDalamudCN/random.bin",
-            Tags = ["short-cache"]
-        },
-    ];
-
     private const string ExpectedSha256 = "1a17f2c74ee9a1c22cb0f04bee90902e0e0c5b1fa739fd3957fcee4f42365c27";
-
+    private readonly Configuration _configuration;
     private readonly HttpClient _httpClient;
-    public readonly ConcurrentDictionary<string, long> ProxyResponseTimes;
+    private readonly ILogger<GithubProxyPool> _logger;
+
+    private readonly List<ProxyNode> _nodes;
     private readonly Timer _timer;
+    private readonly SemaphoreSlim _checkSemaphore;
 
-    public int AcceleratedCount { get; private set; }
-
-    public GithubProxyPool(
-        ILogger<GithubProxyPool> logger,
-        Configuration configuration
-    )
+    public GithubProxyPool(ILogger<GithubProxyPool> logger, Configuration configuration)
     {
         _logger = logger;
         _configuration = configuration;
-        _httpClient = new HttpClient(new HttpClientHandler()
-        {
-            AllowAutoRedirect = false,
-            UseProxy = true
-        })
+        _nodes = InitializeNodes();
+        _checkSemaphore = new SemaphoreSlim(1, 1);
+        
+        _httpClient = new HttpClient(new HttpClientHandler { AllowAutoRedirect = false, UseProxy = true })
         {
             Timeout = TimeSpan.FromSeconds(10)
         };
-        ProxyResponseTimes = new ConcurrentDictionary<string, long>();
 
-        foreach (var proxy in _proxies)
-        {
-            ProxyResponseTimes[GetPrefix(proxy.Url)] = 9999999;
-        }
+        foreach (var node in _nodes) ProxyLatencies[node.Prefix] = long.MaxValue;
 
-        CheckProxies(true);
+        Task.Run(() => CheckProxies(true));
+
         _timer = new Timer(async void (_) =>
         {
             try
             {
-                await CheckProxies(false);
+                await CheckProxies();
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                // ignored
+                _logger.LogError(ex, "代理池定时检查任务发生未处理异常");
             }
-        }, null, Timeout.InfiniteTimeSpan, TimeSpan.FromMinutes(30));
+        }, null, TimeSpan.FromMinutes(60), TimeSpan.FromMinutes(60));
     }
 
-    public Task CheckProxies(bool force = false)
+    public int AcceleratedCount { get; private set; }
+
+    public ConcurrentDictionary<string, long> ProxyLatencies { get; } = new();
+
+    public void Dispose()
     {
-        if (!_configuration.EnableFastGithub && !force) return Task.CompletedTask;
-        var tasks = _proxies.Select(proxy => CheckDomainWithRetry(proxy.Url, retries: 2)).ToList();
-        return Task.WhenAll(tasks);
-    }
-
-
-    private async Task CheckDomainWithRetry(string url, int retries)
-    {
-        for (var i = 0; i < retries; i++)
-        {
-            var uri = new Uri(url);
-            var prefix = GetPrefix(url);
-            try
-            {
-                var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-
-                var response = await _httpClient.GetAsync(uri);
-                stopwatch.Stop();
-
-                if (response is { IsSuccessStatusCode: true, Content.Headers.ContentLength: not null })
-                {
-                    var contentBytes = await response.Content.ReadAsByteArrayAsync();
-                    var sha256 = System.Security.Cryptography.SHA256.HashData(contentBytes);
-                    var hashString = Convert.ToHexStringLower(sha256);
-
-                    if (hashString != ExpectedSha256)
-                    {
-                        ProxyResponseTimes[prefix] = long.MaxValue;
-                        return;
-                    }
-                    else
-                    {
-                        ProxyResponseTimes[prefix] = stopwatch.ElapsedMilliseconds;
-                    }
-                }
-                else
-                {
-                    _logger.LogWarning($"{url} {response.ReasonPhrase} ({response.StatusCode})");
-                    ProxyResponseTimes[prefix] = long.MaxValue;
-                }
-            }
-            catch (Exception e)
-            {
-                ProxyResponseTimes[prefix] = long.MaxValue;
-            }
-        }
-    }
-
-    public string? GetFastestDomain(string requestUrl)
-    {
-        if (requestUrl.EndsWith(".zip"))
-        {
-            var preferredProxies = _proxies
-                .Where(p => p.Tags.Contains("short-cache"))
-                .Select(p => GetPrefix(p.Url))
-                .Where(prefix => ProxyResponseTimes.ContainsKey(prefix) && ProxyResponseTimes[prefix] < 300)
-                .ToList();
-
-            if (preferredProxies.Count > 0)
-            {
-                var selectedProxy = preferredProxies[Random.Shared.Next(preferredProxies.Count)];
-                _logger.LogDebug("URL  {Url} is a zip file, using short-cache proxy {Proxy}", requestUrl,
-                    selectedProxy);
-                return selectedProxy;
-            }
-        }
-
-        var ordered = ProxyResponseTimes
-            .Where(kvp => kvp.Value < 300000)
-            .OrderBy(kvp => kvp.Value)
-            .ToList();
-
-        if (ordered.Count == 0)
-            return null;
-
-        var minLatency = ordered[0].Value;
-        var candidates = ordered
-            .Where(kvp => kvp.Value <= minLatency + 120)
-            .Select(kvp => kvp.Key)
-            .ToList();
-
-        if (candidates.Count == 0)
-            return null;
-
-        var defaultRandom = new Random();
-        return candidates[defaultRandom.Next(candidates.Count)];
-    }
-
-    private string GetPrefix(string url)
-    {
-        var uri = new Uri(url);
-        if (uri.Port != 80 && uri.Port != 443)
-        {
-            return $"{uri.Scheme}://{uri.Host}:{uri.Port}/";
-        }
-
-        return $"{uri.Scheme}://{uri.Host}/";
+        _timer.Dispose();
+        _httpClient.Dispose();
     }
 
     public void IncreaseSuccessCount()
@@ -201,9 +67,164 @@ internal sealed class GithubProxyPool : IDisposable
         AcceleratedCount++;
     }
 
-    public void Dispose()
+    public async Task CheckProxies(bool force = false)
     {
-        _timer.Dispose();
-        _httpClient.Dispose();
+        if (!_configuration.EnableFastGithub && !force) return;
+        
+        if (!await _checkSemaphore.WaitAsync(0))
+        {
+            return;
+        }
+        
+        CancellationTokenSource? cts = null;
+        try
+        {
+            cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+            var tasks = _nodes.Select(node => CheckSingleNodeAsync(node, 2, cts.Token)).ToArray();
+            await Task.WhenAll(tasks);
+        }
+        finally
+        {
+            cts?.Dispose();
+            _checkSemaphore.Release();
+        }
+    }
+
+    private async Task CheckSingleNodeAsync(ProxyNode node, int retries, CancellationToken cancellationToken = default)
+    {
+        for (var i = 0; i < retries; i++)
+            try
+            {
+                var stopwatch = Stopwatch.StartNew();
+                using var response = await _httpClient.GetAsync(node.CheckUrl, cancellationToken);
+                stopwatch.Stop();
+                if (response is { IsSuccessStatusCode: true, Content.Headers.ContentLength: > 0 })
+                {
+                    var contentBytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
+                    var sha256 = SHA256.HashData(contentBytes);
+                    if (Convert.ToHexStringLower(sha256) == ExpectedSha256)
+                    {
+                        ProxyLatencies[node.Prefix] = stopwatch.ElapsedMilliseconds;
+                        return;
+                    }
+                }
+            }
+            catch
+            {
+                /* ignored */
+            }
+
+        ProxyLatencies[node.Prefix] = long.MaxValue;
+    }
+
+    public string? GetFastestDomain(string originalUrl, IEnumerable<string>? excludePrefixes = null)
+    {
+        var excluded = excludePrefixes?.ToHashSet() ?? new HashSet<string>();
+
+        var validNodes = _nodes
+            .Where(node => !excluded.Contains(node.Prefix))
+            .Select(node => new { Node = node, Latency = ProxyLatencies.GetValueOrDefault(node.Prefix, long.MaxValue) })
+            .Where(x => x.Latency < 300000) // 基础存活判断
+            .ToList();
+
+        if (validNodes.Count == 0) return null;
+
+        List<string> candidatePrefixes;
+        var isZip = originalUrl.EndsWith(".zip", StringComparison.OrdinalIgnoreCase);
+
+        if (isZip)
+        {
+            var zipCandidates = validNodes
+                .Where(x => x.Node.Tags.Contains("short-cache"))
+                .ToList();
+
+            if (zipCandidates.Count > 0)
+            {
+                var min = zipCandidates.Min(x => x.Latency);
+                candidatePrefixes = zipCandidates
+                    .Where(x => x.Latency <= min + 120)
+                    .Select(x => x.Node.Prefix)
+                    .ToList();
+            }
+            else
+            {
+                var min = validNodes.Min(x => x.Latency);
+                candidatePrefixes = validNodes
+                    .Where(x => x.Latency <= min + 120)
+                    .Select(x => x.Node.Prefix)
+                    .ToList();
+            }
+        }
+        else
+        {
+            var min = validNodes.Min(x => x.Latency);
+            candidatePrefixes = validNodes
+                .Where(x => x.Latency <= min + 120)
+                .Select(x => x.Node.Prefix)
+                .ToList();
+        }
+
+        if (candidatePrefixes.Count == 0) return null;
+
+        var selected = candidatePrefixes[Random.Shared.Next(candidatePrefixes.Count)];
+
+        return selected;
+    }
+
+    private static List<ProxyNode> InitializeNodes()
+    {
+        static string ExtractPrefix(string url)
+        {
+            if (!Uri.TryCreate(url, UriKind.Absolute, out var uri)) return string.Empty;
+            var portPart = uri.IsDefaultPort ? "" : $":{uri.Port}";
+            return $"{uri.Scheme}://{uri.Host}{portPart}/";
+        }
+
+        var sources = new[]
+        {
+            new
+            {
+                Url =
+                    "https://gh-proxy.org/https://github.com/decorwdyun/DalamudPlugins/blob/main/FuckDalamudCN/random.bin",
+                Tags = new[] { "standard" }
+            },
+            new
+            {
+                Url =
+                    "https://hk.gh-proxy.org/https://github.com/decorwdyun/DalamudPlugins/blob/main/FuckDalamudCN/random.bin",
+                Tags = new[] { "standard" }
+            },
+            new
+            {
+                Url =
+                    "https://edgeone.gh-proxy.org/https://github.com/decorwdyun/DalamudPlugins/blob/main/FuckDalamudCN/random.bin",
+                Tags = new[] { "standard" }
+            },
+            new
+            {
+                Url =
+                    "https://ghfast.top/https://raw.githubusercontent.com/decorwdyun/DalamudPlugins/main/FuckDalamudCN/random.bin",
+                Tags = new[] { "standard" }
+            },
+            new
+            {
+                Url =
+                    "https://gh.5050net.cn/https://raw.githubusercontent.com/decorwdyun/DalamudPlugins/main/FuckDalamudCN/random.bin",
+                Tags = new[] { "standard" }
+            },
+            new
+            {
+                Url =
+                    "https://fb.xuolu.com/https://github.com/decorwdyun/DalamudPlugins/blob/main/FuckDalamudCN/random.bin",
+                Tags = new[] { "short-cache" }
+            }
+        };
+
+        return sources.Select(s => new ProxyNode
+        {
+            CheckUrl = s.Url,
+            Prefix = ExtractPrefix(s.Url),
+            Tags = s.Tags.ToHashSet()
+        }).ToList();
     }
 }

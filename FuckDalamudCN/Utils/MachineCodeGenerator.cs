@@ -1,4 +1,4 @@
-﻿namespace FuckDalamudCN.FastGithub;
+﻿namespace FuckDalamudCN.Utils;
 
 internal sealed class MachineCodeGenerator
 {
@@ -6,11 +6,12 @@ internal sealed class MachineCodeGenerator
 
     private MachineCodeGenerator()
     {
-        MachineCode = $"{GenerateRandomHexString(32)}:{GenerateRandomHexString(32)}:{GenerateRandomHexString(32)}".ToUpperInvariant();
+        MachineCode = $"{GenerateRandomHexString(32)}:{GenerateRandomHexString(32)}:{GenerateRandomHexString(32)}"
+            .ToUpperInvariant();
     }
 
     public static MachineCodeGenerator Instance => _instance.Value;
-    
+
     public string MachineCode { get; }
 
     private static string GenerateRandomHexString(int length)
