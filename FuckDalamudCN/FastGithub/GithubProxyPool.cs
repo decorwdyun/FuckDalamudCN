@@ -29,7 +29,7 @@ internal sealed class GithubProxyPool : IDisposable
         _configuration = configuration;
         _nodes = InitializeNodes();
         _checkSemaphore = new SemaphoreSlim(1, 1);
-        
+
         _httpClient = new HttpClient(new HttpClientHandler { AllowAutoRedirect = false, UseProxy = true })
         {
             Timeout = TimeSpan.FromSeconds(10)
@@ -70,17 +70,17 @@ internal sealed class GithubProxyPool : IDisposable
     public async Task CheckProxies(bool force = false)
     {
         if (!_configuration.EnableFastGithub && !force) return;
-        
+
         if (!await _checkSemaphore.WaitAsync(0))
         {
             return;
         }
-        
+
         CancellationTokenSource? cts = null;
         try
         {
             cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
-            var tasks = _nodes.Select(node => CheckSingleNodeAsync(node, 2, cts.Token)).ToArray();
+            var tasks = _nodes.Select(node => CheckSingleNodeAsync(node, cts.Token)).ToArray();
             await Task.WhenAll(tasks);
         }
         finally
@@ -90,31 +90,48 @@ internal sealed class GithubProxyPool : IDisposable
         }
     }
 
-    private async Task CheckSingleNodeAsync(ProxyNode node, int retries, CancellationToken cancellationToken = default)
+    private async Task CheckSingleNodeAsync(ProxyNode node, CancellationToken cancellationToken = default)
     {
-        for (var i = 0; i < retries; i++)
-            try
+        try
+        {
+            var minLatencyMs = double.MaxValue;
+            var hasValidResponse = false;
+
+            for (var attempt = 0; attempt < 2; attempt++)
             {
                 var stopwatch = Stopwatch.StartNew();
                 using var response = await _httpClient.GetAsync(node.CheckUrl, cancellationToken);
                 stopwatch.Stop();
+
                 if (response is { IsSuccessStatusCode: true, Content.Headers.ContentLength: > 0 })
                 {
                     var contentBytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
                     var sha256 = SHA256.HashData(contentBytes);
-                    if (Convert.ToHexStringLower(sha256) == ExpectedSha256)
+                    if (Convert.ToHexStringLower(sha256) != ExpectedSha256) continue; // WTF
+                    var latencyMs = stopwatch.Elapsed.TotalMilliseconds;
+                    if (latencyMs < minLatencyMs)
                     {
-                        ProxyLatencies[node.Prefix] = stopwatch.ElapsedMilliseconds;
-                        return;
+                        minLatencyMs = latencyMs;
                     }
+
+                    hasValidResponse = true;
                 }
             }
-            catch
-            {
-                /* ignored */
-            }
 
-        ProxyLatencies[node.Prefix] = long.MaxValue;
+            if (hasValidResponse)
+            {
+                ProxyLatencies[node.Prefix] = (long)minLatencyMs;
+            }
+            else
+            {
+                ProxyLatencies[node.Prefix] = long.MaxValue;
+            }
+        }
+        catch
+        {
+            /* ignored */
+            ProxyLatencies[node.Prefix] = long.MaxValue;
+        }
     }
 
     public string? GetFastestDomain(string originalUrl, IEnumerable<string>? excludePrefixes = null)
@@ -124,7 +141,7 @@ internal sealed class GithubProxyPool : IDisposable
         var validNodes = _nodes
             .Where(node => !excluded.Contains(node.Prefix))
             .Select(node => new { Node = node, Latency = ProxyLatencies.GetValueOrDefault(node.Prefix, long.MaxValue) })
-            .Where(x => x.Latency < 300000) // 基础存活判断
+            .Where(x => x.Latency < 15000)
             .ToList();
 
         if (validNodes.Count == 0) return null;
