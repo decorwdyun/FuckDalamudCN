@@ -10,13 +10,12 @@ internal static class HttpResponseCacheExtensions
     }
 
     public static CachedHttpResponse? TryGetCachedResponse(this IMemoryCache cache, HttpRequestMessage request,
-        Uri originalUri, bool enableFastGithub, GithubProxyPool proxyPool)
+        Uri originalUri)
     {
         if (!request.ShouldCache(originalUri)) return null;
 
         if (cache.TryGetValue(originalUri.ToString(), out CachedHttpResponse? cachedItem) && cachedItem != null)
         {
-            if (enableFastGithub) proxyPool.IncreaseSuccessCount();
             return cachedItem;
         }
 

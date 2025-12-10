@@ -82,14 +82,13 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
             return blockedResponse;
         }
 
-        if (_enableCaching)
+        if (_enableCaching && _configuration.EnableFastGithub)
         {
-            var cachedItem = _responseCache.TryGetCachedResponse(request, originalUri, _configuration.EnableFastGithub,
-                _githubProxyPool);
+            var cachedItem = _responseCache.TryGetCachedResponse(request, originalUri);
             if (cachedItem != null)
             {
                 var response = cachedItem.ToHttpResponseMessage(request);
-                if (RequestFilter.IsGithub(originalUri) && _configuration.EnableFastGithub)
+                if (RequestFilter.IsGithub(originalUri))
                     _githubProxyPool.IncreaseSuccessCount();
                 await Task.Delay(120, cancellationToken).ConfigureAwait(false); // xixi 加点延迟
                 return response;
