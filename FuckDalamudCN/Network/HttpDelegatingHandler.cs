@@ -51,7 +51,6 @@ internal sealed partial class HttpDelegatingHandler : DelegatingHandler
             UseProxy = true,
             ConnectTimeout = TimeSpan.FromSeconds(5),
             MaxConnectionsPerServer = 10,
-            EnableMultipleHttp2Connections = true,
             AutomaticDecompression = DecompressionMethods.All,
             ConnectCallback = happyEyeballsCallback.ConnectCallback
         };
@@ -68,6 +67,15 @@ internal sealed partial class HttpDelegatingHandler : DelegatingHandler
     {
         var originalUri = request.RequestUri;
         if (originalUri == null) return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
+
+        if (!IsValidUrl(originalUri) && request.Method == HttpMethod.Get)
+            // 小店喜欢显示公告？
+            return new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("[]", Encoding.UTF8, "application/json"), 
+                RequestMessage = request
+            };
+
         PrepareRequestHeaders(request);
 
         if (RequestFilter.HandleAnalyticsAndPrivacy(request, _logger) is { } blockedResponse)
@@ -144,7 +152,7 @@ internal sealed partial class HttpDelegatingHandler : DelegatingHandler
         if (fastestDomain != null)
         {
             usedProxies.Add(fastestDomain);
-            
+
             var replacedUri = new Uri(fastestDomain + normalizedUri);
             if (request.RequestUri != replacedUri)
             {
@@ -153,7 +161,7 @@ internal sealed partial class HttpDelegatingHandler : DelegatingHandler
             }
         }
     }
-    
+
     private Uri? NormalizeGithubRawUri(Uri uri)
     {
         if (uri.Host != "raw.githubusercontent.com") return uri;
@@ -164,7 +172,8 @@ internal sealed partial class HttpDelegatingHandler : DelegatingHandler
 
         if (match.Success)
         {
-            var normalizedPath = $"/{match.Groups[1].Value}/{match.Groups[2].Value}/{match.Groups[3].Value}{match.Groups[4].Value}";
+            var normalizedPath =
+                $"/{match.Groups[1].Value}/{match.Groups[2].Value}/{match.Groups[3].Value}{match.Groups[4].Value}";
             var builder = new UriBuilder(uri)
             {
                 Path = normalizedPath,
@@ -194,7 +203,8 @@ internal sealed partial class HttpDelegatingHandler : DelegatingHandler
 
         await _pluginLocalizationService.TranslatePluginDescriptionsAsync(response, originalUri, ct);
 
-        if (_configuration.EnablePluginManifestCache && request.Method == HttpMethod.Get && request.ShouldCache(originalUri))
+        if (_configuration.EnablePluginManifestCache && request.Method == HttpMethod.Get &&
+            request.ShouldCache(originalUri))
         {
             var duration = RequestFilter.IsGithub(originalUri) ? TimeSpan.FromMinutes(15) : TimeSpan.FromMinutes(5);
             return await _httpCacheService.CacheResponseAsync(response, request, originalUri, duration, ct);
@@ -239,6 +249,18 @@ internal sealed partial class HttpDelegatingHandler : DelegatingHandler
             $"Dalamud/{_dalamudVersionProvider.DalamudAssemblyVersion}");
         if (request.RequestUri?.Host == "aonyx.ffxiv.wang")
             request.Headers.TryAddWithoutValidation("X-Machine-Token", MachineCodeGenerator.Instance.MachineCode);
+    }
+
+    private static bool IsValidUrl(Uri uri)
+    {
+        var host = uri.Host;
+
+        if (host.Equals("localhost", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        return uri.HostNameType is UriHostNameType.IPv4 or UriHostNameType.IPv6 || host.Contains('.');
     }
 
     private static async Task<string> ReadBodySafeAsync(HttpContent? content, int maxLength = 4096)
