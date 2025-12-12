@@ -2,7 +2,7 @@
 using System.Reflection;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
-using FuckDalamudCN.FastGithub;
+using FuckDalamudCN.Network;
 using FuckDalamudCN.Utils;
 using Microsoft.Extensions.Logging;
 
@@ -18,14 +18,14 @@ internal sealed class PluginRepositoryHijack : IDisposable
     private readonly object? _pluginManager;
     private DateTime _nextCheckTime;
 
+    private readonly Dictionary<object, HttpClient> _originalClients = new();
+
     public PluginRepositoryHijack(
         IDalamudPluginInterface pluginInterface,
         ILogger<HappyHttpClientHijack> logger,
         IFramework framework,
-        GithubProxyPool proxyPool,
         Configuration configuration,
-        DalamudVersionProvider dalamudVersionProvider,
-        HappyEyeballsCallback happyEyeballsCallback
+        HttpDelegatingHandler httpDelegatingHandler
     )
     {
         _logger = logger;
@@ -33,12 +33,7 @@ internal sealed class PluginRepositoryHijack : IDisposable
         _configuration = configuration;
         var dalamudAssembly = pluginInterface.GetType().Assembly;
 
-        _newHttpClient = new HttpClient(new HttpDelegatingHandler(_logger,
-            dalamudVersionProvider,
-            _configuration,
-            proxyPool,
-            happyEyeballsCallback,
-            true))
+        _newHttpClient = new HttpClient(httpDelegatingHandler)
         {
             Timeout = TimeSpan.FromSeconds(10)
         };
@@ -56,6 +51,7 @@ internal sealed class PluginRepositoryHijack : IDisposable
     public void Dispose()
     {
         _framework.Update -= Tick;
+        RestoreOriginalHttpClients();
     }
 
     private void Start()
@@ -67,15 +63,13 @@ internal sealed class PluginRepositoryHijack : IDisposable
     {
         if (_nextCheckTime < DateTime.Now)
         {
-            _nextCheckTime = DateTime.Now.AddSeconds(10);
+            _nextCheckTime = DateTime.Now.AddSeconds(1);
             TryHijackPluginRepository();
         }
     }
 
-    public void TryHijackPluginRepository()
+    private void TryHijackPluginRepository()
     {
-        if (!_configuration.EnableFastGithub) return;
-
         if (_pluginManager is null)
         {
             _logger.LogError("插件管理器未找到，无法启用插件仓库加速。");
@@ -92,11 +86,13 @@ internal sealed class PluginRepositoryHijack : IDisposable
             var thirdRepos =
                 (thirdReposField?.GetValue(_pluginManager) as IList ??
                  throw new InvalidOperationException()).Cast<object>().ToList();
+
             foreach (var thirdRepo in thirdRepos)
             {
                 var pluginMasterUrlProperty = thirdRepo.GetType()
                     .GetProperty("PluginMasterUrl", BindingFlags.Instance | BindingFlags.Public);
                 if (pluginMasterUrlProperty == null) continue;
+                
                 var pluginMasterUrl = pluginMasterUrlProperty.GetValue(thirdRepo) as string;
 
                 var httpClientField = thirdRepo.GetType()
@@ -104,18 +100,56 @@ internal sealed class PluginRepositoryHijack : IDisposable
                 if (httpClientField == null) continue;
 
                 var currentHttpClient = httpClientField.GetValue(thirdRepo) as HttpClient;
-                var replaced = ReferenceEquals(currentHttpClient, _newHttpClient);
+                
+                if (ReferenceEquals(currentHttpClient, _newHttpClient)) continue;
 
-                if (!replaced)
+                if (currentHttpClient != null)
                 {
-                    httpClientField.SetValue(thirdRepo, _newHttpClient);
-                    _logger.LogTrace($"已接管 {pluginMasterUrl}");
+                    _originalClients.TryAdd(thirdRepo, currentHttpClient);
                 }
+
+                httpClientField.SetValue(thirdRepo, _newHttpClient);
+                _logger.LogTrace($"已接管 {pluginMasterUrl}");
             }
         }
         catch (Exception e)
         {
             _logger.LogError(e, "启用插件仓库加速失败。");
+        }
+    }
+
+    private void RestoreOriginalHttpClients()
+    {
+        if (_originalClients.Count == 0) return;
+
+        try
+        {
+            foreach (var (repo, originalClient) in _originalClients)
+            {
+                try
+                {
+                    var httpClientField = repo.GetType()
+                        .GetField("httpClient", BindingFlags.Instance | BindingFlags.NonPublic);
+                    
+                    if (httpClientField != null)
+                    {
+                        httpClientField.SetValue(repo, originalClient);
+                    }
+                }
+                catch (Exception innerEx)
+                {
+                    _logger.LogError(innerEx, "还原单个仓库 HttpClient 失败");
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "还原插件仓库 HttpClient 过程中发生错误");
+        }
+        finally
+        {
+            _originalClients.Clear();
+            _logger.LogTrace("已还原原始 HttpClient");
         }
     }
 }

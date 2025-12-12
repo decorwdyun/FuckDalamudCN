@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 
-namespace FuckDalamudCN.FastGithub;
+namespace FuckDalamudCN.Network;
 
 internal static class HttpResponseCacheExtensions
 {

@@ -3,7 +3,7 @@ using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using FuckDalamudCN.Controllers;
-using FuckDalamudCN.FastGithub;
+using FuckDalamudCN.Network;
 using FuckDalamudCN.Utils;
 using FuckDalamudCN.Windows;
 using Microsoft.Extensions.DependencyInjection;
@@ -62,10 +62,13 @@ public sealed class FuckDalamudCN : IDalamudPlugin
             serviceCollection.AddSingleton<DalamudVersionProvider>();
             serviceCollection.AddSingleton<CommandHandler>();
 
+            serviceCollection.AddSingleton<PluginLocalizationService>();
             serviceCollection.AddSingleton<HappyEyeballsCallback>();
 
             serviceCollection.AddSingleton<GithubProxyPool>();
             serviceCollection.AddSingleton<UnbanController>();
+            serviceCollection.AddSingleton<IHttpCacheService, HttpCacheService>();
+            serviceCollection.AddSingleton<HttpDelegatingHandler>();
             serviceCollection.AddSingleton<HappyHttpClientHijack>();
             serviceCollection.AddSingleton<DeviceUtilsHijack>();
             serviceCollection.AddSingleton<PluginRepositoryHijack>();

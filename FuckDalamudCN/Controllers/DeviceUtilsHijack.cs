@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using Dalamud.Plugin;
-using FuckDalamudCN.FastGithub;
 using FuckDalamudCN.Utils;
 using Microsoft.Extensions.Logging;
 

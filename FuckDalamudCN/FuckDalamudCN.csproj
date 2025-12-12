@@ -14,4 +14,10 @@
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.9"/>
         <PackageReference Include="Polly" Version="8.6.3"/>
     </ItemGroup>
+
+    <ItemGroup>
+      <None Include="Assets\translations.json">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
 </Project>

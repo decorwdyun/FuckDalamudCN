@@ -1,39 +1,32 @@
 ﻿using System.Reflection;
 using Dalamud.Plugin;
-using FuckDalamudCN.FastGithub;
+using FuckDalamudCN.Network;
 using FuckDalamudCN.Utils;
 using Microsoft.Extensions.Logging;
 
 namespace FuckDalamudCN.Controllers;
 
-internal sealed class HappyHttpClientHijack
+internal sealed class HappyHttpClientHijack : IDisposable
 {
-    private readonly Configuration _configuration;
     private readonly DalamudVersionProvider _dalamudVersionProvider;
-    private readonly HappyEyeballsCallback _happyEyeballsCallback;
+    private readonly HttpDelegatingHandler _httpDelegatingHandler;
 
     private readonly object? _happyHttpClient;
     private readonly ILogger<HappyHttpClientHijack> _logger;
-    private readonly GithubProxyPool _proxyPool;
-    private readonly DalamudBranchDetector _dalamudBranchDetector;
 
+    private HttpClient? _originalHttpClient;
+    private FieldInfo? _sharedHttpClientField;
 
     public HappyHttpClientHijack(
         IDalamudPluginInterface pluginInterface,
         ILogger<HappyHttpClientHijack> logger,
         DalamudVersionProvider dalamudVersionProvider,
-        GithubProxyPool proxyPool,
-        DalamudBranchDetector dalamudBranchDetector,
-        Configuration configuration,
-        HappyEyeballsCallback happyEyeballsCallback
+        HttpDelegatingHandler httpDelegatingHandler
     )
     {
         _logger = logger;
         _dalamudVersionProvider = dalamudVersionProvider;
-        _proxyPool = proxyPool;
-        _dalamudBranchDetector = dalamudBranchDetector;
-        _configuration = configuration;
-        _happyEyeballsCallback = happyEyeballsCallback;
+        _httpDelegatingHandler = httpDelegatingHandler;
         var dalamudAssembly = pluginInterface.GetType().Assembly;
         var dalamudService = dalamudAssembly.GetType("Dalamud.Service`1", true);
         ArgumentNullException.ThrowIfNull(dalamudAssembly);
@@ -45,32 +38,41 @@ internal sealed class HappyHttpClientHijack
 
         if (_happyHttpClient != null) Enable();
     }
-    
+
+    public void Dispose()
+    {
+        if (_happyHttpClient != null && _sharedHttpClientField != null && _originalHttpClient != null)
+        {
+            try
+            {
+                _sharedHttpClientField.SetValue(_happyHttpClient, _originalHttpClient);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "还原 HappyHttpClient 失败");
+            }
+        }
+    }
 
     private void Enable()
     {
         if (_happyHttpClient == null) return;
-        var httpClient = _happyHttpClient.GetType()
+        
+        _sharedHttpClientField = _happyHttpClient.GetType()
             .GetField("<SharedHttpClient>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance);
-        if (httpClient is null)
+            
+        if (_sharedHttpClientField is null)
         {
-            _logger.LogError("Failed to get SharedHttpClient");
+            _logger.LogError("Failed to get SharedHttpClient field");
             return;
         }
 
-        ;
+        _originalHttpClient = _sharedHttpClientField.GetValue(_happyHttpClient) as HttpClient;
 
-        var newHttpClient = new HttpClient(new HttpDelegatingHandler(
-                _logger,
-                _dalamudVersionProvider,
-                _configuration,
-                _proxyPool,
-                _happyEyeballsCallback,
-                false
-            )
-        );
+        var newHttpClient = new HttpClient(_httpDelegatingHandler);
 
-        httpClient.SetValue(_happyHttpClient, newHttpClient);
+        _sharedHttpClientField.SetValue(_happyHttpClient, newHttpClient);
+        
         _logger.LogInformation(
             $"已屏蔽数据上报, Dalamud/{_dalamudVersionProvider.DalamudAssemblyVersion}, 随机机器码: {MachineCodeGenerator.Instance.MachineCode}");
     }

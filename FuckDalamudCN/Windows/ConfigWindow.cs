@@ -7,7 +7,8 @@ using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
 using Dalamud.Utility;
 using FuckDalamudCN.Controllers;
-using FuckDalamudCN.FastGithub;
+using FuckDalamudCN.Network;
+using FuckDalamudCN.Utils;
 
 namespace FuckDalamudCN.Windows;
 
@@ -15,10 +16,11 @@ internal class ConfigWindow : Window
 {
     private readonly Configuration _configuration;
     private readonly GithubProxyPool _githubProxyPool;
-    private readonly HappyHttpClientHijack _happyHttpClientHijack;
     private readonly IDalamudPluginInterface _pluginInterface;
     private readonly PluginRepositoryHijack _pluginRepositoryHijack;
     private readonly UnbanController _unbanController;
+    private readonly DalamudBranchDetector _dalamudBranchDetector;
+    private readonly IHttpCacheService _httpCacheService;
 
     internal readonly StyleModel? Style = StyleModel.Deserialize(
         "DS1H4sIAAAAAAAACqVYy27bRhT9FYOrBDAMksN5UDs/2ngRF0bkIml3lDSWGNEiS1GOEyNAkF233XcVoJsC7bYfVAP5jM7MnRcpBSjJbJQZzzlz3/cOH4MsmEQn4XEwCyaPwRuxCOXqp2BCT8KPx8E8mCC5sQgm6g9cHzOnwhOExbFbATwOlnp/pTlzDc5meuOtRmONTtQda32s0PA7fYq0Tm06u0Ttlno30bux2q32pJS7vwSTVG7U+ner7230eqcB93r/nf590NK/t6xYs0rVPxy8K8v0NtLbCMxZCiUfgxv+0FgYC1EaR0SDmVxgehz8LFcpJozEVNz3WgkhKCT2It9ms4IvLAfBYcrCRHMQyhIUJZpDLRBNPI7X+WZRvjtbOtGJ+keNBnapGKIQMxYjDBRCKkRoyBgVTOervFgMJpKyXJfVrvIZBHtEo9QwpEIxbJWJMMNpiGJPmbOyXvDa4uMooiShkca7pcIj36DCgWGUkpBZlukqE4YZoc33dXbHPW0i6U3CDIO8TfpDM8RAyIw0iRQWO5rL8p7Xnptjqq404Re3/IxwnCYRWCY8SRzL6bzJ713iokQFiyFxFlEsiYk/xUL0hTLu8qZoaRamNEnC2GgGS+snGrGQyKh2gQsEHWkETiWAo9FLTRPjJJWXdGnOy6LIqq1nnN5MV3yzO8vqYd4Cium8FnLMWiT9g8ayvKhlqRwtjKQZHDoHuAYHEHCdr/h8fZXV62+UK5bKLDQZSmSxiv3AmRa5SM2WbfpqYxlGqnK2a5rSdCJxIFZ3mZCz5xUaewEH+QjormcSiFNDglv1ikD5MoUXxHVcHXWwPBuaVkIMB1yA9kkueeaXzl7FCkF+IUszolgxSzLSP1NeZXXWlIN06lCMzSDDM1KlV3ybf+Av6rwarpPjGKmUIxqp1c2wQidCRZdP4BgRcypVcAo8I1pki+fHzW0537W6Uh/lUtWkOlQjLX1Rztf5Znld8/ucu9EmkcVJSKNpKEyhdu5s1S5qpyRN9t1d1bz3Wp6pXabZ+iFzXZTNy3zDt676m9nM1fzoEKDr3NT4D+ok2MFITCAucIfoMt825VLMQY6lVSOZNF5irEfM6jDHnkDt0V2byZZ/IWzkZ6FwasGhzLVmDhsaB6ynMHo2bepy43DIWFH+R8f3YeDLfLlyzw3ZB8BZNgj3cK9GPA7aJKeFuVk9oQSB+hVI9QsIop81U17wecP990SfMEVwNJZxWmfLi7qsbrJ6yZvevhcnbcj/kN1fCgMWLSNiMaKIq63jpQlMmXFRYY0qOODJJXKnS/Ztu9AO8iK/8yzDjBb6WlNDpPpX5SIrAPf/QOIRL5/Y4rkQTILzrKmq3Xyeb46eTfO7quBHp4u3u21zhJ4fPfv62+enP/7695/fn379++unT09f/jy6yh+eB+IbATxus8EJO+szyETm+0TfMQqAi/5DHABdJWYExamt7EIbSkxKpYm4zn9x3w597i+HVpvVgBwCZO7c0DJpO18YtFMPZ77uSE7Z86Q1wH8SZl1BVRx4uPXA2lxYnE1AUNB2SFDQtlyLdN3AYEzy+j7bDHyvlEPLhJvwKMhsP+iY+wG5bwrxaWtYlLhB2VoJcK0xJYUa78vq2nkfpwmgaKHiLx//A3sPPNh6FAAA"
@@ -31,17 +33,17 @@ internal class ConfigWindow : Window
         IDalamudPluginInterface pluginInterface,
         Configuration configuration,
         GithubProxyPool githubProxyPool,
-        HappyHttpClientHijack happyHttpClientHijack,
         PluginRepositoryHijack pluginRepositoryHijack,
-        UnbanController unbanController
+        UnbanController unbanController,
+        IHttpCacheService httpCacheService
     ) : base("FuckDalamudCN - 配置")
     {
         _pluginInterface = pluginInterface;
         _configuration = configuration;
         _githubProxyPool = githubProxyPool;
-        _happyHttpClientHijack = happyHttpClientHijack;
         _pluginRepositoryHijack = pluginRepositoryHijack;
         _unbanController = unbanController;
+        _httpCacheService = httpCacheService;
         Flags = ImGuiWindowFlags.AlwaysAutoResize;
         // Size = new Vector2(500, 300);
         SizeCondition = ImGuiCond.Always;
@@ -57,8 +59,9 @@ internal class ConfigWindow : Window
         using var tabBar = ImRaii.TabBar("FuckDalamudCNConfigTabs");
         if (!tabBar)
             return;
+        
         DrawUnbanTab();
-        DrawFastGithubTab();
+        DrawNetworkTab();
         DrawAboutTab();
     }
 
@@ -92,7 +95,7 @@ internal class ConfigWindow : Window
                                    + "我们将帮你解除不合理的封锁政策");
         using (ImRaii.Disabled(alwaysTrue))
         {
-            ImGui.Checkbox("阻止 Dalamud CN 收集用户隐私数据", ref alwaysTrue);
+            ImGui.Checkbox("阻止 OtterCorp Dalamud 收集用户隐私数据", ref alwaysTrue);
         }
 
         ImGuiComponents.HelpMarker($"OtterCorp Dalamud 会在每次登录时都收集数据上传到服务器{Environment.NewLine}" +
@@ -115,56 +118,90 @@ internal class ConfigWindow : Window
         }
     }
 
-    private void DrawFastGithubTab()
+    private void DrawNetworkTab()
     {
-        using var tab = ImRaii.TabItem("Github 加速###FastGithubTab-FastGithub");
+        using var tab = ImRaii.TabItem("网络相关##FastGithubTab-Network");
         if (!tab)
             return;
+        ImGui.AlignTextToFramePadding();
+        
+        ImGui.TextColored(ImGuiColors.DalamudOrange, $"这个页面基本上是对卫月插件管理器的各种优化\n网络不好或者不想开梯子推荐都开启");
 
+        
         var enableFastGithub = _configuration.EnableFastGithub;
-        if (ImGui.Checkbox("开启 Dalamud 第三方 Github 仓库加速",
+        if (ImGui.Checkbox("开启卫月第三方 Github 插件仓库加速",
                 ref enableFastGithub))
         {
             _configuration.EnableFastGithub = enableFastGithub;
+            _httpCacheService.ClearCache();
             Save();
-            if (enableFastGithub) _pluginRepositoryHijack.TryHijackPluginRepository();
+        }
+        ImGuiComponents.HelpMarker("只会加速 https://raw.githubusercontent.com 之类的 Github 相关的库链\n其他的比如 https://love.puni.sh 则不会加速");
+        
+        var enableMainRepoPluginLocalization = _configuration.EnableMainRepoPluginLocalization;
+        if (ImGui.Checkbox("开启主库插件简介翻译",
+                ref enableMainRepoPluginLocalization))
+        {
+            _configuration.EnableMainRepoPluginLocalization = enableMainRepoPluginLocalization;
+            _httpCacheService.ClearCache();
+            Save();
+        }
+        ImGui.SameLine();
+        ImGuiComponents.HelpMarker("只会翻译主库插件\n纯机翻，对效果别期待太多（聊胜于无）");
+        
+        var enablePluginManifestCache = _configuration.EnablePluginManifestCache;
+        if (ImGui.Checkbox("开启缓存",
+                ref enablePluginManifestCache))
+        {
+            _configuration.EnablePluginManifestCache = enablePluginManifestCache;
+            _httpCacheService.ClearCache();
+            Save();
         }
 
-        if (_configuration.EnableFastGithub)
+        if (enablePluginManifestCache)
         {
-            var alwaysTrue = true;
-            using (ImRaii.Disabled(alwaysTrue))
+            ImGui.SameLine();
+            if (ImGui.Button("清除缓存"))
             {
-                ImGui.Checkbox("优化 Dalamud 识别系统代理的行为", ref alwaysTrue);
+                _httpCacheService.ClearCache();
+            }
+        }
+        
+        ImGui.SameLine();
+        ImGuiComponents.HelpMarker("Github 仓库缓存15分钟，其他仓库5分钟\n开启后在短时间内重复打开插件管理器将无需等待（推荐开启）");
+        
+        var alwaysTrue = true;
+        using (ImRaii.Disabled(alwaysTrue))
+        {
+            ImGui.Checkbox("优化 Dalamud 识别系统代理的行为", ref alwaysTrue);
+        }
+
+        ImGuiComponents.HelpMarker($"将忽略卫月本体的代理配置，转为固定使用系统代理{Environment.NewLine}"
+                                   + "这将解决卫月本体偶尔无法识别系统代理导致无法加载插件列表的问题");
+
+        ImGui.TextColored(ImGuiColors.HealerGreen, $"自本次启动以来共为你加速 {_githubProxyPool.AcceleratedCount} 次");
+        if (ImGui.CollapsingHeader("Debug###FuckDalamudCN-Debug"))
+        {
+            ImGui.Text("以下代理中任意一个可用即可");
+            ImGui.BeginDisabled(_lastCanCheckTime > DateTime.Now);
+
+            var buttonText = "立即测速";
+            if (_lastCanCheckTime > DateTime.Now)
+                buttonText = $"休息一下吧, 还需等待 {(_lastCanCheckTime - DateTime.Now).Seconds} 秒";
+
+            if (ImGui.Button(buttonText))
+            {
+                _lastCanCheckTime = DateTime.Now.AddSeconds(20);
+                _githubProxyPool.CheckProxies();
             }
 
-            ImGuiComponents.HelpMarker($"将忽略卫月本体的代理配置，转为固定使用系统代理{Environment.NewLine}"
-                                       + "这将解决卫月本体偶尔无法识别系统代理导致无法加载插件列表的问题");
-
-            ImGui.TextColored(ImGuiColors.HealerGreen, $"自本次启动以来共为你加速 {_githubProxyPool.AcceleratedCount} 次");
-            if (ImGui.CollapsingHeader("Debug###FuckDalamudCN-Debug"))
-            {
-                ImGui.Text("以下代理中任意一个可用即可");
-                ImGui.BeginDisabled(_lastCanCheckTime > DateTime.Now);
-
-                var buttonText = "立即测速";
-                if (_lastCanCheckTime > DateTime.Now)
-                    buttonText = $"休息一下吧, 还需等待 {(_lastCanCheckTime - DateTime.Now).Seconds} 秒";
-
-                if (ImGui.Button(buttonText))
-                {
-                    _lastCanCheckTime = DateTime.Now.AddSeconds(20);
-                    _githubProxyPool.CheckProxies();
-                }
-
-                ImGui.EndDisabled();
-                ImGui.Separator();
-                foreach (var (domain, latency) in _githubProxyPool.ProxyLatencies.OrderBy(kvp => kvp.Value))
-                    if (latency > 1000 * 30)
-                        ImGui.TextColored(ImGuiColors.DalamudRed, $"{domain}: 完全无法访问");
-                    else
-                        ImGui.Text($"{domain}: {latency}毫秒（往返RTT）");
-            }
+            ImGui.EndDisabled();
+            ImGui.Separator();
+            foreach (var (domain, latency) in _githubProxyPool.ProxyLatencies.OrderBy(kvp => kvp.Value))
+                if (latency > 1000 * 30)
+                    ImGui.TextColored(ImGuiColors.DalamudRed, $"{domain}: 完全无法访问");
+                else
+                    ImGui.Text($"{domain}: {latency}毫秒（往返RTT）");
         }
     }
 

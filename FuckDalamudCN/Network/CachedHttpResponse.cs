@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace FuckDalamudCN.FastGithub;
+namespace FuckDalamudCN.Network;
 
 internal class CachedHttpResponse
 {

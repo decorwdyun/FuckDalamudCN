@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Security.Cryptography;
 using Microsoft.Extensions.Logging;
 
-namespace FuckDalamudCN.FastGithub;
+namespace FuckDalamudCN.Network;
 
 internal sealed class ProxyNode
 {
