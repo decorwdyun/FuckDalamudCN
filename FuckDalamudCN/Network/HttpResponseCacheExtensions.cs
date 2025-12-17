@@ -16,7 +16,12 @@ internal static class HttpResponseCacheExtensions
 
         if (cache.TryGetValue(originalUri.ToString(), out CachedHttpResponse? cachedItem) && cachedItem != null)
         {
-            return cachedItem;
+            if (cachedItem.TryUse())
+            {
+                return cachedItem;
+            }
+            
+            cache.Remove(originalUri.ToString());
         }
 
         return null;

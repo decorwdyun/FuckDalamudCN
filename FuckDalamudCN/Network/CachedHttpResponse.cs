@@ -4,6 +4,11 @@ namespace FuckDalamudCN.Network;
 
 internal class CachedHttpResponse
 {
+    // 定义最大使用次数
+    private const int MaxUsageCount = 3;
+    // 当前使用次数计数器
+    private int _currentUsageCount = 0;
+    
     public CachedHttpResponse(HttpResponseMessage response, byte[] content)
     {
         StatusCode = response.StatusCode;
@@ -12,6 +17,12 @@ internal class CachedHttpResponse
         ContentHeaders = response.Content.Headers.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
     }
 
+    public bool TryUse()
+    {
+        var newCount = Interlocked.Increment(ref _currentUsageCount);
+        return newCount <= MaxUsageCount;
+    }
+    
     private HttpStatusCode StatusCode { get; }
     private Dictionary<string, IEnumerable<string>> Headers { get; }
     private Dictionary<string, IEnumerable<string>> ContentHeaders { get; }

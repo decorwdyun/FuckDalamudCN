@@ -23,9 +23,10 @@ public class DalamudHijack
         }
 
         _patchManager = new PatchManager("com.decorwdyun.DalamudHijack");
+        _patchManager.RegisterPatch(new TestPatch());
         _patchManager.RegisterPatch(new EventTrackingPatch());
         _patchManager.RegisterPatch(new DeviceUtilsPatch());
-        _patchManager.RegisterPatch(new TestPatch());
+        _patchManager.RegisterPatch(new PluginManagerPatch());
         _patchManager.ApplyAll();
     }
 

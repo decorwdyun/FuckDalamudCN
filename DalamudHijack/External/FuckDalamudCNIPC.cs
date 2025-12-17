@@ -6,21 +6,21 @@ namespace DalamudHijack.External;
 public class FuckDalamudCNIPC
 {
     private static ICallGateSubscriber<Version>? _version;
-    private static ICallGateSubscriber<string, bool> _showIncompatiblePluginWarningWindow;
+    private static ICallGateSubscriber<bool>? _hijackPluginRepository;
 
     public static void Initialize()
     {
         _version = DalamudService.PluginInterface.GetIpcSubscriber<Version>("FuckDalamudCN.Version");
-        _showIncompatiblePluginWarningWindow = DalamudService.PluginInterface.GetIpcSubscriber<string,bool>("FuckDalamudCN.ShowIncompatiblePluginWarningWindow");
+        _hijackPluginRepository = DalamudService.PluginInterface.GetIpcSubscriber<bool>("FuckDalamudCN.HijackPluginRepository");
     }
 
     public static Version Version()
     {
         return _version!.InvokeFunc();
     }
-    
-    public static bool ShowIncompatiblePluginWarningWindow(string pluginName)
+
+    public static void HijackPluginRepository()
     {
-        return _showIncompatiblePluginWarningWindow.InvokeFunc(pluginName);
+        _hijackPluginRepository?.InvokeAction();
     }
 }

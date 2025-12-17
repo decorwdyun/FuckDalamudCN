@@ -63,12 +63,12 @@ internal sealed class PluginRepositoryHijack : IDisposable
     {
         if (_nextCheckTime < DateTime.Now)
         {
-            _nextCheckTime = DateTime.Now.AddSeconds(1);
+            _nextCheckTime = DateTime.Now.AddSeconds(10);
             TryHijackPluginRepository();
         }
     }
 
-    private void TryHijackPluginRepository()
+    internal void TryHijackPluginRepository()
     {
         if (_pluginManager is null)
         {
