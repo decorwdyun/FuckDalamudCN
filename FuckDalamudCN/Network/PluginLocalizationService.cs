@@ -1,5 +1,6 @@
 ﻿using Dalamud.Plugin;
 using FuckDalamudCN.Controllers;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -18,11 +19,16 @@ public class PluginLocalizationService : IDisposable
     };
 
     private readonly Configuration _configuration;
+    private readonly ILogger<PluginLocalizationService> _logger;
     private Dictionary<string, PluginTranslationEntry>? _translations;
 
-    public PluginLocalizationService(IDalamudPluginInterface dalamudPluginInterface, Configuration configuration)
+    public PluginLocalizationService(
+        IDalamudPluginInterface dalamudPluginInterface,
+        Configuration configuration,
+        ILogger<PluginLocalizationService> logger)
     {
         _configuration = configuration;
+        _logger = logger;
         _assetPath = Path.Combine(dalamudPluginInterface.AssemblyLocation.Directory!.FullName, "Assets",
             "translations.json");
         LoadTranslations();
@@ -32,6 +38,7 @@ public class PluginLocalizationService : IDisposable
     {
         if (!File.Exists(_assetPath))
         {
+            _logger.LogWarning($"插件本地化文件未找到");
             _translations = new Dictionary<string, PluginTranslationEntry>();
             return;
         }
