@@ -44,7 +44,6 @@ public class HttpCacheService(ILogger<HttpCacheService> logger) : IHttpCacheServ
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "缓存响应内容时发生错误: {Uri}", originalUri);
             return response; 
         }
     }

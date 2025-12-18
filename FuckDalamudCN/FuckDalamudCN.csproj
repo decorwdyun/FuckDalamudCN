@@ -1,18 +1,17 @@
-﻿<Project Sdk="Dalamud.NET.Sdk/13.1.0">
+﻿<Project Sdk="Dalamud.NET.Sdk/14.0.0">
 
     <PropertyGroup>
-        <TargetFramework>net9.0-windows</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <Platforms>x64</Platforms>
-        <Version>1.2.2.1</Version>
+        <Version>1.3.0.1</Version>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="Dalamud.Extensions.MicrosoftLogging" Version="4.0.1"/>
-        <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.9"/>
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.9"/>
-        <PackageReference Include="Polly" Version="8.6.3"/>
+        <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.1" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.1" />
+        <PackageReference Include="Polly" Version="8.6.5" />
     </ItemGroup>
 
     <ItemGroup>

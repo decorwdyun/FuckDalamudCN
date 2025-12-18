@@ -1,5 +1,5 @@
 ﻿<Project>
     <PropertyGroup>
-        <DALAMUD_HOME>$(appdata)\XIVLauncher\addon\Hooks\dev\</DALAMUD_HOME>
+        <DALAMUD_HOME>$(appdata)\XIVLauncherCN\addon\Hooks\dev\</DALAMUD_HOME>
     </PropertyGroup>
 </Project>
