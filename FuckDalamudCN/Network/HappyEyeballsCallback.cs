@@ -8,9 +8,8 @@ namespace FuckDalamudCN.Network;
 
 public class HappyEyeballsCallback : IDisposable
 {
-    private static readonly ModuleLog Log = new("HTTP");
     private readonly ILogger _logger;
-    private readonly int connectionBackoff = 75;
+    private readonly int connectionBackoff = 100;
 
     /*
      * ToDo: Eventually add in some kind of state management to cache DNS and IP Family.

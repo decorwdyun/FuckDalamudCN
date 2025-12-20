@@ -50,7 +50,10 @@ internal sealed partial class HttpDelegatingHandler : DelegatingHandler
         {
             UseProxy = true,
             ConnectTimeout = TimeSpan.FromSeconds(5),
-            MaxConnectionsPerServer = 10,
+            MaxConnectionsPerServer = 50,
+            EnableMultipleHttp2Connections = true,
+            PooledConnectionLifetime = TimeSpan.FromMinutes(1),
+            Expect100ContinueTimeout = TimeSpan.Zero,
             AutomaticDecompression = DecompressionMethods.All,
             ConnectCallback = happyEyeballsCallback.ConnectCallback
         };
@@ -59,7 +62,11 @@ internal sealed partial class HttpDelegatingHandler : DelegatingHandler
         _retryPolicy = Policy
             .Handle<Exception>()
             .OrResult<HttpResponseMessage>(r => !r.IsSuccessStatusCode)
-            .WaitAndRetryAsync(3, _ => TimeSpan.FromMilliseconds(500), OnRetry);
+            .WaitAndRetryAsync([
+                TimeSpan.FromMilliseconds(50),
+                TimeSpan.FromMilliseconds(100),
+                TimeSpan.FromMilliseconds(200)
+            ], OnRetry);
     }
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,

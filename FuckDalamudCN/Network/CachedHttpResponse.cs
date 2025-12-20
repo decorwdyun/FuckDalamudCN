@@ -4,12 +4,20 @@ namespace FuckDalamudCN.Network;
 
 internal class CachedHttpResponse
 {
+    private const int MaxUsageCount = 3;
+    private int _currentUsageCount = 0;
     public CachedHttpResponse(HttpResponseMessage response, byte[] content)
     {
         StatusCode = response.StatusCode;
         Content = content;
         Headers = response.Headers.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
         ContentHeaders = response.Content.Headers.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+    }
+    
+    public bool TryUse()
+    {
+        var newCount = Interlocked.Increment(ref _currentUsageCount);
+        return newCount <= MaxUsageCount;
     }
 
     private HttpStatusCode StatusCode { get; }

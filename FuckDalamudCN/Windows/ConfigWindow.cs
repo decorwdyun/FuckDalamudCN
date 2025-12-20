@@ -17,23 +17,16 @@ internal class ConfigWindow : Window
     private readonly Configuration _configuration;
     private readonly GithubProxyPool _githubProxyPool;
     private readonly IDalamudPluginInterface _pluginInterface;
-    private readonly PluginRepositoryHijack _pluginRepositoryHijack;
     private readonly UnbanController _unbanController;
     private readonly DalamudBranchDetector _dalamudBranchDetector;
     private readonly IHttpCacheService _httpCacheService;
 
-    internal readonly StyleModel? Style = StyleModel.Deserialize(
-        "DS1H4sIAAAAAAAACqVYy27bRhT9FYOrBDAMksN5UDs/2ngRF0bkIml3lDSWGNEiS1GOEyNAkF233XcVoJsC7bYfVAP5jM7MnRcpBSjJbJQZzzlz3/cOH4MsmEQn4XEwCyaPwRuxCOXqp2BCT8KPx8E8mCC5sQgm6g9cHzOnwhOExbFbATwOlnp/pTlzDc5meuOtRmONTtQda32s0PA7fYq0Tm06u0Ttlno30bux2q32pJS7vwSTVG7U+ner7230eqcB93r/nf590NK/t6xYs0rVPxy8K8v0NtLbCMxZCiUfgxv+0FgYC1EaR0SDmVxgehz8LFcpJozEVNz3WgkhKCT2It9ms4IvLAfBYcrCRHMQyhIUJZpDLRBNPI7X+WZRvjtbOtGJ+keNBnapGKIQMxYjDBRCKkRoyBgVTOervFgMJpKyXJfVrvIZBHtEo9QwpEIxbJWJMMNpiGJPmbOyXvDa4uMooiShkca7pcIj36DCgWGUkpBZlukqE4YZoc33dXbHPW0i6U3CDIO8TfpDM8RAyIw0iRQWO5rL8p7Xnptjqq404Re3/IxwnCYRWCY8SRzL6bzJ713iokQFiyFxFlEsiYk/xUL0hTLu8qZoaRamNEnC2GgGS+snGrGQyKh2gQsEHWkETiWAo9FLTRPjJJWXdGnOy6LIqq1nnN5MV3yzO8vqYd4Cium8FnLMWiT9g8ayvKhlqRwtjKQZHDoHuAYHEHCdr/h8fZXV62+UK5bKLDQZSmSxiv3AmRa5SM2WbfpqYxlGqnK2a5rSdCJxIFZ3mZCz5xUaewEH+QjormcSiFNDglv1ikD5MoUXxHVcHXWwPBuaVkIMB1yA9kkueeaXzl7FCkF+IUszolgxSzLSP1NeZXXWlIN06lCMzSDDM1KlV3ybf+Av6rwarpPjGKmUIxqp1c2wQidCRZdP4BgRcypVcAo8I1pki+fHzW0537W6Uh/lUtWkOlQjLX1Rztf5Znld8/ucu9EmkcVJSKNpKEyhdu5s1S5qpyRN9t1d1bz3Wp6pXabZ+iFzXZTNy3zDt676m9nM1fzoEKDr3NT4D+ok2MFITCAucIfoMt825VLMQY6lVSOZNF5irEfM6jDHnkDt0V2byZZ/IWzkZ6FwasGhzLVmDhsaB6ynMHo2bepy43DIWFH+R8f3YeDLfLlyzw3ZB8BZNgj3cK9GPA7aJKeFuVk9oQSB+hVI9QsIop81U17wecP990SfMEVwNJZxWmfLi7qsbrJ6yZvevhcnbcj/kN1fCgMWLSNiMaKIq63jpQlMmXFRYY0qOODJJXKnS/Ztu9AO8iK/8yzDjBb6WlNDpPpX5SIrAPf/QOIRL5/Y4rkQTILzrKmq3Xyeb46eTfO7quBHp4u3u21zhJ4fPfv62+enP/7695/fn379++unT09f/jy6yh+eB+IbATxus8EJO+szyETm+0TfMQqAi/5DHABdJWYExamt7EIbSkxKpYm4zn9x3w597i+HVpvVgBwCZO7c0DJpO18YtFMPZ77uSE7Z86Q1wH8SZl1BVRx4uPXA2lxYnE1AUNB2SFDQtlyLdN3AYEzy+j7bDHyvlEPLhJvwKMhsP+iY+wG5bwrxaWtYlLhB2VoJcK0xJYUa78vq2nkfpwmgaKHiLx//A3sPPNh6FAAA"
-    );
-
     private DateTime _lastCanCheckTime = DateTime.MinValue;
-    internal bool StylePushed;
 
     public ConfigWindow(
         IDalamudPluginInterface pluginInterface,
         Configuration configuration,
         GithubProxyPool githubProxyPool,
-        PluginRepositoryHijack pluginRepositoryHijack,
         UnbanController unbanController,
         IHttpCacheService httpCacheService
     ) : base("FuckDalamudCN - 配置")
@@ -41,7 +34,6 @@ internal class ConfigWindow : Window
         _pluginInterface = pluginInterface;
         _configuration = configuration;
         _githubProxyPool = githubProxyPool;
-        _pluginRepositoryHijack = pluginRepositoryHijack;
         _unbanController = unbanController;
         _httpCacheService = httpCacheService;
         Flags = ImGuiWindowFlags.AlwaysAutoResize;
@@ -63,20 +55,6 @@ internal class ConfigWindow : Window
         DrawUnbanTab();
         DrawNetworkTab();
         DrawAboutTab();
-    }
-
-    public override void PreDraw()
-    {
-        Style?.Push();
-        StylePushed = true;
-    }
-
-    public override void PostDraw()
-    {
-        if (!StylePushed) return;
-
-        Style?.Pop();
-        StylePushed = false;
     }
 
     private void DrawUnbanTab()
