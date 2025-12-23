@@ -82,7 +82,7 @@
   "AdventurerInNeed": {
     "Punchline": {
       "Original": "Receive a notification when a duty roulette is in need of a role.",
-      "Translated": "当职责轮盘需要特定职责时接收通知。"
+      "Translated": "当随机任务需要特定职责时接收通知。"
     },
     "Description": {
       "Original": "Receive a notification when a duty roulette is in need of a role. /pbonus to setup",
@@ -1842,11 +1842,11 @@
   "JobMountRoulette": {
     "Punchline": {
       "Original": "Customized mount roulette per job.",
-      "Translated": "自定义各职业坐骑轮盘。"
+      "Translated": "自定义各职业的随机坐骑。"
     },
     "Description": {
       "Original": "Enhance your mount roulette experience by customizing which mounts may appear for each job individually.",
-      "Translated": "为每个职业单独自定义可能出现的坐骑，提升坐骑轮盘的体验。"
+      "Translated": "为每个职业单独自定义可能出现的坐骑，提升随机坐骑的体验。"
     }
   },
   "JobTitles": {
@@ -3522,7 +3522,7 @@
   "TitleRoulette": {
     "Punchline": {
       "Original": "Pick titles you want in a title roulette.",
-      "Translated": "选择你想加入称号轮盘的称号。"
+      "Translated": "选择你想加入随机称号的称号。"
     },
     "Description": {
       "Original": "Allows you to pick any number of titles, setting a random one each time you use \u0022/ptitle\u0022 or \u0022/ptitle groupName\u0022.",

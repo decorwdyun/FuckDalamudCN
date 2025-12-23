@@ -72,8 +72,5 @@ internal sealed class HappyHttpClientHijack : IDisposable
         var newHttpClient = new HttpClient(_httpDelegatingHandler);
 
         _sharedHttpClientField.SetValue(_happyHttpClient, newHttpClient);
-        
-        _logger.LogInformation(
-            $"已屏蔽数据上报, Dalamud/{_dalamudVersionProvider.DalamudAssemblyVersion}, 随机机器码: {MachineCodeGenerator.Instance.MachineCode}");
     }
 }

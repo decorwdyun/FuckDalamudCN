@@ -27,6 +27,7 @@ internal sealed partial class HttpDelegatingHandler : DelegatingHandler
     private readonly AsyncRetryPolicy<HttpResponseMessage> _retryPolicy;
 
     private readonly AsyncTimeoutPolicy<HttpResponseMessage> _timeoutPolicy;
+    private readonly AsyncTimeoutPolicy<HttpResponseMessage> _perRequestTimeoutPolicy;
 
     private int _errorCount;
 
@@ -59,6 +60,8 @@ internal sealed partial class HttpDelegatingHandler : DelegatingHandler
         };
 
         _timeoutPolicy = Policy.TimeoutAsync<HttpResponseMessage>(TimeSpan.FromSeconds(15));
+        _perRequestTimeoutPolicy = Policy.TimeoutAsync<HttpResponseMessage>(TimeSpan.FromSeconds(4));
+
         _retryPolicy = Policy
             .Handle<Exception>()
             .OrResult<HttpResponseMessage>(r => !r.IsSuccessStatusCode)
@@ -85,21 +88,6 @@ internal sealed partial class HttpDelegatingHandler : DelegatingHandler
 
         PrepareRequestHeaders(request);
 
-        if (RequestFilter.HandleAnalyticsAndPrivacy(request, _logger) is { } blockedResponse)
-        {
-            var requestBody = await ReadBodySafeAsync(request.Content);
-            var responseBody = await ReadBodySafeAsync(blockedResponse.Content);
-
-            _logger.LogInformation(
-                "【隐私保护】禁止了一个发往 {RequestUri} 的请求。\n原始请求Body: {RequestBody}\n伪造的响应: {ResponseBody}",
-                request.RequestUri,
-                requestBody,
-                responseBody
-            );
-
-            return blockedResponse;
-        }
-
         if (request.Method == HttpMethod.Get && _configuration.EnablePluginManifestCache)
         {
             if (_httpCacheService.TryGetCachedResponse(request, originalUri, out var cachedResponse))
@@ -123,7 +111,8 @@ internal sealed partial class HttpDelegatingHandler : DelegatingHandler
         {
             TryReplaceUri(request, originalUri, context);
 
-            var pipeline = Policy.WrapAsync(_timeoutPolicy, _retryPolicy);
+            var requestStrategy = _retryPolicy.WrapAsync(_perRequestTimeoutPolicy);
+            var pipeline = _timeoutPolicy.WrapAsync(requestStrategy);
             var response = await pipeline
                 .ExecuteAsync(async _ => await base.SendAsync(request, cancellationToken), context)
                 .ConfigureAwait(false);
@@ -143,7 +132,7 @@ internal sealed partial class HttpDelegatingHandler : DelegatingHandler
 
         if (originalUri != null) TryReplaceUri(request, originalUri, context);
 
-        _logger.LogWarning("在 {timeSpan} 后进行第 {RetryCount} 次重试，当前请求URL：{RequestUri}", timeSpan, retryCount,
+        _logger.LogInformation("在 {timeSpan} 后进行第 {RetryCount} 次重试，当前请求URL：{RequestUri}", timeSpan, retryCount,
             request.RequestUri);
     }
 
@@ -254,8 +243,6 @@ internal sealed partial class HttpDelegatingHandler : DelegatingHandler
     {
         request.Headers.TryAddWithoutValidation("User-Agent",
             $"Dalamud/{_dalamudVersionProvider.DalamudAssemblyVersion}");
-        if (request.RequestUri?.Host == "aonyx.ffxiv.wang")
-            request.Headers.TryAddWithoutValidation("X-Machine-Token", MachineCodeGenerator.Instance.MachineCode);
     }
 
     private static bool IsValidUrl(Uri uri)

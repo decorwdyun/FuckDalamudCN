@@ -1,14 +1,11 @@
 ﻿using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Colors;
 using Dalamud.Interface.Components;
-using Dalamud.Interface.Style;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
 using Dalamud.Utility;
-using FuckDalamudCN.Controllers;
 using FuckDalamudCN.Network;
-using FuckDalamudCN.Utils;
 
 namespace FuckDalamudCN.Windows;
 
@@ -17,8 +14,6 @@ internal class ConfigWindow : Window
     private readonly Configuration _configuration;
     private readonly GithubProxyPool _githubProxyPool;
     private readonly IDalamudPluginInterface _pluginInterface;
-    private readonly UnbanController _unbanController;
-    private readonly DalamudBranchDetector _dalamudBranchDetector;
     private readonly IHttpCacheService _httpCacheService;
 
     private DateTime _lastCanCheckTime = DateTime.MinValue;
@@ -27,14 +22,12 @@ internal class ConfigWindow : Window
         IDalamudPluginInterface pluginInterface,
         Configuration configuration,
         GithubProxyPool githubProxyPool,
-        UnbanController unbanController,
         IHttpCacheService httpCacheService
-    ) : base("FuckDalamudCN - 配置")
+    ) : base("FastDalamudCN - 配置")
     {
         _pluginInterface = pluginInterface;
         _configuration = configuration;
         _githubProxyPool = githubProxyPool;
-        _unbanController = unbanController;
         _httpCacheService = httpCacheService;
         Flags = ImGuiWindowFlags.AlwaysAutoResize;
         // Size = new Vector2(500, 300);
@@ -51,49 +44,21 @@ internal class ConfigWindow : Window
         using var tabBar = ImRaii.TabBar("FuckDalamudCNConfigTabs");
         if (!tabBar)
             return;
-        
-        DrawUnbanTab();
+
         DrawNetworkTab();
+        DrawUnbanTab();
         DrawAboutTab();
     }
 
     private void DrawUnbanTab()
     {
-        using var tab = ImRaii.TabItem("Unban###FastGithubTab-FuckDalamudCN");
+        using var tab = ImRaii.TabItem("原Unban##FastDalamudCN-Unban");
         if (!tab)
             return;
-        var alwaysTrue = true;
-        using (ImRaii.Disabled(alwaysTrue))
-        {
-            ImGui.Checkbox($"解除插件封锁（Unban）###{_unbanController.UnbannedRecord.Count}", ref alwaysTrue);
-        }
+        ImGui.AlignTextToFramePadding();
 
-        ImGuiComponents.HelpMarker($"某插件搜不到、插件被自动禁用、提示兼容性问题？{Environment.NewLine}" +
-                                   $"这都有可能是因为 OtterCorp Dalamud 的插件封锁政策。{Environment.NewLine}"
-                                   + "我们将帮你解除不合理的封锁政策");
-        using (ImRaii.Disabled(alwaysTrue))
-        {
-            ImGui.Checkbox("阻止 OtterCorp Dalamud 收集用户隐私数据", ref alwaysTrue);
-        }
-
-        ImGuiComponents.HelpMarker($"OtterCorp Dalamud 会在每次登录时都收集数据上传到服务器{Environment.NewLine}" +
-                                   $"包括但不限于机器码、用户账号ID、角色ID、已安装的插件列表，是否使用外置 exe 进行 Unban 等等{Environment.NewLine}" +
-                                   "我们将帮你完全阻止这个数据的上传");
-        if (_unbanController.UnbannedRecord.Count > 0)
-        {
-            ImGui.TextColored(ImGuiColors.HealerGreen, "Unban 记录：");
-            if (_unbanController.UnbannedRecord.Count < 5)
-            {
-                foreach (var (pluginName, note, time) in _unbanController.UnbannedRecord)
-                    ImGui.Text($"{time:yyyy-MM-dd HH:mm:ss} {pluginName} {note}");
-            }
-            else
-            {
-                ImGui.TextColored(ImGuiColors.DalamudRed, "严重错误，请联系作者");
-                foreach (var (pluginName, note, time) in _unbanController.UnbannedRecord.TakeLast(100))
-                    ImGui.TextColored(ImGuiColors.DalamudRed, $"{time:yyyy-MM-dd HH:mm:ss} {pluginName} {note}");
-            }
-        }
+        ImGui.Text("OtterCorp 卫月已全面移除插件封锁相关代码、所以不再需要 Unban 了");
+        ImGui.Text($"如果你不需要本插件的其他功能的话，可以直接卸载！");
     }
 
     private void DrawNetworkTab()
@@ -102,10 +67,7 @@ internal class ConfigWindow : Window
         if (!tab)
             return;
         ImGui.AlignTextToFramePadding();
-        
-        ImGui.TextColored(ImGuiColors.DalamudOrange, $"这个页面基本上是对卫月插件管理器的各种优化\n网络不好或者不想开梯子推荐都开启");
 
-        
         var enableFastGithub = _configuration.EnableFastGithub;
         if (ImGui.Checkbox("开启卫月第三方 Github 插件仓库加速",
                 ref enableFastGithub))
@@ -114,8 +76,10 @@ internal class ConfigWindow : Window
             _httpCacheService.ClearCache();
             Save();
         }
-        ImGuiComponents.HelpMarker("只会加速 https://raw.githubusercontent.com 之类的 Github 相关的库链\n其他的比如 https://love.puni.sh 则不会加速");
-        
+
+        ImGuiComponents.HelpMarker(
+            "只会加速 https://raw.githubusercontent.com 之类的 Github 相关的库链\n其他的比如 https://love.puni.sh 则不会加速");
+
         var enableMainRepoPluginLocalization = _configuration.EnableMainRepoPluginLocalization;
         if (ImGui.Checkbox("开启主库插件简介翻译",
                 ref enableMainRepoPluginLocalization))
@@ -124,9 +88,10 @@ internal class ConfigWindow : Window
             _httpCacheService.ClearCache();
             Save();
         }
+
         ImGui.SameLine();
         ImGuiComponents.HelpMarker("只会翻译主库插件\n纯机翻，对效果别期待太多（聊胜于无）");
-        
+
         var enablePluginManifestCache = _configuration.EnablePluginManifestCache;
         if (ImGui.Checkbox("开启缓存",
                 ref enablePluginManifestCache))
@@ -144,10 +109,10 @@ internal class ConfigWindow : Window
                 _httpCacheService.ClearCache();
             }
         }
-        
+
         ImGui.SameLine();
         ImGuiComponents.HelpMarker("Github 仓库缓存15分钟，其他仓库5分钟\n开启后在短时间内重复打开插件管理器将无需等待（推荐开启）");
-        
+
         var alwaysTrue = true;
         using (ImRaii.Disabled(alwaysTrue))
         {
@@ -195,6 +160,15 @@ internal class ConfigWindow : Window
         ImGui.TextColored(ImGuiColors.HealerGreen, "插件主页：");
         ImGui.TextColored(ImGuiColors.TankBlue, "https://github.com/decorwdyun/FuckDalamudCN");
         ImGui.NewLine();
+
+        ImGui.Separator();
+        if (ImGui.CollapsingHeader("插件 Github 加速和主库翻译的工作原理?"))
+        {
+            ImGui.PushTextWrapPos();
+            ImGui.AlignTextToFramePadding();
+            ImGui.Text("两个功能的工作原理都是劫持 Dalamud 本体的网络请求，重定向至本插件内置的反代服务器");
+            ImGui.NewLine();
+        }
 
         if (ImGui.Button("打开插件主页")) Util.OpenLink("https://github.com/decorwdyun/FuckDalamudCN");
         ImGui.SameLine();

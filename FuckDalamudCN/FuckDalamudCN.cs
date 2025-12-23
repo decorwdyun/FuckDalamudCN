@@ -27,6 +27,10 @@ public sealed class FuckDalamudCN : IDalamudPlugin
     )
     {
         _pluginInterface = pluginInterface;
+        if ((uint)clientState.ClientLanguage != 4)
+        {
+            throw new InvalidOperationException("This plugin is not compatible with your client.");
+        }
 #if !DEBUG
         bool RepoCheck()
         {
@@ -66,27 +70,20 @@ public sealed class FuckDalamudCN : IDalamudPlugin
             serviceCollection.AddSingleton<HappyEyeballsCallback>();
 
             serviceCollection.AddSingleton<GithubProxyPool>();
-            serviceCollection.AddSingleton<UnbanController>();
             serviceCollection.AddSingleton<IHttpCacheService, HttpCacheService>();
             serviceCollection.AddSingleton<HttpDelegatingHandler>();
             serviceCollection.AddSingleton<HappyHttpClientHijack>();
-            serviceCollection.AddSingleton<DeviceUtilsHijack>();
             serviceCollection.AddSingleton<PluginRepositoryHijack>();
-
-
+            
             serviceCollection.AddSingleton<ConfigWindow>();
-
-            serviceCollection.AddSingleton<DalamudBranchDetector>();
 
             _serviceProvider = serviceCollection.BuildServiceProvider();
             _serviceProvider.GetRequiredService<CommandHandler>();
             try
             {
                 _serviceProvider.GetRequiredService<DalamudInitializer>();
-                _serviceProvider.GetRequiredService<DeviceUtilsHijack>();
                 _serviceProvider.GetRequiredService<HappyHttpClientHijack>();
                 _serviceProvider.GetRequiredService<PluginRepositoryHijack>();
-                _serviceProvider.GetRequiredService<UnbanController>().Start();
             }
             catch (Exception e)
             {

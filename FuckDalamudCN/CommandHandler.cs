@@ -20,16 +20,11 @@ internal sealed class CommandHandler : IDisposable
         {
             HelpMessage = "打开配置窗口."
         });
-        _commandManager.AddHandler("/fuckdalamudcn", new CommandInfo(OnCommand)
-        {
-            HelpMessage = "打开配置窗口."
-        });
     }
 
     public void Dispose()
     {
         _commandManager.RemoveHandler("/fdcn");
-        _commandManager.RemoveHandler("/fuckdalamudcn");
     }
 
     private void OnCommand(string command, string arguments)

@@ -1,17 +1,18 @@
-name: FuckDalamudCN
+name: FastDalamudCN
 author: decorwdyun
 description: |-
-  - 解除国服 Dalamud 中不合理的插件封锁、隐私数据上传
-  - 卫月第三方库（Github）加速服务（在配置界面手动开启）
+  - 卫月第三方库（Github）加速服务（默认开启）
   - 卫月主库插件简介翻译（默认开启）
-punchline: 解除国服 Dalamud 中不合理的插件封锁、隐私数据上传，还额外提供卫月第三方库（Github Only）加载和下载加速服务（请在配置界面手动开启）
+  OtterCorp 维护的卫月已全面移除插件封锁相关代码、所以不再需要 Unban，如果你不再需要此插件的其他功能，可以暂时卸载了
+punchline: CN Only! 卫月第三方库（Github）加载和下载加速服务、主库插件简介翻译 原 FuckDalamudCN
 tags:
   - unban
+  - FastDalamudCN
   - FuckDalamudCN
-  - 插件封锁
-  - dontban
   - Github
   - 加速
+  - 汉化
+  - 翻译
 icon_url: https://raw.githubusercontent.com/decorwdyun/DalamudPlugins/main/FuckDalamudCN/icon.png
 load_priority: 1001
 load_required_state: 0

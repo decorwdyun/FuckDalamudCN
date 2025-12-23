@@ -10,7 +10,6 @@ namespace FuckDalamudCN.Controllers;
 
 internal sealed class PluginRepositoryHijack : IDisposable
 {
-    private readonly Configuration _configuration;
     private readonly IFramework _framework;
     private readonly ILogger<HappyHttpClientHijack> _logger;
 
@@ -30,7 +29,6 @@ internal sealed class PluginRepositoryHijack : IDisposable
     {
         _logger = logger;
         _framework = framework;
-        _configuration = configuration;
         var dalamudAssembly = pluginInterface.GetType().Assembly;
 
         _newHttpClient = new HttpClient(httpDelegatingHandler)
