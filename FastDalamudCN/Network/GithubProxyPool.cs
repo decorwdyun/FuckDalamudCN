@@ -235,12 +235,6 @@ internal sealed class GithubProxyPool : IDisposable
             new
             {
                 Url =
-                    "https://gh.5050net.cn/https://raw.githubusercontent.com/decorwdyun/DalamudPlugins/main/FastDalamudCN/random.bin",
-                Tags = new[] { "standard" }
-            },
-            new
-            {
-                Url =
                     "https://fb.xuolu.com/https://github.com/decorwdyun/DalamudPlugins/blob/main/FastDalamudCN/random.bin",
                 Tags = new[] { "short-cache" }
             }
