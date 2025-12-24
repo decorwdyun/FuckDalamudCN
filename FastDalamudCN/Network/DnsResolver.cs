@@ -68,13 +68,21 @@ internal class DnsResolver(ILogger<DnsResolver> logger) : IDisposable
             try
             {
                 var cnameRecords = await Dns.GetHostAddressesAsync(HijackCname, ForcedAddressFamily, token);
-                if (cnameRecords.Length > 0)
+                var selectedCnameIps = cnameRecords
+                    .Where(IsCloudflareIp)
+                    .Take(3)
+                    .ToArray();
+
+                if (selectedCnameIps.Length > 0)
                 {
-                    dnsRecords[0] = cnameRecords[0];
+                    dnsRecords = selectedCnameIps
+                        .Concat(dnsRecords)
+                        .Distinct()
+                        .ToArray();
                 }
                 else
                 {
-                    logger.LogWarning("CNAME {_hijackCname} resolved to empty IPs for {Hostname}", HijackCname,
+                    logger.LogWarning("CNAME {_hijackCname} resolved to empty or invalid IPs for {Hostname}", HijackCname,
                         hostname);
                 }
             }
