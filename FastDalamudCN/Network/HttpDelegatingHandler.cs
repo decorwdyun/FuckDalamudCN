@@ -257,30 +257,6 @@ internal sealed partial class HttpDelegatingHandler : DelegatingHandler
         return uri.HostNameType is UriHostNameType.IPv4 or UriHostNameType.IPv6 || host.Contains('.');
     }
 
-    private static async Task<string> ReadBodySafeAsync(HttpContent? content, int maxLength = 4096)
-    {
-        if (content == null)
-            return string.Empty;
-
-        string body;
-        try
-        {
-            body = await content.ReadAsStringAsync();
-        }
-        catch
-        {
-            return "<读取Body失败>";
-        }
-
-        if (string.IsNullOrEmpty(body))
-            return "<空Body>";
-
-        if (body.Length > maxLength)
-            return body.Substring(0, maxLength) + $"...（已截断，原始长度 {body.Length}）";
-
-        return body;
-    }
-
     [GeneratedRegex(@"^/([^/]+)/([^/]+)/refs/heads/([^/]+)(.*)$")]
     private static partial Regex RefHead();
 }
