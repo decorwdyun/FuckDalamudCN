@@ -21,8 +21,6 @@ public sealed class FastDalamudCN : IDalamudPlugin
         IClientState clientState,
         IPluginLog pluginLog,
         IFramework framework,
-        INotificationManager notificationManager,
-        IChatGui chatGui,
         ICommandManager commandManager
     )
     {
@@ -31,23 +29,12 @@ public sealed class FastDalamudCN : IDalamudPlugin
         {
             throw new InvalidOperationException("This plugin is not compatible with your client.");
         }
-#if !DEBUG
-        bool RepoCheck()
+
+        if (!_pluginInterface.Manifest.Author.Equals("decorwdyun", StringComparison.InvariantCultureIgnoreCase))
         {
-            var sourceRepository = _pluginInterface.SourceRepository;
-            return sourceRepository == "https://gp.xuolu.com/love.json" || sourceRepository.Contains("decorwdyun/DalamudPlugins", StringComparison.OrdinalIgnoreCase);
+            throw new InvalidOperationException($"Plugin author tampered!");
         }
-        if ((_pluginInterface.IsDev || !RepoCheck()))
-        {
-            notificationManager.AddNotification(new Dalamud.Interface.ImGuiNotification.Notification()
-            {
-                Type = Dalamud.Interface.ImGuiNotification.NotificationType.Error,
-                Title = "加载验证",
-                Content = "由于本地加载或安装来源仓库非 decorwdyun 个人仓库，插件禁止加载。",
-            });
-            return;
-        }
-#endif
+
         try
         {
             ServiceCollection serviceCollection = new();
@@ -58,7 +45,6 @@ public sealed class FastDalamudCN : IDalamudPlugin
             serviceCollection.AddSingleton(pluginInterface);
             serviceCollection.AddSingleton(framework);
             serviceCollection.AddSingleton(clientState);
-            serviceCollection.AddSingleton(chatGui);
             serviceCollection.AddSingleton(commandManager);
             serviceCollection.AddSingleton((Configuration?)pluginInterface.GetPluginConfig() ?? new Configuration());
             serviceCollection.AddSingleton(new WindowSystem(nameof(FastDalamudCN)));
@@ -67,6 +53,7 @@ public sealed class FastDalamudCN : IDalamudPlugin
             serviceCollection.AddSingleton<CommandHandler>();
 
             serviceCollection.AddSingleton<PluginLocalizationService>();
+            serviceCollection.AddSingleton<DnsResolver>();
             serviceCollection.AddSingleton<HappyEyeballsCallback>();
 
             serviceCollection.AddSingleton<GithubProxyPool>();
@@ -74,7 +61,7 @@ public sealed class FastDalamudCN : IDalamudPlugin
             serviceCollection.AddSingleton<HttpDelegatingHandler>();
             serviceCollection.AddSingleton<HappyHttpClientHijack>();
             serviceCollection.AddSingleton<PluginRepositoryHijack>();
-            
+
             serviceCollection.AddSingleton<ConfigWindow>();
 
             _serviceProvider = serviceCollection.BuildServiceProvider();
@@ -99,17 +86,6 @@ public sealed class FastDalamudCN : IDalamudPlugin
 
     public void Dispose()
     {
-#if !DEBUG
-        bool RepoCheck()
-        {
-            var sourceRepository = _pluginInterface.SourceRepository;
-            return sourceRepository == "https://gp.xuolu.com/love.json" || sourceRepository.Contains("decorwdyun/DalamudPlugins", StringComparison.OrdinalIgnoreCase);
-        }
-        if (_pluginInterface.IsDev || !RepoCheck())
-        {
-            return;
-        }
-#endif
         _serviceProvider?.Dispose();
     }
 }

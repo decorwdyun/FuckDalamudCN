@@ -1,51 +1,26 @@
 ﻿using System.Net;
 using System.Net.Sockets;
-using Dalamud.Logging.Internal;
 using Dalamud.Utility;
 using Microsoft.Extensions.Logging;
 
 namespace FastDalamudCN.Network;
 
-public class HappyEyeballsCallback : IDisposable
+internal class HappyEyeballsCallback(
+    ILogger<HappyEyeballsCallback> logger,
+    DnsResolver dnsResolver)
+    : IDisposable
 {
-    private readonly ILogger _logger;
-    private readonly int connectionBackoff = 100;
+    private readonly ILogger _logger = logger;
+    private const int ConnectionBackoff = 100;
 
-    /*
-     * ToDo: Eventually add in some kind of state management to cache DNS and IP Family.
-     * For now, this is ignored as the HTTPClient will keep connections alive, but there are benefits to sharing
-     * cached lookups between different clients. We just need to be able to easily expire those lookups first.
-     */
-
-    private readonly AddressFamily forcedAddressFamily = AddressFamily.Unspecified;
-
-    /// <summary>
-    ///     Initializes a new instance of the <see cref="HappyEyeballsCallback" /> class.
-    /// </summary>
-    /// <param name="logger"></param>
-    /// <param name="dynamicHttpWindowsProxy"></param>
-    public HappyEyeballsCallback(
-        ILogger<HappyEyeballsCallback> logger
-    )
-    {
-        _logger = logger;
-    }
-
-    /// <inheritdoc />
     public void Dispose()
     {
         GC.SuppressFinalize(this);
     }
 
-    /// <summary>
-    ///     The connection callback to provide to a <see cref="SocketsHttpHandler" />.
-    /// </summary>
-    /// <param name="context">The context for an HTTP connection.</param>
-    /// <param name="token">The cancellation token to abort this request.</param>
-    /// <returns>Returns a Stream for consumption by HttpClient.</returns>
     public async ValueTask<Stream> ConnectCallback(SocketsHttpConnectionContext context, CancellationToken token)
     {
-        var sortedRecords = await GetSortedAddresses(context.DnsEndPoint.Host, token);
+        var sortedRecords = await dnsResolver.GetSortedAddressesAsync(context.DnsEndPoint.Host, token);
 
         var linkedToken = CancellationTokenSource.CreateLinkedTokenSource(token);
         var tasks = new List<Task<NetworkStream>>();
@@ -55,7 +30,7 @@ public class HappyEyeballsCallback : IDisposable
         {
             var record = sortedRecords[i];
 
-            delayCts.CancelAfter(connectionBackoff * i);
+            delayCts.CancelAfter(ConnectionBackoff * i);
 
             var task = AttemptConnection(record, context.DnsEndPoint.Port, linkedToken.Token, delayCts.Token);
             tasks.Add(task);
@@ -96,21 +71,6 @@ public class HappyEyeballsCallback : IDisposable
             socket.Dispose();
             throw;
         }
-    }
-
-    private async Task<List<IPAddress>> GetSortedAddresses(string hostname, CancellationToken token)
-    {
-        // This method abuses DNS ordering and LINQ a bit. We can normally assume that addresses will be provided in
-        // the order the system wants to use. GroupBy will return its groups *in the order they're discovered*. Meaning,
-        // the first group created will always be the preferred group, and all other groups are in preference order.
-        // This means a straight zipper merge is nice and clean and gives us most -> least preferred, repeating.
-        var dnsRecords = await Dns.GetHostAddressesAsync(hostname, forcedAddressFamily, token);
-
-        var groups = dnsRecords
-            .GroupBy(a => a.AddressFamily)
-            .Select(g => g.Select(v => v)).ToArray();
-
-        return Util.ZipperMerge(groups).ToList();
     }
 
     private void CleanupConnectionTask(Task task)

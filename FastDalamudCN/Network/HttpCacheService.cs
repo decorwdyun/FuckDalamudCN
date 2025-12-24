@@ -42,7 +42,7 @@ public class HttpCacheService(ILogger<HttpCacheService> logger) : IHttpCacheServ
 
             return cacheEntry.ToHttpResponseMessage(request);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return response; 
         }

@@ -23,14 +23,23 @@ internal sealed class GithubProxyPool : IDisposable
     private readonly Timer _timer;
     private readonly SemaphoreSlim _checkSemaphore;
 
-    public GithubProxyPool(ILogger<GithubProxyPool> logger, Configuration configuration)
+    public GithubProxyPool(
+        ILogger<GithubProxyPool> logger,
+        Configuration configuration,
+        HappyEyeballsCallback happyEyeballsCallback
+    )
     {
         _logger = logger;
         _configuration = configuration;
         _nodes = InitializeNodes();
         _checkSemaphore = new SemaphoreSlim(1, 1);
 
-        _httpClient = new HttpClient(new HttpClientHandler { AllowAutoRedirect = false, UseProxy = true })
+        _httpClient = new HttpClient(new SocketsHttpHandler()
+        {
+            AllowAutoRedirect = false,
+            UseProxy = true,
+            ConnectCallback = happyEyeballsCallback.ConnectCallback
+        })
         {
             Timeout = TimeSpan.FromSeconds(10)
         };

@@ -69,7 +69,7 @@ internal class ConfigWindow : Window
         ImGui.AlignTextToFramePadding();
 
         var enableFastGithub = _configuration.EnableFastGithub;
-        if (ImGui.Checkbox("开启卫月第三方 Github 插件仓库加速",
+        if (ImGui.Checkbox("开启卫月第三方仓库加速",
                 ref enableFastGithub))
         {
             _configuration.EnableFastGithub = enableFastGithub;
@@ -78,7 +78,7 @@ internal class ConfigWindow : Window
         }
 
         ImGuiComponents.HelpMarker(
-            "只会加速 https://raw.githubusercontent.com 之类的 Github 相关的库链\n其他的比如 https://love.puni.sh 则不会加速");
+            "只会反代加速 https://raw.githubusercontent.com 之类的 Github 相关的库链\n其他的比如 https://love.puni.sh 如果使用 CloudFlare则会使用优选IP直连");
 
         var enableMainRepoPluginLocalization = _configuration.EnableMainRepoPluginLocalization;
         if (ImGui.Checkbox("开启主库插件简介翻译",
@@ -134,7 +134,9 @@ internal class ConfigWindow : Window
 
             if (ImGui.Button(buttonText))
             {
+#if !DEBUG
                 _lastCanCheckTime = DateTime.Now.AddSeconds(20);
+#endif
                 _githubProxyPool.CheckProxies();
             }
 
