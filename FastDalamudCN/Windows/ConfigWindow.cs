@@ -90,7 +90,7 @@ internal class ConfigWindow : Window
         }
 
         ImGui.SameLine();
-        ImGuiComponents.HelpMarker("只会翻译主库插件\n纯机翻，对效果别期待太多（聊胜于无）");
+        ImGuiComponents.HelpMarker("只会翻译主库插件\n纯机翻，对效果别期待太多");
 
         var enablePluginManifestCache = _configuration.EnablePluginManifestCache;
         if (ImGui.Checkbox("开启缓存",
@@ -111,7 +111,7 @@ internal class ConfigWindow : Window
         }
 
         ImGui.SameLine();
-        ImGuiComponents.HelpMarker("Github 仓库缓存15分钟，其他仓库5分钟\n开启后在短时间内重复打开插件管理器将无需等待（推荐开启）");
+        ImGuiComponents.HelpMarker("Github 仓库缓存15分钟，其他仓库5分钟，缓存只会被使用4次\n开启后在短时间内重复打开插件管理器将无需等待（推荐开启）");
 
         var alwaysTrue = true;
         using (ImRaii.Disabled(alwaysTrue))
@@ -166,7 +166,8 @@ internal class ConfigWindow : Window
         {
             ImGui.PushTextWrapPos();
             ImGui.AlignTextToFramePadding();
-            ImGui.Text("两个功能的工作原理都是劫持 Dalamud 本体的网络请求，重定向至本插件内置的反代服务器");
+            ImGui.Text("Github 加速工作原理为劫持卫月本体的网络请求，将访问 Github 服务的请求重定向到内置的反代服务器");
+            ImGui.Text("主库翻译的工作原理也是劫持访问主库的网络请求，直接在本机处理服务器响应，将插件简介替换为插件内置的翻译");
             ImGui.NewLine();
         }
 

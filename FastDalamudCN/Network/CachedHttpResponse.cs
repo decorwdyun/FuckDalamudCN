@@ -4,7 +4,7 @@ namespace FastDalamudCN.Network;
 
 internal class CachedHttpResponse
 {
-    private const int MaxUsageCount = 3;
+    private const int MaxUsageCount = 4;
     private int _currentUsageCount = 0;
     public CachedHttpResponse(HttpResponseMessage response, byte[] content)
     {
