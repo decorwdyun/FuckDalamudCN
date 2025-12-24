@@ -160,7 +160,7 @@ internal class ConfigWindow : Window
         ImGui.TextColored(ImGuiColors.DalamudRed, "如果你是付费购买的本插件，请立即退款并差评举报。");
         ImGui.Separator();
         ImGui.TextColored(ImGuiColors.HealerGreen, "插件主页：");
-        ImGui.TextColored(ImGuiColors.TankBlue, "https://github.com/decorwdyun/FastDalamudCN");
+        ImGui.TextColored(ImGuiColors.TankBlue, "https://github.com/decorwdyun/FuckDalamudCN");
         ImGui.NewLine();
 
         ImGui.Separator();
