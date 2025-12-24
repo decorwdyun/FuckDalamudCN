@@ -1,8 +1,8 @@
 ﻿using Dalamud.Game.Command;
 using Dalamud.Plugin.Services;
-using FuckDalamudCN.Windows;
+using FastDalamudCN.Windows;
 
-namespace FuckDalamudCN;
+namespace FastDalamudCN;
 
 internal sealed class CommandHandler : IDisposable
 {

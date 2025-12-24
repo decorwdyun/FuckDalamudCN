@@ -1,6 +1,6 @@
 ﻿using Dalamud.Configuration;
 
-namespace FuckDalamudCN;
+namespace FastDalamudCN;
 
 public sealed class Configuration : IPluginConfiguration
 {

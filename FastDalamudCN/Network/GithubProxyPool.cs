@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Security.Cryptography;
 using Microsoft.Extensions.Logging;
 
-namespace FuckDalamudCN.Network;
+namespace FastDalamudCN.Network;
 
 internal sealed class ProxyNode
 {
@@ -202,37 +202,37 @@ internal sealed class GithubProxyPool : IDisposable
             new
             {
                 Url =
-                    "https://gh-proxy.org/https://github.com/decorwdyun/DalamudPlugins/blob/main/FuckDalamudCN/random.bin",
+                    "https://gh-proxy.org/https://github.com/decorwdyun/DalamudPlugins/blob/main/FastDalamudCN/random.bin",
                 Tags = new[] { "standard" }
             },
             new
             {
                 Url =
-                    "https://hk.gh-proxy.org/https://github.com/decorwdyun/DalamudPlugins/blob/main/FuckDalamudCN/random.bin",
+                    "https://hk.gh-proxy.org/https://github.com/decorwdyun/DalamudPlugins/blob/main/FastDalamudCN/random.bin",
                 Tags = new[] { "standard" }
             },
             new
             {
                 Url =
-                    "https://edgeone.gh-proxy.org/https://github.com/decorwdyun/DalamudPlugins/blob/main/FuckDalamudCN/random.bin",
+                    "https://edgeone.gh-proxy.org/https://github.com/decorwdyun/DalamudPlugins/blob/main/FastDalamudCN/random.bin",
                 Tags = new[] { "standard" }
             },
             new
             {
                 Url =
-                    "https://ghfast.top/https://raw.githubusercontent.com/decorwdyun/DalamudPlugins/main/FuckDalamudCN/random.bin",
+                    "https://ghfast.top/https://raw.githubusercontent.com/decorwdyun/DalamudPlugins/main/FastDalamudCN/random.bin",
                 Tags = new[] { "standard" }
             },
             new
             {
                 Url =
-                    "https://gh.5050net.cn/https://raw.githubusercontent.com/decorwdyun/DalamudPlugins/main/FuckDalamudCN/random.bin",
+                    "https://gh.5050net.cn/https://raw.githubusercontent.com/decorwdyun/DalamudPlugins/main/FastDalamudCN/random.bin",
                 Tags = new[] { "standard" }
             },
             new
             {
                 Url =
-                    "https://fb.xuolu.com/https://github.com/decorwdyun/DalamudPlugins/blob/main/FuckDalamudCN/random.bin",
+                    "https://fb.xuolu.com/https://github.com/decorwdyun/DalamudPlugins/blob/main/FastDalamudCN/random.bin",
                 Tags = new[] { "short-cache" }
             }
         };

@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FuckDalamudCN", "FuckDalamudCN\FuckDalamudCN.csproj", "{EDC18C9D-5B98-4AF8-9E6C-A1E2D7D28426}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastDalamudCN", "FastDalamudCN\FastDalamudCN.csproj", "{EDC18C9D-5B98-4AF8-9E6C-A1E2D7D28426}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FuckDalamudCN.Translator", "FuckDalamudCN.Translator\FuckDalamudCN.Translator.csproj", "{0400030E-60FD-466E-8165-D712D20208DE}"
 EndProject

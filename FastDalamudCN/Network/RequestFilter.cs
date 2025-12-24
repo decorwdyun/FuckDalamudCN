@@ -1,11 +1,11 @@
 ﻿using System.Net;
 using System.Text;
-using FuckDalamudCN.Utils;
+using FastDalamudCN.Utils;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace FuckDalamudCN.Network;
+namespace FastDalamudCN.Network;
 
 internal static class RequestFilter
 {

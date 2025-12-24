@@ -5,9 +5,9 @@ using Dalamud.Interface.Utility.Raii;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
 using Dalamud.Utility;
-using FuckDalamudCN.Network;
+using FastDalamudCN.Network;
 
-namespace FuckDalamudCN.Windows;
+namespace FastDalamudCN.Windows;
 
 internal class ConfigWindow : Window
 {
@@ -41,7 +41,7 @@ internal class ConfigWindow : Window
 
     public override void Draw()
     {
-        using var tabBar = ImRaii.TabBar("FuckDalamudCNConfigTabs");
+        using var tabBar = ImRaii.TabBar("FastDalamudCNConfigTabs");
         if (!tabBar)
             return;
 
@@ -123,7 +123,7 @@ internal class ConfigWindow : Window
                                    + "这将解决卫月本体偶尔无法识别系统代理导致无法加载插件列表的问题");
 
         ImGui.TextColored(ImGuiColors.HealerGreen, $"自本次启动以来共为你加速 {_githubProxyPool.AcceleratedCount} 次");
-        if (ImGui.CollapsingHeader("Debug###FuckDalamudCN-Debug"))
+        if (ImGui.CollapsingHeader("Debug###FastDalamudCN-Debug"))
         {
             ImGui.Text("以下代理中任意一个可用即可");
             ImGui.BeginDisabled(_lastCanCheckTime > DateTime.Now);
@@ -158,7 +158,7 @@ internal class ConfigWindow : Window
         ImGui.TextColored(ImGuiColors.DalamudRed, "如果你是付费购买的本插件，请立即退款并差评举报。");
         ImGui.Separator();
         ImGui.TextColored(ImGuiColors.HealerGreen, "插件主页：");
-        ImGui.TextColored(ImGuiColors.TankBlue, "https://github.com/decorwdyun/FuckDalamudCN");
+        ImGui.TextColored(ImGuiColors.TankBlue, "https://github.com/decorwdyun/FastDalamudCN");
         ImGui.NewLine();
 
         ImGui.Separator();
@@ -170,7 +170,7 @@ internal class ConfigWindow : Window
             ImGui.NewLine();
         }
 
-        if (ImGui.Button("打开插件主页")) Util.OpenLink("https://github.com/decorwdyun/FuckDalamudCN");
+        if (ImGui.Button("打开插件主页")) Util.OpenLink("https://github.com/decorwdyun/FastDalamudCN");
         ImGui.SameLine();
         if (ImGui.Button("问题反馈")) Util.OpenLink("https://github.com/decorwdyun/DalamudPlugins/issues/new");
         ImGui.SameLine();

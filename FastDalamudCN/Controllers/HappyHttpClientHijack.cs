@@ -1,10 +1,10 @@
 ﻿using System.Reflection;
 using Dalamud.Plugin;
-using FuckDalamudCN.Network;
-using FuckDalamudCN.Utils;
+using FastDalamudCN.Network;
+using FastDalamudCN.Utils;
 using Microsoft.Extensions.Logging;
 
-namespace FuckDalamudCN.Controllers;
+namespace FastDalamudCN.Controllers;
 
 internal sealed class HappyHttpClientHijack : IDisposable
 {

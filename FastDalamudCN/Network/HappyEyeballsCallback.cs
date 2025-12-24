@@ -4,7 +4,7 @@ using Dalamud.Logging.Internal;
 using Dalamud.Utility;
 using Microsoft.Extensions.Logging;
 
-namespace FuckDalamudCN.Network;
+namespace FastDalamudCN.Network;
 
 public class HappyEyeballsCallback : IDisposable
 {

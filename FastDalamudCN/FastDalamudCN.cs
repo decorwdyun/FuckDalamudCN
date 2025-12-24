@@ -2,22 +2,22 @@
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
-using FuckDalamudCN.Controllers;
-using FuckDalamudCN.Network;
-using FuckDalamudCN.Utils;
-using FuckDalamudCN.Windows;
+using FastDalamudCN.Controllers;
+using FastDalamudCN.Network;
+using FastDalamudCN.Utils;
+using FastDalamudCN.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace FuckDalamudCN;
+namespace FastDalamudCN;
 
 // ReSharper disable once InconsistentNaming
-public sealed class FuckDalamudCN : IDalamudPlugin
+public sealed class FastDalamudCN : IDalamudPlugin
 {
     private readonly IDalamudPluginInterface _pluginInterface;
     private readonly ServiceProvider? _serviceProvider;
 
-    public FuckDalamudCN(IDalamudPluginInterface pluginInterface,
+    public FastDalamudCN(IDalamudPluginInterface pluginInterface,
         IClientState clientState,
         IPluginLog pluginLog,
         IFramework framework,
@@ -61,7 +61,7 @@ public sealed class FuckDalamudCN : IDalamudPlugin
             serviceCollection.AddSingleton(chatGui);
             serviceCollection.AddSingleton(commandManager);
             serviceCollection.AddSingleton((Configuration?)pluginInterface.GetPluginConfig() ?? new Configuration());
-            serviceCollection.AddSingleton(new WindowSystem(nameof(FuckDalamudCN)));
+            serviceCollection.AddSingleton(new WindowSystem(nameof(FastDalamudCN)));
             serviceCollection.AddSingleton<DalamudInitializer>();
             serviceCollection.AddSingleton<DalamudVersionProvider>();
             serviceCollection.AddSingleton<CommandHandler>();

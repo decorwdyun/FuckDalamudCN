@@ -1,13 +1,13 @@
 ﻿using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
-using FuckDalamudCN.Utils;
+using FastDalamudCN.Utils;
 using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.Retry;
 using Polly.Timeout;
 
-namespace FuckDalamudCN.Network;
+namespace FastDalamudCN.Network;
 
 internal sealed partial class HttpDelegatingHandler : DelegatingHandler
 {

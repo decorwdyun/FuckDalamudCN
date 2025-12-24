@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
-namespace FuckDalamudCN.Network;
+namespace FastDalamudCN.Network;
 
 public interface IHttpCacheService
 {

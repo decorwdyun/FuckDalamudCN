@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace FuckDalamudCN.Model;
+namespace FastDalamudCN.Model;
 
 public class PluginManifest
 {

@@ -1,8 +1,8 @@
 ﻿using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
-using FuckDalamudCN.Windows;
+using FastDalamudCN.Windows;
 
-namespace FuckDalamudCN;
+namespace FastDalamudCN;
 
 internal sealed class DalamudInitializer : IDisposable
 {

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 
-namespace FuckDalamudCN.Network;
+namespace FastDalamudCN.Network;
 
 internal static class HttpResponseCacheExtensions
 {

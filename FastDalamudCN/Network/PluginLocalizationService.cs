@@ -1,10 +1,10 @@
 ﻿using Dalamud.Plugin;
-using FuckDalamudCN.Controllers;
+using FastDalamudCN.Controllers;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace FuckDalamudCN.Network;
+namespace FastDalamudCN.Network;
 
 public class PluginLocalizationService : IDisposable
 {
@@ -86,7 +86,7 @@ public class PluginLocalizationService : IDisposable
                             plugin["Punchline"] =
                                 $"{translation.Punchline.Translated}";
                             plugin["Description"] =
-                                $"{translation.Punchline.Original?.Replace("\n", " ").Replace("\r", " ")} \n\n{translation.Description.Translated}\n\n{translation.Description.Original}\n\n注：这是由 FuckDalamudCN 提供的机翻";
+                                $"{translation.Punchline.Original?.Replace("\n", " ").Replace("\r", " ")} \n\n{translation.Description.Translated}\n\n{translation.Description.Original}\n\n注：这是由 FastDalamudCN 提供的机翻";
                         }
                     }
                 }

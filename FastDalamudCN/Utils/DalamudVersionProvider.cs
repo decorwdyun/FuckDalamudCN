@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using Dalamud.Plugin;
 
-namespace FuckDalamudCN.Utils;
+namespace FastDalamudCN.Utils;
 
 public class DalamudVersionProvider
 {
