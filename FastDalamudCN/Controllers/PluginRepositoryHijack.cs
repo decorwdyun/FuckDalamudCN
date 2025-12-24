@@ -19,11 +19,18 @@ internal sealed class PluginRepositoryHijack : IDisposable
 
     private readonly Dictionary<object, HttpClient> _originalClients = new();
 
+    private volatile HashSet<string> _hijackedUrls = [];
+
+    public bool IsUrlHijacked(string url)
+    {
+        if (string.IsNullOrEmpty(url)) return false;
+        return _hijackedUrls.Contains(url);
+    }
+
     public PluginRepositoryHijack(
         IDalamudPluginInterface pluginInterface,
         ILogger<HappyHttpClientHijack> logger,
         IFramework framework,
-        Configuration configuration,
         HttpDelegatingHandler httpDelegatingHandler
     )
     {
@@ -85,21 +92,28 @@ internal sealed class PluginRepositoryHijack : IDisposable
                 (thirdReposField?.GetValue(_pluginManager) as IList ??
                  throw new InvalidOperationException()).Cast<object>().ToList();
 
+            var currentSnapshot = new HashSet<string>();
+
             foreach (var thirdRepo in thirdRepos)
             {
                 var pluginMasterUrlProperty = thirdRepo.GetType()
                     .GetProperty("PluginMasterUrl", BindingFlags.Instance | BindingFlags.Public);
                 if (pluginMasterUrlProperty == null) continue;
-                
+
                 var pluginMasterUrl = pluginMasterUrlProperty.GetValue(thirdRepo) as string;
+                if (string.IsNullOrEmpty(pluginMasterUrl)) continue;
 
                 var httpClientField = thirdRepo.GetType()
                     .GetField("httpClient", BindingFlags.Instance | BindingFlags.NonPublic);
                 if (httpClientField == null) continue;
 
                 var currentHttpClient = httpClientField.GetValue(thirdRepo) as HttpClient;
-                
-                if (ReferenceEquals(currentHttpClient, _newHttpClient)) continue;
+
+                if (ReferenceEquals(currentHttpClient, _newHttpClient))
+                {
+                    currentSnapshot.Add(pluginMasterUrl);
+                    continue;
+                }
 
                 if (currentHttpClient != null)
                 {
@@ -107,8 +121,13 @@ internal sealed class PluginRepositoryHijack : IDisposable
                 }
 
                 httpClientField.SetValue(thirdRepo, _newHttpClient);
+
+                currentSnapshot.Add(pluginMasterUrl);
+
                 _logger.LogTrace($"已接管 {pluginMasterUrl}");
             }
+
+            _hijackedUrls = currentSnapshot;
         }
         catch (Exception e)
         {
@@ -118,6 +137,8 @@ internal sealed class PluginRepositoryHijack : IDisposable
 
     private void RestoreOriginalHttpClients()
     {
+        _hijackedUrls = [];
+
         if (_originalClients.Count == 0) return;
 
         try
@@ -128,7 +149,7 @@ internal sealed class PluginRepositoryHijack : IDisposable
                 {
                     var httpClientField = repo.GetType()
                         .GetField("httpClient", BindingFlags.Instance | BindingFlags.NonPublic);
-                    
+
                     if (httpClientField != null)
                     {
                         httpClientField.SetValue(repo, originalClient);
