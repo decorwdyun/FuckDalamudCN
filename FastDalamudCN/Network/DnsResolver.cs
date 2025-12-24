@@ -5,9 +5,9 @@ using Microsoft.Extensions.Logging;
 
 namespace FastDalamudCN.Network;
 
-internal class DnsResolver(ILogger<DnsResolver> logger) : IDisposable
+internal class DnsResolver(ILogger<DnsResolver> logger)
 {
-    private const string HijackCname = "cf-cname.xingpingcn.top";
+    private const string HijackCname = "cf.951886.xyz";
 
     private const AddressFamily ForcedAddressFamily = AddressFamily.InterNetwork;
 
@@ -103,10 +103,7 @@ internal class DnsResolver(ILogger<DnsResolver> logger) : IDisposable
 #endif
         return Util.ZipperMerge(groups).ToList();
     }
-
-    public void Dispose()
-    {
-    }
+    
 
     private readonly struct CidrRange
     {
