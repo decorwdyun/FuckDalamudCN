@@ -25,10 +25,6 @@ public sealed class FastDalamudCN : IDalamudPlugin
     )
     {
         _pluginInterface = pluginInterface;
-        if ((uint)clientState.ClientLanguage != 4)
-        {
-            throw new InvalidOperationException("This plugin is not compatible with your client.");
-        }
 
         if (!_pluginInterface.Manifest.Author.Equals("decorwdyun", StringComparison.InvariantCultureIgnoreCase))
         {
