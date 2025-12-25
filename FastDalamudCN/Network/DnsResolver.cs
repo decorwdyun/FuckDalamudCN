@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace FastDalamudCN.Network;
 
-internal class DnsResolver(ILogger<DnsResolver> logger)
+internal class DnsResolver(ILogger<DnsResolver> logger, Configuration configuration)
 {
     private const string HijackCname = "cf.951886.xyz";
 
@@ -61,7 +61,8 @@ internal class DnsResolver(ILogger<DnsResolver> logger)
     {
         var dnsRecords = await Dns.GetHostAddressesAsync(hostname, ForcedAddressFamily, token);
 
-        if (dnsRecords.Length > 0 &&
+        if (configuration.EnableFastGithub &&
+            dnsRecords.Length > 0 &&
             !string.IsNullOrEmpty(HijackCname) &&
             dnsRecords.All(IsCloudflareIp))
         {
@@ -98,9 +99,9 @@ internal class DnsResolver(ILogger<DnsResolver> logger)
             .Select(g => g.ToArray())
             .ToArray<IEnumerable<IPAddress>>();
 
-#if DEBUG
-        logger.LogTrace($"{hostname} resolved to {string.Join(", ", groups.SelectMany(g => g))}.");
-#endif
+// #if DEBUG
+//         logger.LogTrace($"{hostname} resolved to {string.Join(", ", groups.SelectMany(g => g))}.");
+// #endif
         return Util.ZipperMerge(groups).ToList();
     }
     

@@ -1,33 +1,24 @@
 ﻿using System.Net;
 using System.Text;
-using System.Text.RegularExpressions;
+using FastDalamudCN.Network.Abstractions;
+using FastDalamudCN.Network.Proxy;
 using FastDalamudCN.Utils;
 using Microsoft.Extensions.Logging;
-using Polly;
-using Polly.Retry;
-using Polly.Timeout;
 
 namespace FastDalamudCN.Network;
 
-internal sealed partial class HttpDelegatingHandler : DelegatingHandler
+internal sealed class HttpDelegatingHandler : DelegatingHandler
 {
     private const int MaxErrorCount = 10;
     private const string OfficialRepoPattern = "https://aonyx.ffxiv.wang/Plugin/PluginMaster";
 
-    private const string ContextKeyUsedProxies = "UsedProxies";
-    private const string ContextKeyOriginalUri = "OriginalUri";
-    private const string ContextKeyRequest = "Request";
-
     private readonly Configuration _configuration;
     private readonly DalamudVersionProvider _dalamudVersionProvider;
-    private readonly GithubProxyPool _githubProxyPool;
+    private readonly GithubProxyProvider _proxyProvider;
     private readonly PluginLocalizationService _pluginLocalizationService;
     private readonly ILogger _logger;
     private readonly IHttpCacheService _httpCacheService;
-    private readonly AsyncRetryPolicy<HttpResponseMessage> _retryPolicy;
-
-    private readonly AsyncTimeoutPolicy<HttpResponseMessage> _timeoutPolicy;
-    private readonly AsyncTimeoutPolicy<HttpResponseMessage> _perRequestTimeoutPolicy;
+    private readonly IRequestExecutor _requestExecutor;
 
     private int _errorCount;
 
@@ -35,17 +26,19 @@ internal sealed partial class HttpDelegatingHandler : DelegatingHandler
         ILogger<HttpDelegatingHandler> logger,
         DalamudVersionProvider dalamudVersionProvider,
         Configuration configuration,
-        GithubProxyPool githubProxyPool,
+        GithubProxyProvider proxyProvider,
         PluginLocalizationService pluginLocalizationService,
         IHttpCacheService httpCacheService,
+        IRequestExecutor requestExecutor,
         HappyEyeballsCallback happyEyeballsCallback)
     {
         _logger = logger;
         _dalamudVersionProvider = dalamudVersionProvider;
         _configuration = configuration;
-        _githubProxyPool = githubProxyPool;
+        _proxyProvider = proxyProvider;
         _pluginLocalizationService = pluginLocalizationService;
         _httpCacheService = httpCacheService;
+        _requestExecutor = requestExecutor;
 
         InnerHandler = new SocketsHttpHandler
         {
@@ -58,33 +51,26 @@ internal sealed partial class HttpDelegatingHandler : DelegatingHandler
             AutomaticDecompression = DecompressionMethods.All,
             ConnectCallback = happyEyeballsCallback.ConnectCallback
         };
-
-        _timeoutPolicy = Policy.TimeoutAsync<HttpResponseMessage>(TimeSpan.FromSeconds(15));
-        _perRequestTimeoutPolicy = Policy.TimeoutAsync<HttpResponseMessage>(TimeSpan.FromSeconds(4));
-
-        _retryPolicy = Policy
-            .Handle<Exception>()
-            .OrResult<HttpResponseMessage>(r => !r.IsSuccessStatusCode)
-            .WaitAndRetryAsync([
-                TimeSpan.FromMilliseconds(50),
-                TimeSpan.FromMilliseconds(100),
-                TimeSpan.FromMilliseconds(200)
-            ], OnRetry);
     }
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
         CancellationToken cancellationToken)
     {
         var originalUri = request.RequestUri;
-        if (originalUri == null) return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
+        if (originalUri == null)
+        {
+            return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
+        }
 
         if (!IsValidUrl(originalUri) && request.Method == HttpMethod.Get)
+        {
             // 小店喜欢显示公告？
             return new HttpResponseMessage(HttpStatusCode.OK)
             {
-                Content = new StringContent("[]", Encoding.UTF8, "application/json"), 
+                Content = new StringContent("[]", Encoding.UTF8, "application/json"),
                 RequestMessage = request
             };
+        }
 
         PrepareRequestHeaders(request);
 
@@ -93,29 +79,22 @@ internal sealed partial class HttpDelegatingHandler : DelegatingHandler
             if (_httpCacheService.TryGetCachedResponse(request, originalUri, out var cachedResponse))
             {
                 if (RequestFilter.IsGithub(originalUri))
-                    _githubProxyPool.IncreaseSuccessCount();
-                _logger.LogTrace($"从缓存中读取了 {originalUri}");
-                await Task.Delay(TimeSpan.FromMilliseconds(120));
+                {
+                    _proxyProvider.RecordSuccess();
+                }
+
+                _logger.LogTrace("从缓存中读取了 {OriginalUri}", originalUri);
+                await Task.Delay(TimeSpan.FromMilliseconds(120), cancellationToken);
                 return cachedResponse!;
             }
         }
 
-        var context = new Context
-        {
-            { ContextKeyOriginalUri, originalUri },
-            { ContextKeyRequest, request },
-            { ContextKeyUsedProxies, new HashSet<string>() }
-        };
-
         try
         {
-            TryReplaceUri(request, originalUri, context);
-
-            var requestStrategy = _retryPolicy.WrapAsync(_perRequestTimeoutPolicy);
-            var pipeline = _timeoutPolicy.WrapAsync(requestStrategy);
-            var response = await pipeline
-                .ExecuteAsync(async _ => await base.SendAsync(request, cancellationToken), context)
-                .ConfigureAwait(false);
+            var response = await _requestExecutor.ExecuteAsync(
+                request,
+                base.SendAsync,
+                cancellationToken);
 
             return await HandleResponseAsync(response, request, originalUri, cancellationToken);
         }
@@ -125,66 +104,15 @@ internal sealed partial class HttpDelegatingHandler : DelegatingHandler
         }
     }
 
-    private void OnRetry(DelegateResult<HttpResponseMessage> result, TimeSpan timeSpan, int retryCount, Context context)
-    {
-        var request = (HttpRequestMessage)context[ContextKeyRequest];
-        var originalUri = (Uri?)context[ContextKeyOriginalUri];
-
-        if (originalUri != null) TryReplaceUri(request, originalUri, context);
-
-        _logger.LogInformation("在 {timeSpan} 后进行第 {RetryCount} 次重试，当前请求URL：{RequestUri}", timeSpan, retryCount,
-            request.RequestUri);
-    }
-
-    private void TryReplaceUri(HttpRequestMessage request, Uri? originalUri, Context context)
-    {
-        if (originalUri == null) return;
-        if (!_configuration.EnableFastGithub || !RequestFilter.IsGithub(originalUri)) return;
-
-        var usedProxies = (HashSet<string>)context[ContextKeyUsedProxies];
-        var normalizedUri = NormalizeGithubRawUri(originalUri);
-        var fastestDomain = _githubProxyPool.GetFastestDomain(originalUri.ToString(), usedProxies);
-
-        if (fastestDomain != null)
-        {
-            usedProxies.Add(fastestDomain);
-
-            var replacedUri = new Uri(fastestDomain + normalizedUri);
-            if (request.RequestUri != replacedUri)
-            {
-                request.RequestUri = replacedUri;
-                _logger.LogTrace("重定向: {originalUri} -> {RequestUri}", originalUri, request.RequestUri);
-            }
-        }
-    }
-
-    private Uri? NormalizeGithubRawUri(Uri uri)
-    {
-        if (uri.Host != "raw.githubusercontent.com") return uri;
-
-        var path = uri.AbsolutePath;
-        var regex = RefHead();
-        var match = regex.Match(path);
-
-        if (match.Success)
-        {
-            var normalizedPath =
-                $"/{match.Groups[1].Value}/{match.Groups[2].Value}/{match.Groups[3].Value}{match.Groups[4].Value}";
-            var builder = new UriBuilder(uri)
-            {
-                Path = normalizedPath,
-                Query = uri.Query
-            };
-            return builder.Uri;
-        }
-
-        return uri;
-    }
 
     private async Task<HttpResponseMessage> HandleResponseAsync(HttpResponseMessage response,
         HttpRequestMessage request, Uri? originalUri, CancellationToken ct)
     {
-        if (originalUri == null) return response;
+        if (originalUri == null)
+        {
+            return response;
+        }
+
         if (!response.IsSuccessStatusCode && !originalUri.ToString().EndsWith("png"))
         {
             LogFailure(originalUri, response.StatusCode);
@@ -194,8 +122,9 @@ internal sealed partial class HttpDelegatingHandler : DelegatingHandler
 
         _errorCount = 0;
         if (_configuration.EnableFastGithub && RequestFilter.IsGithub(originalUri))
-            _githubProxyPool.IncreaseSuccessCount();
-
+        {
+            _proxyProvider.RecordSuccess();
+        }
 
         await _pluginLocalizationService.TranslatePluginDescriptionsAsync(response, originalUri, ct);
 
@@ -212,7 +141,10 @@ internal sealed partial class HttpDelegatingHandler : DelegatingHandler
     private void RecordFailure()
     {
         _errorCount++;
-        if (_errorCount >= MaxErrorCount) _ = _githubProxyPool.CheckProxies();
+        if (_errorCount >= MaxErrorCount)
+        {
+            _ = _proxyProvider.CheckProxiesAsync();
+        }
     }
 
     private void LogFailure(Uri uri, HttpStatusCode code)
@@ -256,7 +188,4 @@ internal sealed partial class HttpDelegatingHandler : DelegatingHandler
 
         return uri.HostNameType is UriHostNameType.IPv4 or UriHostNameType.IPv6 || host.Contains('.');
     }
-
-    [GeneratedRegex(@"^/([^/]+)/([^/]+)/refs/heads/([^/]+)(.*)$")]
-    private static partial Regex RefHead();
 }

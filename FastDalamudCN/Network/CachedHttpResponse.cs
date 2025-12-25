@@ -5,7 +5,7 @@ namespace FastDalamudCN.Network;
 internal class CachedHttpResponse
 {
     private const int MaxUsageCount = 4;
-    private int _currentUsageCount = 0;
+    private int _currentUsageCount;
     public CachedHttpResponse(HttpResponseMessage response, byte[] content)
     {
         StatusCode = response.StatusCode;

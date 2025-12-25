@@ -1,9 +1,10 @@
 ﻿using System.Collections;
+using System.Diagnostics;
 using System.Reflection;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using FastDalamudCN.Network;
-using FastDalamudCN.Utils;
+using FastDalamudCN.Network.Execution;
 using Microsoft.Extensions.Logging;
 
 namespace FastDalamudCN.Controllers;
@@ -12,6 +13,7 @@ internal sealed class PluginRepositoryHijack : IDisposable
 {
     private readonly IFramework _framework;
     private readonly ILogger<HappyHttpClientHijack> _logger;
+    private readonly RaceConditionAwareRequestExecutor _requestExecutor;
 
     private readonly HttpClient _newHttpClient;
     private readonly object? _pluginManager;
@@ -19,23 +21,17 @@ internal sealed class PluginRepositoryHijack : IDisposable
 
     private readonly Dictionary<object, HttpClient> _originalClients = new();
 
-    private volatile HashSet<string> _hijackedUrls = [];
-
-    public bool IsUrlHijacked(string url)
-    {
-        if (string.IsNullOrEmpty(url)) return false;
-        return _hijackedUrls.Contains(url);
-    }
-
     public PluginRepositoryHijack(
         IDalamudPluginInterface pluginInterface,
         ILogger<HappyHttpClientHijack> logger,
         IFramework framework,
-        HttpDelegatingHandler httpDelegatingHandler
+        HttpDelegatingHandler httpDelegatingHandler,
+        RaceConditionAwareRequestExecutor requestExecutor
     )
     {
         _logger = logger;
         _framework = framework;
+        _requestExecutor = requestExecutor;
         var dalamudAssembly = pluginInterface.GetType().Assembly;
 
         _newHttpClient = new HttpClient(httpDelegatingHandler)
@@ -45,8 +41,12 @@ internal sealed class PluginRepositoryHijack : IDisposable
 
         var dalamudService = dalamudAssembly.GetType("Dalamud.Service`1", true);
         ArgumentNullException.ThrowIfNull(dalamudAssembly);
-        _pluginManager = dalamudService!
+#pragma warning disable CS8604 // 引用类型参数可能为 null。
+#pragma warning disable CS8602 // 解引用可能出现空引用。
+        _pluginManager = dalamudService
+#pragma warning restore CS8602 // 解引用可能出现空引用。
             .MakeGenericType(dalamudAssembly!.GetType("Dalamud.Plugin.Internal.PluginManager", true))
+#pragma warning restore CS8604 // 引用类型参数可能为 null。
             .GetMethod("Get")
             .Invoke(null, BindingFlags.Default, null, [], null);
 
@@ -127,7 +127,7 @@ internal sealed class PluginRepositoryHijack : IDisposable
                 _logger.LogTrace($"已接管 {pluginMasterUrl}");
             }
 
-            _hijackedUrls = currentSnapshot;
+            _requestExecutor.SetPluginRepositoryUrls(currentSnapshot);
         }
         catch (Exception e)
         {
@@ -137,7 +137,7 @@ internal sealed class PluginRepositoryHijack : IDisposable
 
     private void RestoreOriginalHttpClients()
     {
-        _hijackedUrls = [];
+        _requestExecutor.SetPluginRepositoryUrls([]);
 
         if (_originalClients.Count == 0) return;
 

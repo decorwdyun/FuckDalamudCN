@@ -4,6 +4,9 @@ using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using FastDalamudCN.Controllers;
 using FastDalamudCN.Network;
+using FastDalamudCN.Network.Abstractions;
+using FastDalamudCN.Network.Execution;
+using FastDalamudCN.Network.Proxy;
 using FastDalamudCN.Utils;
 using FastDalamudCN.Windows;
 using Microsoft.Extensions.DependencyInjection;
@@ -51,12 +54,18 @@ public sealed class FastDalamudCN : IDalamudPlugin
             serviceCollection.AddSingleton<PluginLocalizationService>();
             serviceCollection.AddSingleton<DnsResolver>();
             serviceCollection.AddSingleton<HappyEyeballsCallback>();
-
-            serviceCollection.AddSingleton<GithubProxyPool>();
+            
+            serviceCollection.AddSingleton<GithubProxyProvider>();
+            serviceCollection.AddSingleton<IProxySelector, GithubProxySelector>();
             serviceCollection.AddSingleton<IHttpCacheService, HttpCacheService>();
+            
+            serviceCollection.AddSingleton<RaceConditionAwareRequestExecutor>();
+            serviceCollection.AddSingleton<IRequestExecutor>(sp => sp.GetRequiredService<RaceConditionAwareRequestExecutor>());
+            
             serviceCollection.AddSingleton<HttpDelegatingHandler>();
-            serviceCollection.AddSingleton<HappyHttpClientHijack>();
+            
             serviceCollection.AddSingleton<PluginRepositoryHijack>();
+            serviceCollection.AddSingleton<HappyHttpClientHijack>();
 
             serviceCollection.AddSingleton<ConfigWindow>();
 
@@ -66,6 +75,7 @@ public sealed class FastDalamudCN : IDalamudPlugin
             {
                 _serviceProvider.GetRequiredService<DalamudInitializer>();
                 _serviceProvider.GetRequiredService<HappyHttpClientHijack>();
+
                 _serviceProvider.GetRequiredService<PluginRepositoryHijack>();
             }
             catch (Exception e)

@@ -1,4 +1,5 @@
-﻿using Dalamud.Bindings.ImGui;
+﻿using System.Numerics;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Colors;
 using Dalamud.Interface.Components;
 using Dalamud.Interface.Utility.Raii;
@@ -6,13 +7,15 @@ using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
 using Dalamud.Utility;
 using FastDalamudCN.Network;
+using FastDalamudCN.Network.Abstractions;
+using FastDalamudCN.Network.Proxy;
 
 namespace FastDalamudCN.Windows;
 
 internal class ConfigWindow : Window
 {
     private readonly Configuration _configuration;
-    private readonly GithubProxyPool _githubProxyPool;
+    private readonly GithubProxyProvider _proxyProvider;
     private readonly IDalamudPluginInterface _pluginInterface;
     private readonly IHttpCacheService _httpCacheService;
 
@@ -21,16 +24,15 @@ internal class ConfigWindow : Window
     public ConfigWindow(
         IDalamudPluginInterface pluginInterface,
         Configuration configuration,
-        GithubProxyPool githubProxyPool,
+        GithubProxyProvider proxyProvider,
         IHttpCacheService httpCacheService
     ) : base("FastDalamudCN - 配置")
     {
         _pluginInterface = pluginInterface;
         _configuration = configuration;
-        _githubProxyPool = githubProxyPool;
+        _proxyProvider = proxyProvider;
         _httpCacheService = httpCacheService;
         Flags = ImGuiWindowFlags.AlwaysAutoResize;
-        // Size = new Vector2(500, 300);
         SizeCondition = ImGuiCond.Always;
     }
 
@@ -122,7 +124,38 @@ internal class ConfigWindow : Window
         ImGuiComponents.HelpMarker($"将忽略卫月本体的代理配置，转为固定使用系统代理{Environment.NewLine}"
                                    + "这将解决卫月本体偶尔无法识别系统代理导致无法加载插件列表的问题");
 
-        ImGui.TextColored(ImGuiColors.HealerGreen, $"自本次启动以来共为你加速 {_githubProxyPool.AcceleratedCount} 次");
+
+        ImGui.TextColored(ImGuiColors.HealerGreen, $"自本次启动以来共为你加速 {_proxyProvider.AcceleratedCount} 次");
+
+
+        if (ImGui.TreeNodeEx("FAQS###FastDalamudCN-Notes"))
+        {
+            if (ImGui.TreeNode("新添加第三方裤链后第一次刷新很慢?"))
+            {
+                ImGui.TextWrapped("这是正常的，因为添加新裤链时，FDCN 还未来得及接管，这时候包括此前已接管的旧裤链也会失效");
+                ImGui.TextWrapped("也就是说：这时候的速度基本等于你没开 FDCN 时本应有的速度");
+                ImGui.Spacing();
+                ImGui.Separator();
+                ImGui.TreePop();
+            }
+    
+            ImGui.Spacing();
+    
+            if (ImGui.TreeNode("插件 Github 加速和主库翻译的工作原理?"))
+            {
+                ImGui.TextWrapped("Github 加速工作原理为劫持卫月本体的网络请求，将访问 Github 服务的请求重定向到内置的反代服务器");
+                ImGui.TextWrapped("主库翻译的工作原理也是劫持访问主库的网络请求，直接在本机处理服务器响应，将插件简介替换为插件内置的翻译");
+                ImGui.Spacing();
+                ImGui.Separator();
+                ImGui.TreePop();
+            }
+    
+            ImGui.Spacing();
+            ImGui.TreePop();
+        }
+    
+        ImGui.Separator();
+
         if (ImGui.CollapsingHeader("Debug###FastDalamudCN-Debug"))
         {
             ImGui.Text("以下代理中任意一个可用即可");
@@ -137,12 +170,12 @@ internal class ConfigWindow : Window
 #if !DEBUG
                 _lastCanCheckTime = DateTime.Now.AddSeconds(20);
 #endif
-                _githubProxyPool.CheckProxies();
+                _ = _proxyProvider.CheckProxiesAsync();
             }
 
             ImGui.EndDisabled();
             ImGui.Separator();
-            foreach (var (domain, latency) in _githubProxyPool.ProxyLatencies.OrderBy(kvp => kvp.Value))
+            foreach (var (domain, latency) in _proxyProvider.ProxyLatencies.OrderBy(kvp => kvp.Value))
                 if (latency > 1000 * 30)
                     ImGui.TextColored(ImGuiColors.DalamudRed, $"{domain}: 完全无法访问");
                 else
@@ -164,14 +197,6 @@ internal class ConfigWindow : Window
         ImGui.NewLine();
 
         ImGui.Separator();
-        if (ImGui.CollapsingHeader("插件 Github 加速和主库翻译的工作原理?"))
-        {
-            ImGui.PushTextWrapPos();
-            ImGui.AlignTextToFramePadding();
-            ImGui.Text("Github 加速工作原理为劫持卫月本体的网络请求，将访问 Github 服务的请求重定向到内置的反代服务器");
-            ImGui.Text("主库翻译的工作原理也是劫持访问主库的网络请求，直接在本机处理服务器响应，将插件简介替换为插件内置的翻译");
-            ImGui.NewLine();
-        }
 
         if (ImGui.Button("打开插件主页")) Util.OpenLink("https://github.com/decorwdyun/FastDalamudCN");
         ImGui.SameLine();

@@ -97,7 +97,7 @@ public class PluginLocalizationService : IDisposable
                     new StringContent(modifiedJsonString, System.Text.Encoding.UTF8, "application/json");
             }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // ignored
         }

@@ -32,7 +32,9 @@ internal sealed class HappyHttpClientHijack : IDisposable
         ArgumentNullException.ThrowIfNull(dalamudAssembly);
 
         _happyHttpClient = dalamudService?
+#pragma warning disable CS8604 // 引用类型参数可能为 null。
             .MakeGenericType(dalamudAssembly.GetType("Dalamud.Networking.Http.HappyHttpClient", true))
+#pragma warning restore CS8604 // 引用类型参数可能为 null。
             .GetMethod("Get")
             ?.Invoke(null, BindingFlags.Default, null, [], null);
 

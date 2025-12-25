@@ -46,19 +46,19 @@ internal class HappyEyeballsCallback(
         // line to explode, so we're safe to clean everything up.
         linkedToken.Cancel();
         tasks.ForEach(task => { task.ContinueWith(CleanupConnectionTask); });
-#if DEBUG
-        try
-        {
-            if (stream is { Socket.RemoteEndPoint: IPEndPoint endPoint })
-            {
-                logger.LogTrace("已建立连接: {Hostname} -> {IpAddress}", context.DnsEndPoint.Host, endPoint.Address);
-            }
-        }
-        catch
-        {
-            // ignored
-        }
-#endif
+// #if DEBUG
+        // try
+        // {
+        //     if (stream is { Socket.RemoteEndPoint: IPEndPoint endPoint })
+        //     {
+        //         logger.LogTrace("已建立连接: {Hostname} -> {IpAddress}", context.DnsEndPoint.Host, endPoint.Address);
+        //     }
+        // }
+        // catch
+        // {
+        //     // ignored
+        // }
+// #endif
         return stream;
     }
 
