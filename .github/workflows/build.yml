@@ -83,6 +83,6 @@ jobs:
           tag_name: ${{ env.RELEASE_TAG }}
           name: ${{ env.RELEASE_TAG }}
           files: ./FastDalamudCN/bin/Release/FuckDalamudCN/*.zip
-          body: "自动构建"
+          generate_release_notes: true
           draft: false
           prerelease: false
