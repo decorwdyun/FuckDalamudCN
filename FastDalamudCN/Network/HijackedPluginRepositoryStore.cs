@@ -3,9 +3,11 @@ namespace FastDalamudCN.Network;
 
 public sealed class HijackedPluginRepositoryStore
 {
-    private sealed record Snapshot(IReadOnlyList<HijackedPluginRepositoryInfo> Items, HashSet<string> Urls);
+    private sealed record Snapshot(
+        IReadOnlyList<HijackedPluginRepositoryInfo> Items,
+        Dictionary<string, HijackedPluginRepositoryInfo> Map);
 
-    private volatile Snapshot _snapshot = new([], []);
+    private volatile Snapshot _snapshot = new([], new Dictionary<string, HijackedPluginRepositoryInfo>());
 
     public IReadOnlyList<HijackedPluginRepositoryInfo> Snapshots => _snapshot.Items;
 
@@ -32,7 +34,7 @@ public sealed class HijackedPluginRepositoryStore
             items[info.PluginMasterUrl] = info;
         }
 
-        _snapshot = new Snapshot(items.Values.ToList(), new HashSet<string>(items.Keys));
+        _snapshot = new Snapshot(items.Values.ToList(), items);
     }
 
     public void UpdateSnapshots(IEnumerable<HijackedPluginRepositoryInfo> snapshot)
@@ -42,11 +44,18 @@ public sealed class HijackedPluginRepositoryStore
 
     public void Clear()
     {
-        _snapshot = new Snapshot([], []);
+        _snapshot = new Snapshot([], new Dictionary<string, HijackedPluginRepositoryInfo>());
     }
 
     public bool ContainsPluginMasterUrl(string pluginMasterUrl)
     {
-        return !string.IsNullOrEmpty(pluginMasterUrl) && _snapshot.Urls.Contains(pluginMasterUrl);
+        return !string.IsNullOrEmpty(pluginMasterUrl) && _snapshot.Map.ContainsKey(pluginMasterUrl);
+    }
+
+    public bool TryGetRepositoryInfo(string pluginMasterUrl, out HijackedPluginRepositoryInfo? info)
+    {
+        if (!string.IsNullOrEmpty(pluginMasterUrl)) return _snapshot.Map.TryGetValue(pluginMasterUrl, out info);
+        info = null;
+        return false;
     }
 }

@@ -10,25 +10,19 @@ public class PluginLocalizationService : IDisposable
 {
     private readonly string _assetPath;
 
-    private readonly IReadOnlyList<string> _officialRepoPatterns = new List<string>
-    {
-        "https://aonyx.ffxiv.wang/Plugin/PluginMaster",
-        "https://kamori.goats.dev/Plugin/PluginMaste",
-        "https://raw.githubusercontent.com/Dalamud-DailyRoutines/PluginDistD17/",
-        "https://gh.atmoomen.top/raw.githubusercontent.com/Dalamud-DailyRoutines/PluginDistD17/",
-        "https://gh.atmoomen.top/https://raw.githubusercontent.com/Dalamud-DailyRoutines/PluginDistD17/"
-    };
-
     private readonly Configuration _configuration;
+    private readonly HijackedPluginRepositoryStore _pluginRepositoryStore;
     private readonly ILogger<PluginLocalizationService> _logger;
     private Dictionary<string, PluginTranslationEntry>? _translations;
 
     public PluginLocalizationService(
         IDalamudPluginInterface dalamudPluginInterface,
         Configuration configuration,
+        HijackedPluginRepositoryStore pluginRepositoryStore,
         ILogger<PluginLocalizationService> logger)
     {
         _configuration = configuration;
+        _pluginRepositoryStore = pluginRepositoryStore;
         _logger = logger;
         _assetPath = Path.Combine(dalamudPluginInterface.AssemblyLocation.Directory!.FullName, "Assets",
             "translations.json");
@@ -64,8 +58,7 @@ public class PluginLocalizationService : IDisposable
     public async Task TranslatePluginDescriptionsAsync(HttpResponseMessage response, Uri originalUri,
         CancellationToken ct)
     {
-        if (!_configuration.EnableMainRepoPluginLocalization ||
-            !_officialRepoPatterns.Any(p => originalUri.ToString().StartsWith(p)))
+        if (!_configuration.EnableMainRepoPluginLocalization || !ShouldTranslateRepository(originalUri))
             return;
 
         var jsonString = await response.Content.ReadAsStringAsync(ct);
@@ -102,6 +95,12 @@ public class PluginLocalizationService : IDisposable
         {
             // ignored
         }
+    }
+
+    private bool ShouldTranslateRepository(Uri originalUri)
+    {
+        return _pluginRepositoryStore.TryGetRepositoryInfo(originalUri.ToString(), out var info) &&
+               info is { IsThirdParty: false };
     }
 
     public void Dispose()
