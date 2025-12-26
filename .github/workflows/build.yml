@@ -61,7 +61,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           path: |
-            ./FastDalamudCN/bin/Release/FuckDalamudCN/*
+            ./FastDalamudCN/bin/Release/FuckDalamudCN/*.zip
   
       - name: Create Git Tag
         if: env.SHOULD_RELEASE == 'true'
