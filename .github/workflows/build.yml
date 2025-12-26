@@ -28,4 +28,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           path: |
-            ./FastDalamudCN/bin/x64/Release/FuckDalamudCN/*
+            ./FastDalamudCN/bin/Release/FuckDalamudCN/*
