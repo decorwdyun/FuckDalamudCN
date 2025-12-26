@@ -1,10 +1,10 @@
-﻿name: .NET Build
+﻿name: .NET Build & Auto Release
 
 on:
   push:
     branches:
       - '*'
-    tags:
+    tags-ignore:
       - '*'
   pull_request:
 
@@ -18,6 +18,30 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: recursive
+          fetch-depth: 0
+
+      - name: Check Version
+        id: check_version
+        shell: pwsh
+        run: |
+          [xml]$xml = Get-Content FastDalamudCN/FastDalamudCN.csproj
+          $version = $xml.Project.PropertyGroup.Version
+          
+          $tagName = "v$version"
+          
+          Write-Host "Detected Version in csproj: $version"
+          Write-Host "Target Tag: $tagName"
+          
+          $tagExists = git tag -l $tagName
+          
+          if ($tagExists) {
+            Write-Host "Tag $tagName already exists. Skipping release."
+            echo "SHOULD_RELEASE=false" >> $env:GITHUB_ENV
+          } else {
+            Write-Host "Tag $tagName does not exist. New version detected!"
+            echo "SHOULD_RELEASE=true" >> $env:GITHUB_ENV
+            echo "RELEASE_TAG=$tagName" >> $env:GITHUB_ENV
+          }
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -38,11 +62,26 @@ jobs:
         with:
           path: |
             ./FastDalamudCN/bin/Release/FuckDalamudCN/*
+  
+      - name: Create Git Tag
+        if: env.SHOULD_RELEASE == 'true'
+        shell: pwsh
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          $tagName = $env:RELEASE_TAG
+          
+          git tag $tagName
+          git push origin $tagName
+          Write-Host "Created and pushed tag: $tagName"
 
       - name: Create Release
-        if: startsWith(github.ref, 'refs/tags/')
+        if: env.SHOULD_RELEASE == 'true'
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          name: ${{ env.RELEASE_TAG }}
           files: ./FastDalamudCN/bin/Release/FuckDalamudCN/*
           body: "自动构建"
           draft: false
