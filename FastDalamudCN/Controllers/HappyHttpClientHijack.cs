@@ -1,14 +1,12 @@
 ﻿using System.Reflection;
 using Dalamud.Plugin;
 using FastDalamudCN.Network;
-using FastDalamudCN.Utils;
 using Microsoft.Extensions.Logging;
 
 namespace FastDalamudCN.Controllers;
 
 internal sealed class HappyHttpClientHijack : IDisposable
 {
-    private readonly DalamudVersionProvider _dalamudVersionProvider;
     private readonly HttpDelegatingHandler _httpDelegatingHandler;
 
     private readonly object? _happyHttpClient;
@@ -20,12 +18,10 @@ internal sealed class HappyHttpClientHijack : IDisposable
     public HappyHttpClientHijack(
         IDalamudPluginInterface pluginInterface,
         ILogger<HappyHttpClientHijack> logger,
-        DalamudVersionProvider dalamudVersionProvider,
         HttpDelegatingHandler httpDelegatingHandler
     )
     {
         _logger = logger;
-        _dalamudVersionProvider = dalamudVersionProvider;
         _httpDelegatingHandler = httpDelegatingHandler;
         var dalamudAssembly = pluginInterface.GetType().Assembly;
         var dalamudService = dalamudAssembly.GetType("Dalamud.Service`1", true);
