@@ -15,6 +15,7 @@ public class PluginLocalizationService : IDisposable
         "https://aonyx.ffxiv.wang/Plugin/PluginMaster",
         "https://kamori.goats.dev/Plugin/PluginMaste",
         "https://raw.githubusercontent.com/Dalamud-DailyRoutines/PluginDistD17/",
+        "https://gh.atmoomen.top/raw.githubusercontent.com/Dalamud-DailyRoutines/PluginDistD17/",
         "https://gh.atmoomen.top/https://raw.githubusercontent.com/Dalamud-DailyRoutines/PluginDistD17/"
     };
 
