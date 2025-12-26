@@ -3,8 +3,8 @@ using System.Diagnostics;
 using System.Reflection;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
+using FastDalamudCN.Model;
 using FastDalamudCN.Network;
-using FastDalamudCN.Network.Execution;
 using Microsoft.Extensions.Logging;
 
 namespace FastDalamudCN.Controllers;
@@ -13,7 +13,7 @@ internal sealed class PluginRepositoryHijack : IDisposable
 {
     private readonly IFramework _framework;
     private readonly ILogger<HappyHttpClientHijack> _logger;
-    private readonly RaceConditionAwareRequestExecutor _requestExecutor;
+    private readonly HijackedPluginRepositoryStore _pluginRepositoryStore;
 
     private readonly HttpClient _newHttpClient;
     private readonly object? _pluginManager;
@@ -26,12 +26,12 @@ internal sealed class PluginRepositoryHijack : IDisposable
         ILogger<HappyHttpClientHijack> logger,
         IFramework framework,
         HttpDelegatingHandler httpDelegatingHandler,
-        RaceConditionAwareRequestExecutor requestExecutor
+        HijackedPluginRepositoryStore pluginRepositoryStore
     )
     {
         _logger = logger;
         _framework = framework;
-        _requestExecutor = requestExecutor;
+        _pluginRepositoryStore = pluginRepositoryStore;
         var dalamudAssembly = pluginInterface.GetType().Assembly;
 
         _newHttpClient = new HttpClient(httpDelegatingHandler)
@@ -92,7 +92,7 @@ internal sealed class PluginRepositoryHijack : IDisposable
                 (thirdReposField?.GetValue(_pluginManager) as IList ??
                  throw new InvalidOperationException()).Cast<object>().ToList();
 
-            var currentSnapshot = new HashSet<string>();
+            var currentSnapshot = new List<HijackedPluginRepositoryInfo>();
 
             foreach (var thirdRepo in thirdRepos)
             {
@@ -103,6 +103,14 @@ internal sealed class PluginRepositoryHijack : IDisposable
                 var pluginMasterUrl = pluginMasterUrlProperty.GetValue(thirdRepo) as string;
                 if (string.IsNullOrEmpty(pluginMasterUrl)) continue;
 
+                var isThirdPartyProperty = thirdRepo.GetType()
+                    .GetProperty("IsThirdParty", BindingFlags.Instance | BindingFlags.Public);
+                var isThirdParty = false;
+                if (isThirdPartyProperty?.GetValue(thirdRepo) is bool isThirdPartyValue)
+                {
+                    isThirdParty = isThirdPartyValue;
+                }
+
                 var httpClientField = thirdRepo.GetType()
                     .GetField("httpClient", BindingFlags.Instance | BindingFlags.NonPublic);
                 if (httpClientField == null) continue;
@@ -111,7 +119,7 @@ internal sealed class PluginRepositoryHijack : IDisposable
 
                 if (ReferenceEquals(currentHttpClient, _newHttpClient))
                 {
-                    currentSnapshot.Add(pluginMasterUrl);
+                    currentSnapshot.Add(new HijackedPluginRepositoryInfo(pluginMasterUrl, isThirdParty));
                     continue;
                 }
 
@@ -122,12 +130,12 @@ internal sealed class PluginRepositoryHijack : IDisposable
 
                 httpClientField.SetValue(thirdRepo, _newHttpClient);
 
-                currentSnapshot.Add(pluginMasterUrl);
+                currentSnapshot.Add(new HijackedPluginRepositoryInfo(pluginMasterUrl, isThirdParty));
 
-                _logger.LogTrace($"已接管 {pluginMasterUrl}");
+                _logger.LogTrace($"已接管 {pluginMasterUrl} isThirdParty: {isThirdParty}");
             }
 
-            _requestExecutor.SetPluginRepositoryUrls(currentSnapshot);
+            _pluginRepositoryStore.MergeSnapshots(currentSnapshot);
         }
         catch (Exception e)
         {
@@ -137,7 +145,7 @@ internal sealed class PluginRepositoryHijack : IDisposable
 
     private void RestoreOriginalHttpClients()
     {
-        _requestExecutor.SetPluginRepositoryUrls([]);
+        _pluginRepositoryStore.Clear();
 
         if (_originalClients.Count == 0) return;
 

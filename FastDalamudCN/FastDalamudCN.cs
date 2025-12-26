@@ -58,6 +58,7 @@ public sealed class FastDalamudCN : IDalamudPlugin
             serviceCollection.AddSingleton<GithubProxyProvider>();
             serviceCollection.AddSingleton<IProxySelector, GithubProxySelector>();
             serviceCollection.AddSingleton<IHttpCacheService, HttpCacheService>();
+            serviceCollection.AddSingleton<HijackedPluginRepositoryStore>();
             
             serviceCollection.AddSingleton<RaceConditionAwareRequestExecutor>();
             serviceCollection.AddSingleton<IRequestExecutor>(sp => sp.GetRequiredService<RaceConditionAwareRequestExecutor>());

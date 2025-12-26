@@ -1,3 +1,4 @@
+using FastDalamudCN.Network;
 using FastDalamudCN.Network.Abstractions;
 using FastDalamudCN.Network.Proxy;
 using Microsoft.Extensions.Logging;
@@ -8,16 +9,10 @@ internal sealed class RaceConditionAwareRequestExecutor(
     ILogger<RaceConditionAwareRequestExecutor> logger,
     IProxySelector proxySelector,
     GithubProxyProvider proxyProvider,
+    HijackedPluginRepositoryStore pluginRepositoryStore,
     int maxConcurrentRequests = 3)
     : IRequestExecutor
 {
-    private volatile HashSet<string> _pluginRepoUrls = [];
-    
-    public void SetPluginRepositoryUrls(HashSet<string> urls)
-    {
-        _pluginRepoUrls = urls;
-    }
-
     public async Task<HttpResponseMessage> ExecuteAsync(
         HttpRequestMessage request,
         Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> sendFunc,
@@ -29,7 +24,7 @@ internal sealed class RaceConditionAwareRequestExecutor(
             return await sendFunc(request, cancellationToken);
         }
 
-        var isPluginRepoUrl = _pluginRepoUrls.Contains(originalUri.ToString());
+        var isPluginRepoUrl = pluginRepositoryStore.ContainsPluginMasterUrl(originalUri.ToString());
         var shouldRace = isPluginRepoUrl && RequestFilter.IsGithub(originalUri);
 
         if (shouldRace)
