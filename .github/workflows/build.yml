@@ -17,17 +17,15 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.x.x'
-      - name: Restore dependencies
-        run: dotnet restore
       - name: Download Dalamud
         run: |
           Invoke-WebRequest -Uri https://raw.githubusercontent.com/ottercorp/dalamud-distrib/main/stg/latest.zip -OutFile latest.zip
           Expand-Archive -Force latest.zip "$env:AppData\XIVLauncherCN\addon\Hooks\dev\"
       - name: Build
         run: |
-          dotnet build --no-restore --configuration Release --nologo
+          dotnet build --configuration Release --nologo FastDalamudCN/FastDalamudCN.csproj
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v4
         with:
           path: |
-            ./FuckDalamudCN/bin/x64/Release/FuckDalamudCN/*
+            ./FastDalamudCN/bin/x64/Release/FuckDalamudCN/*
