@@ -13,6 +13,6 @@ tags:
   - 加速
   - 汉化
   - 翻译
-icon_url: https://raw.githubusercontent.com/decorwdyun/DalamudPlugins/main/FuckDalamudCN/icon.png
+icon_url: https://raw.githubusercontent.com/decorwdyun/DalamudPlugins/main/FastDalamudCN/icon.png
 load_priority: 1001
 load_required_state: 0
