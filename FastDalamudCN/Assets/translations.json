@@ -82,11 +82,11 @@
   "AdventurerInNeed": {
     "Punchline": {
       "Original": "Receive a notification when a duty roulette is in need of a role.",
-      "Translated": "当随机任务需要特定职责时接收通知。"
+      "Translated": "当随机任务需要特定职业时接收通知。"
     },
     "Description": {
       "Original": "Receive a notification when a duty roulette is in need of a role. /pbonus to setup",
-      "Translated": "当随机任务需要特定职责时接收通知。/pbonus 进行设置"
+      "Translated": "当随机任务需要特定职业时接收通知。/pbonus 进行设置"
     }
   },
   "AetherBreaker": {
@@ -152,11 +152,11 @@
   "AllaganItemSearch": {
     "Punchline": {
       "Original": "Trying to find that item you don\u0027t know the name of? Maybe Allagan Item Search can help.",
-      "Translated": "想找某个不知道名称的物品？也许阿拉吉尔物品搜索能帮到你。"
+      "Translated": "想找某个不知道名称的物品？也许 Allagan 物品搜索能帮到你。"
     },
     "Description": {
       "Original": "Allagan Item Search is a dalamud plugin designed to help you search and filter all the items available in the game.",
-      "Translated": "阿拉根物品搜索是一款Dalamud插件，旨在帮助您搜索和筛选游戏中所有可用物品。"
+      "Translated": "AllaganItemSearch是一款Dalamud插件，旨在帮助您搜索和筛选游戏中所有可用物品。"
     }
   },
   "AllaganMarket": {
@@ -262,7 +262,7 @@
   "BackseatDriver": {
     "Punchline": {
       "Original": "Easily get general and role-specific hints in duties.",
-      "Translated": "轻松获取副本中的通用及职责专属提示。"
+      "Translated": "轻松获取副本中的通用及职业专属提示。"
     },
     "Description": {
       "Original": "No more frantic googling in duties. Use to get general and role-specific duty hints straight in the chat window.",
@@ -402,11 +402,11 @@
   "BigPlayerDebuffs": {
     "Punchline": {
       "Original": "Larger personal debuffs",
-      "Translated": "更大的个人减益效果"
+      "Translated": "更大的个人 Debuff 效果"
     },
     "Description": {
       "Original": "Scales up buffs/debuffs applied by you on Target Status frames",
-      "Translated": "在你施放的增益/减益效果上放大目标状态栏显示"
+      "Translated": "在你施放的 buff增益/debuff减益效果上放大目标状态栏显示"
     }
   },
   "BilingualTooltips": {
@@ -1102,11 +1102,11 @@
   "DutyPusher": {
     "Punchline": {
       "Original": "Push notify to your device when your duty is ready",
-      "Translated": "当你的职责任务准备就绪时推送通知到你的设备"
+      "Translated": "当你的排本任务准备就绪时推送通知到你的设备"
     },
     "Description": {
       "Original": "You can use this plugin to push notify to your device when your duty is ready",
-      "Translated": "你可以使用此插件在职责就绪时向你的设备推送通知"
+      "Translated": "你可以使用此插件在排本就绪时向你的设备推送通知"
     }
   },
   "DutyTracker": {
@@ -2132,11 +2132,11 @@
   "MimicryHelper": {
     "Punchline": {
       "Original": "Automatically mimic the role you\u0027re looking for.",
-      "Translated": "自动模仿所需角色。"
+      "Translated": "自动以太复制所需的职能。"
     },
     "Description": {
       "Original": "Use /mimic to open up the menu and click on a role to mimic. You may also use d, h, or t in the command, e.g. /mimic d.",
-      "Translated": "使用/mimic打开菜单并点击要模仿的职责。你也可以在命令中使用d、h或t，例如/mimic d。"
+      "Translated": "使用/mimic打开菜单并点击要模仿的职能。你也可以在命令中使用d、h或t，例如/mimic d。"
     }
   },
   "Mini": {
@@ -2282,10 +2282,10 @@
   "NamePlateDebuffs": {
     "Punchline": {
       "Original": "Displays debuffs on enemy and player nameplates",
-      "Translated": "在敌人和玩家姓名板上显示减益效果"
+      "Translated": "在敌人和玩家姓名板上显示 debuff 效果"
     },
     "Description": {
-      "Original": "Displays debuffs on nameplates.",
+      "Original": "Displays debuff on nameplates.",
       "Translated": "在姓名板上显示减益效果。"
     }
   },
@@ -2366,7 +2366,7 @@
     },
     "Description": {
       "Original": "Displays warnings when you or any party members are missing role specific actions such as partner buffs, pets, and tank stances.",
-      "Translated": "当您或任何小队成员缺少特定职责的技能（如搭档增益、宠物和坦克姿态）时显示警告。"
+      "Translated": "当您或任何小队成员缺少特定职责的技能（如舞伴、宝石兽和盾姿）时显示警告。"
     }
   },
   "NoTypeSay": {
