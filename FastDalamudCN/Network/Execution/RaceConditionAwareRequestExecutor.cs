@@ -47,7 +47,7 @@ internal sealed class RaceConditionAwareRequestExecutor(
         Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> sendFunc,
         CancellationToken cancellationToken)
     {
-        var proxyUris = proxySelector.BuildMultipleProxyUris(originalUri, maxConcurrentRequests, null);
+        var proxyUris = proxySelector.BuildMultipleProxyUris(originalUri, maxConcurrentRequests);
 
         if (proxyUris.Count == 0)
         {

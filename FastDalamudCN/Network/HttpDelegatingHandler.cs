@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Diagnostics;
+using System.Net;
 using System.Text;
 using FastDalamudCN.Network.Abstractions;
 using FastDalamudCN.Network.Proxy;
@@ -19,6 +20,7 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
     private readonly ILogger _logger;
     private readonly IHttpCacheService _httpCacheService;
     private readonly IRequestExecutor _requestExecutor;
+    private readonly HijackedPluginRepositoryStore _pluginRepositoryStore;
 
     private int _errorCount;
 
@@ -30,7 +32,8 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
         PluginLocalizationService pluginLocalizationService,
         IHttpCacheService httpCacheService,
         IRequestExecutor requestExecutor,
-        HappyEyeballsCallback happyEyeballsCallback)
+        HappyEyeballsCallback happyEyeballsCallback,
+        HijackedPluginRepositoryStore pluginRepositoryStore)
     {
         _logger = logger;
         _dalamudVersionProvider = dalamudVersionProvider;
@@ -39,6 +42,7 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
         _pluginLocalizationService = pluginLocalizationService;
         _httpCacheService = httpCacheService;
         _requestExecutor = requestExecutor;
+        _pluginRepositoryStore = pluginRepositoryStore;
 
         InnerHandler = new SocketsHttpHandler
         {
@@ -74,6 +78,8 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
 
         PrepareRequestHeaders(request);
 
+        var isPluginMaster = _pluginRepositoryStore.ContainsPluginMasterUrl(originalUri.ToString());
+
         if (request.Method == HttpMethod.Get && _configuration.EnablePluginManifestCache)
         {
             if (_httpCacheService.TryGetCachedResponse(request, originalUri, out var cachedResponse))
@@ -91,10 +97,18 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
 
         try
         {
-            var response = await _requestExecutor.ExecuteAsync(
-                request,
-                base.SendAsync,
-                cancellationToken);
+            HttpResponseMessage response;
+            if (isPluginMaster)
+            {
+                response = await SendWithPluginMasterPolicyAsync(request, cancellationToken);
+            }
+            else
+            {
+                response = await _requestExecutor.ExecuteAsync(
+                    request,
+                    base.SendAsync,
+                    cancellationToken);
+            }
 
             return await HandleResponseAsync(response, request, originalUri, cancellationToken);
         }
@@ -187,5 +201,88 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
         }
 
         return uri.HostNameType is UriHostNameType.IPv4 or UriHostNameType.IPv6 || host.Contains('.');
+    }
+
+    private async Task<HttpResponseMessage> SendWithPluginMasterPolicyAsync(
+        HttpRequestMessage request,
+        CancellationToken cancellationToken)
+    {
+        var overallBudget = TimeSpan.FromSeconds(11);
+        var perAttemptBudget = TimeSpan.FromSeconds(5);
+        var stopwatch = Stopwatch.StartNew();
+
+        HttpResponseMessage? lastResponse = null;
+        Exception? lastException = null;
+
+        for (var attempt = 0; attempt < 2; attempt++)
+        {
+            var remaining = overallBudget - stopwatch.Elapsed;
+            if (remaining <= TimeSpan.Zero)
+            {
+                break;
+            }
+
+            var timeoutThisAttempt = remaining <= perAttemptBudget ? remaining : perAttemptBudget;
+
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            cts.CancelAfter(timeoutThisAttempt);
+
+            var clonedRequest = CloneRequest(request);
+
+            try
+            {
+                lastResponse?.Dispose();
+                lastResponse = await _requestExecutor.ExecuteAsync(clonedRequest, base.SendAsync, cts.Token);
+
+                if (lastResponse.IsSuccessStatusCode)
+                {
+                    return lastResponse;
+                }
+            }
+            catch (Exception ex)
+            {
+                lastException = ex;
+                lastResponse?.Dispose();
+                lastResponse = null;
+
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    throw;
+                }
+            }
+        }
+
+        if (lastResponse != null)
+        {
+            return lastResponse;
+        }
+
+        if (lastException != null)
+        {
+            throw lastException;
+        }
+
+        throw new TimeoutException($"请求 {request.RequestUri} 超过 {overallBudget.TotalSeconds} 秒未完成");
+    }
+
+    private static HttpRequestMessage CloneRequest(HttpRequestMessage request)
+    {
+        var clone = new HttpRequestMessage(request.Method, request.RequestUri)
+        {
+            Content = request.Content,
+            Version = request.Version
+        };
+
+        foreach (var header in request.Headers)
+        {
+            clone.Headers.TryAddWithoutValidation(header.Key, header.Value);
+        }
+
+        foreach (var option in request.Options)
+        {
+            clone.Options.TryAdd(option.Key, option.Value);
+        }
+
+        return clone;
     }
 }
