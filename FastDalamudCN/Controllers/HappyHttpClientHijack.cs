@@ -69,7 +69,7 @@ internal sealed class HappyHttpClientHijack : IDisposable
 
         var newHttpClient = new HttpClient(_httpDelegatingHandler)
         {
-            Timeout = TimeSpan.FromSeconds(30)
+            Timeout = TimeSpan.FromSeconds(60)
         };
 
         _sharedHttpClientField.SetValue(_happyHttpClient, newHttpClient);
