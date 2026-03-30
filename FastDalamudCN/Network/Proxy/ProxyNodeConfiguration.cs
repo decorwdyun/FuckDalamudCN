@@ -18,11 +18,6 @@ internal static class ProxyNodeConfiguration
             },
             new
             {
-                Url = "https://edgeone.gh-proxy.org/https://github.com/decorwdyun/DalamudPlugins/blob/main/FastDalamudCN/random.bin",
-                Tags = new[] { "standard" }
-            },
-            new
-            {
                 Url = "https://ghfast.top/https://raw.githubusercontent.com/decorwdyun/DalamudPlugins/main/FastDalamudCN/random.bin",
                 Tags = new[] { "standard" }
             },
