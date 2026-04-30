@@ -1,11 +1,11 @@
-﻿<Project Sdk="Dalamud.NET.Sdk/14.0.0">
+﻿<Project Sdk="Dalamud.NET.Sdk/15.0.0">
 
     <PropertyGroup>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <Platforms>x64</Platforms>
         <AssemblyName>FuckDalamudCN</AssemblyName>
-        <Version>2.0.0.9</Version>
+        <Version>2.0.0.10</Version>
     </PropertyGroup>
 
     <ItemGroup>
