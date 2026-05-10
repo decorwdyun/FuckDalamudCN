@@ -1,4 +1,4 @@
-﻿using Dalamud.Plugin;
+using Dalamud.Plugin;
 using FastDalamudCN.Controllers;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -50,15 +50,45 @@ public class PluginLocalizationService : IDisposable
         }
     }
 
+    // 重新读取 translations.json
+    
+    public void RefreshTranslations()
+    {
+        var oldCount = _translations?.Count ?? 0;
+        LoadTranslations();
+        var newCount = _translations?.Count ?? 0;
+        _logger.LogInformation($"汉化文件已刷新，条目数：{oldCount} → {newCount}");
+    }
+
     private PluginTranslationEntry? GetTranslation(string internalName)
     {
         return _translations?.TryGetValue(internalName, out var entry) == true ? entry : null;
     }
 
+
+    // 添加 ExDownloadLinkInstall 过滤黑名单，如果添加指定链接则排除翻译
+
+    private PluginTranslationEntry? GetTranslation(string internalName, string? downloadLinkInstall)
+    {
+        if (_translations == null || !_translations.TryGetValue(internalName, out var entry))
+            return null;
+
+        // 没有黑名单，所有版本都翻译
+        if (entry.ExDownloadLinkInstalls == null || entry.ExDownloadLinkInstalls.Count == 0)
+            return entry;
+
+        // 有黑名单，跳过当前下载链接
+        if (!string.IsNullOrEmpty(downloadLinkInstall) &&
+            entry.ExDownloadLinkInstalls.Any(d => string.Equals(d, downloadLinkInstall, StringComparison.OrdinalIgnoreCase)))
+            return null;
+
+        return entry;
+    }
+
     public async Task TranslatePluginDescriptionsAsync(HttpResponseMessage response, Uri originalUri,
         CancellationToken ct)
     {
-        if (!_configuration.EnableMainRepoPluginLocalization || !ShouldTranslateRepository(originalUri))
+        if (!ShouldTranslateRepository(originalUri))
             return;
 
         var jsonString = await response.Content.ReadAsStringAsync(ct);
@@ -72,9 +102,10 @@ public class PluginLocalizationService : IDisposable
                 foreach (var plugin in plugins)
                 {
                     var internalName = plugin["InternalName"]?.ToString();
+                    var downloadLinkInstall = plugin["DownloadLinkInstall"]?.ToString();
                     if (!string.IsNullOrEmpty(internalName))
                     {
-                        var translation = GetTranslation(internalName);
+                        var translation = GetTranslation(internalName, downloadLinkInstall);
                         if (translation != null)
                         {
                             plugin["Punchline"] =
@@ -99,8 +130,16 @@ public class PluginLocalizationService : IDisposable
 
     private bool ShouldTranslateRepository(Uri originalUri)
     {
-        return _pluginRepositoryStore.TryGetRepositoryInfo(originalUri.ToString(), out var info) &&
-               info is { IsThirdParty: false };
+        if (_configuration.EnableMainRepoPluginLocalization &&
+            _pluginRepositoryStore.TryGetRepositoryInfo(originalUri.ToString(), out var info) &&
+            info is { IsThirdParty: false })
+            return true;
+        // 添加第三方仓库翻译开关
+        if (_configuration.EnableThirdPartyPluginLocalization &&
+            _pluginRepositoryStore.TryGetRepositoryInfo(originalUri.ToString(), out var tpInfo) &&
+            tpInfo is { IsThirdParty: true })
+            return true;
+        return false;
     }
 
     public void Dispose()
@@ -113,6 +152,7 @@ public class PluginLocalizationService : IDisposable
 // ReSharper disable once ClassNeverInstantiated.Global
 public class PluginTranslationEntry
 {
+    public List<string>? ExDownloadLinkInstalls { get; set; }
     public TranslationPair Punchline { get; set; } = new();
     public TranslationPair Description { get; set; } = new();
 }

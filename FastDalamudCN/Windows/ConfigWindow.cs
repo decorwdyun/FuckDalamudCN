@@ -1,4 +1,4 @@
-﻿using System.Numerics;
+using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Colors;
 using Dalamud.Interface.Components;
@@ -18,6 +18,7 @@ internal class ConfigWindow : Window
     private readonly GithubProxyProvider _proxyProvider;
     private readonly IDalamudPluginInterface _pluginInterface;
     private readonly IHttpCacheService _httpCacheService;
+    private readonly PluginLocalizationService _pluginLocalizationService;
 
     private DateTime _lastCanCheckTime = DateTime.MinValue;
 
@@ -25,13 +26,15 @@ internal class ConfigWindow : Window
         IDalamudPluginInterface pluginInterface,
         Configuration configuration,
         GithubProxyProvider proxyProvider,
-        IHttpCacheService httpCacheService
+        IHttpCacheService httpCacheService,
+        PluginLocalizationService pluginLocalizationService
     ) : base("FastDalamudCN - 配置")
     {
         _pluginInterface = pluginInterface;
         _configuration = configuration;
         _proxyProvider = proxyProvider;
         _httpCacheService = httpCacheService;
+        _pluginLocalizationService = pluginLocalizationService;
         Flags = ImGuiWindowFlags.AlwaysAutoResize;
         SizeCondition = ImGuiCond.Always;
     }
@@ -93,6 +96,24 @@ internal class ConfigWindow : Window
 
         ImGui.SameLine();
         ImGuiComponents.HelpMarker("只会翻译主库插件\n纯机翻，对效果别期待太多");
+
+        var enableThirdPartyPluginLocalization = _configuration.EnableThirdPartyPluginLocalization;
+        if (ImGui.Checkbox("开启第三方库插件简介翻译",
+                ref enableThirdPartyPluginLocalization))
+        {
+            _configuration.EnableThirdPartyPluginLocalization = enableThirdPartyPluginLocalization;
+            _httpCacheService.ClearCache();
+            Save();
+        }
+
+        ImGui.SameLine();
+        ImGuiComponents.HelpMarker("翻译第三方库插件的简介\n可在translations.json里手动添加\n支持使用\"ExDownloadLinkInstalls\"标签通过下载链接排除已汉化插件");
+
+        if (ImGui.Button("刷新汉化文件"))
+        {
+            _pluginLocalizationService.RefreshTranslations();
+            _httpCacheService.ClearCache();
+        }
 
         var enablePluginManifestCache = _configuration.EnablePluginManifestCache;
         if (ImGui.Checkbox("开启缓存",
