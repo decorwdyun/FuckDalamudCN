@@ -5,8 +5,8 @@
       "Translated": "当你挂机时自动静音游戏。"
     },
     "Description": {
-      "Original": "AFKMute",
-      "Translated": "挂机静音"
+      "Original": "Mutes your game when you\u0027re AFK. /afkmute to toggle.",
+      "Translated": "暂离时自动将游戏静音。使用 /afkmute 切换。"
     }
   },
   "ARealmRecorded": {
@@ -19,14 +19,34 @@
       "Translated": "为任务录制器添加额外功能，并在大多数副本中自动启动它。"
     }
   },
+  "ARealmReorganized": {
+    "Punchline": {
+      "Original": "Find what to clean up across your dresser, bags and retainers using the 7.5 Armoire.",
+      "Translated": "使用 7.5 收藏柜，查找你的梳妆台、背包和雇员中需要清理的物品。"
+    },
+    "Description": {
+      "Original": "Scans the Glamour Dresser for items that can now be stored in the Armoire (per patch 7.5), finds partial and complete sets, and spots duplicates across the dresser, armoire, bags, armoury, saddlebag and retainers. Everything it finds gets highlighted right in the game\u0027s inventory windows, one color per intent, so you can see what to grab without hunting.",
+      "Translated": "扫描幻象衣柜中现在可存入收藏柜的物品（依据 7.5 补丁），找出不完整与完整的套装，并标记幻象衣柜、收藏柜、背包、兵装库、鞍囊和雇员中的重复物品。所有找到的物品都会直接在游戏背包窗口中高亮显示，每种用途对应一种颜色，让你一眼看出该拿什么，无需翻找。"
+    }
+  },
+  "ARealmRepopulated": {
+    "Punchline": {
+      "Original": "The realm, now with more realm in it",
+      "Translated": "这个世界，如今有了更多世界。"
+    },
+    "Description": {
+      "Original": "This plugin aims to give players the ability to add more flavor npcs to the common areas of the game.",
+      "Translated": "本插件旨在让玩家能够为游戏的公共区域添加更多氛围NPC。"
+    }
+  },
   "AbilityAnts": {
     "Punchline": {
       "Original": "Draw ants when things are off cooldown.",
       "Translated": "冷却完毕时绘制蚂蚁。"
     },
     "Description": {
-      "Original": "Ants in your /pants!",
-      "Translated": "蚂蚁钻进你裤子里了！"
+      "Original": "For the WoW player who can\u0027t live without WeakAuras lighting up a button when it\u0027s off CD. /pants to configure.",
+      "Translated": "献给离不开 WeakAuras、技能冷却一好就要按钮亮起的 WoW 玩家。使用 /pants 进行设置。"
     }
   },
   "AbsoluteRoleplay": {
@@ -35,8 +55,8 @@
       "Translated": "一个用于创建配置、分组以及即将推出的统计表、任务与活动的插件！"
     },
     "Description": {
-      "Original": "An all around Roleplay Plugin.",
-      "Translated": "一个功能全面的角色扮演插件。"
+      "Original": "Allows users to create, manage, view and bookmark roleplay profiles with FF.",
+      "Translated": "允许用户创建、管理、查看和收藏与 FF 相关的角色扮演档案。"
     }
   },
   "Accountant": {
@@ -55,8 +75,18 @@
       "Translated": "显示物品的获取日期。"
     },
     "Description": {
-      "Original": "A plugin that shows the acquisition date of stuff.",
-      "Translated": "显示物品获取日期的插件。"
+      "Original": "Shows the date when you acquired:\n- Achievements\n- Quests\n- Duties\n- Levels\n- Fish\n- Sightseeing Log Entries\n- Glasses\n- Minions\n- Mounts\n- Orchestrion Rolls\n- Fashion Accessories\nAnd More!",
+      "Translated": "显示你获得以下内容时的日期：\n- 成就\n- 任务\n- 副本\n- 等级\n- 鱼类\n- 探索笔记\n- 眼镜\n- 宠物\n- 坐骑\n- 管弦乐琴乐谱\n- 时尚配饰\n以及更多内容！"
+    }
+  },
+  "AcrylicXIV": {
+    "Punchline": {
+      "Original": "Give your UI that premium, acrylic look upgrade. Because Eorzea looks better with some blur.",
+      "Translated": "为你的界面带来高级亚克力质感升级。毕竟艾欧泽亚配上一点模糊效果会更好看。"
+    },
+    "Description": {
+      "Original": "Blur the background behind native UI like acrylic or frosted glass, making it more elegant and readable. Customize your effects with acrylic styling, distortion, tints, and full control over brightness, saturation, and contrast.",
+      "Translated": "将原生 UI 背后的背景模糊成类似亚克力或磨砂玻璃的效果，使其更优雅、更易读。可通过亚克力样式、扭曲效果、色调，以及完全掌控亮度、饱和度和对比度来自定义效果。"
     }
   },
   "ActionTimeline": {
@@ -75,8 +105,8 @@
       "Translated": "当游戏从窗口模式切换至全屏时自动切换你的/HudLayout界面布局。"
     },
     "Description": {
-      "Original": "Adaptive hud",
-      "Translated": "自适应界面"
+      "Original": "Useful for ultrawide users, swapping from windowed/fullscreen will automatically switch your hudlayout.\n\n/pah to configure",
+      "Translated": "对超宽屏用户很有用，在窗口化与全屏之间切换时，会自动切换你的 HUD 布局。\n\n使用 /pah 进行配置。"
     }
   },
   "AdventurerInNeed": {
@@ -92,17 +122,37 @@
   "Aether48": {
     "Punchline": {
       "Original": "A game to play when dead. A 2048 clone mini-game.",
-      "Translated": "一款倒地后可玩的小游戏。一个 2048 的克隆迷你游戏。"
+      "Translated": "一款死后可玩的小游戏。一个 2048 的克隆迷你游戏。"
     },
     "Description": {
       "Original": "Opens on death, or /a48. A 2048 clone mini-game. arrow keys or wasd",
-      "Translated": "倒地时或输入 /a48 打开。一款 2048 克隆小游戏。使用方向键或 WASD 键操作。"
+      "Translated": "死亡时或输入 /a48 打开。一款 2048 克隆小游戏。使用方向键或 WASD 键操作。"
+    }
+  },
+  "AetherBags": {
+    "Punchline": {
+      "Original": "Never think too hard about your bags again!",
+      "Translated": "再也不用为背包费心啦！"
+    },
+    "Description": {
+      "Original": "This plugin replaces your inventory with it\u0027s own categorified inventory addon.",
+      "Translated": "本插件会用其自带的分类背包功能替换你的背包。"
+    }
+  },
+  "AetherBlackbox": {
+    "Punchline": {
+      "Original": "A visual replay of positions before death. DeathRecap \u002B AetherDraw",
+      "Translated": "死亡前位置的可视化回放。DeathRecap \u002B AetherDraw"
+    },
+    "Description": {
+      "Original": "Replay positions and events before death. /abb to open; Connects to an external websocket relay for opt-in live sync mode (no PII sent) at blackbox.aetherdraw.me",
+      "Translated": "回放死亡前的位置与事件。使用 /abb 打开；连接至外部 websocket 中继以启用可选的实时同步模式（不会发送个人身份信息），地址：blackbox.aetherdraw.me"
     }
   },
   "AetherBomber": {
     "Punchline": {
       "Original": "A bomberman-clone game to play when dead.",
-      "Translated": "一个可在倒地后游玩的炸弹人风格小游戏。"
+      "Translated": "一个可在死亡时游玩的炸弹人风格小游戏。"
     },
     "Description": {
       "Original": "A bomberman-clone game to play when dead. Open with /aetherbomber. Controller only atm",
@@ -162,7 +212,7 @@
   "AetherGon": {
     "Punchline": {
       "Original": "A game to play when dead. A super hexagon clone mini-game.",
-      "Translated": "倒地后消遣小游戏。一款超级六边形复刻版迷你游戏。"
+      "Translated": "死后消遣小游戏。一款超级六边形复刻版迷你游戏。"
     },
     "Description": {
       "Original": "Opens on death, or /agon. A super hexagon clone mini-game.A/D or left right arrow",
@@ -189,6 +239,16 @@
       "Translated": "收藏品战斗小游戏"
     }
   },
+  "AethericFlow": {
+    "Punchline": {
+      "Original": "Adds a teleport link to the nearest aetheryte on every map link in chat.",
+      "Translated": "为聊天中的每个地图链接添加一个前往最近以太之光的传送链接。"
+    },
+    "Description": {
+      "Original": "Display a teleport link to the nearest aetheryte for the map link from the in-game chat.\n\nゲーム内チャットのマップリンクに、最寄りのエーテライトへのテレポリンクを表示します。\n\nZeigt zu jedem Kartenlink im Spielchat einen Teleport-Link zum nächstgelegenen Ätheryten an.\n\nAffiche un lien de téléportation vers l\u0027éthérite la plus proche pour les liens de carte du chat en jeu.",
+      "Translated": "为游戏内聊天中的地图链接显示前往最近以太之光的传送链接。"
+    }
+  },
   "AkuTrack": {
     "Punchline": {
       "Original": "Shows an improved ingame (and outgame map) and collects the seen information to display later.",
@@ -206,7 +266,7 @@
     },
     "Description": {
       "Original": "Allagan Item Search is a dalamud plugin designed to help you search and filter all the items available in the game.",
-      "Translated": "Allagan Item Search 旨在帮助您搜索和筛选游戏中所有可用的道具。"
+      "Translated": "艾欧泽亚道具搜索是一款 Dalamud 插件，旨在帮助您搜索和筛选游戏中所有可用的道具。"
     }
   },
   "AllaganMarket": {
@@ -215,8 +275,8 @@
       "Translated": "整理你的雇员销售记录，追踪当前销售、历史销售与压价情况！"
     },
     "Description": {
-      "Original": "Helps track what items you have on sale.",
-      "Translated": "帮助追踪您正在出售的道具。"
+      "Original": "Allagan Market\u0027s primary purpose is to provide a list of all retainer listings/sales across all characters.\n\nIt\u0027ll do it\u0027s best to track your sales but it works best when it\u0027s always on!",
+      "Translated": "亚拉戈市场的主要用途是提供一份涵盖所有角色、所有雇员的上架/销售清单。\n\n它会尽力追踪你的销售记录，但保持常开时效果最佳！"
     }
   },
   "AllaganTetris": {
@@ -245,8 +305,8 @@
       "Translated": "Archipelago多世界随机器的客户端。"
     },
     "Description": {
-      "Original": "Archipelago Client",
-      "Translated": "Archipelago 客户端"
+      "Original": "Key Item Randomizer for FFIXV",
+      "Translated": "FFXIV 任务道具随机化器"
     }
   },
   "AscianMusicPlayer": {
@@ -275,8 +335,8 @@
       "Translated": "类似 /bgm 但是自动"
     },
     "Description": {
-      "Original": "Automated BGM switching based on Client Conditions.",
-      "Translated": "根据客户端状态自动切换背景音乐。"
+      "Original": "Enables automatic BGM switching based Client Conditions.",
+      "Translated": "启用根据客户端条件自动切换BGM。"
     }
   },
   "AutoMammet": {
@@ -295,8 +355,8 @@
       "Translated": "自动为单个坐骑控制背景音乐！"
     },
     "Description": {
-      "Original": "Automatically enables/disables mount BGM depending on the mount you use",
-      "Translated": "根据您使用的坐骑自动启用/禁用坐骑背景音乐。"
+      "Original": "Some mounts have really cool BGM tracks (Cruise Chaser FTW) while others are almost sickening in how much you hear them. It\u0027s annoying to keep needing to use /mountbgm, but now you won\u0027t have to - just let the plugin do it for you!",
+      "Translated": "有些坐骑的BGM非常带感（巡航驱逐者永远的神），而有些坐骑的BGM听多了简直让人反胃。老是得手动输入 /mountbgm 很烦，但现在不用了——交给插件自动处理就行！"
     }
   },
   "AutoTimer": {
@@ -305,8 +365,8 @@
       "Translated": "自动攻击计时条"
     },
     "Description": {
-      "Original": "A sample plugin.",
-      "Translated": "一个示例插件。"
+      "Original": "Auto-Attack Timer Bar based on the Triggernometry trigger by aya liz.",
+      "Translated": "基于 aya liz 制作的 Triggernometry 触发器实现的自动攻击计时条。"
     }
   },
   "AvantGarde": {
@@ -315,8 +375,8 @@
       "Translated": "在时尚品鉴小游戏中显示有效装备列表及提示。"
     },
     "Description": {
-      "Original": "This plugin is a crowdsourced project, aiming to provide a comprehensive list for all hint categories.\nSee the github page for information on how you can contribute.",
-      "Translated": "该插件是一个众包项目，旨在为所有提示类别提供完整列表。  \n访问GitHub页面了解如何参与贡献。"
+      "Original": "This plugin is a crowdsourced project, aiming to provide a comprehensive list for all hint categories.\nSee the github page for information on how you can contribute.\nOpen the Fashion Report window to get started!",
+      "Translated": "本插件是一个众包项目，旨在为所有提示类别提供完整的列表。\n有关如何参与贡献，请参阅 GitHub 页面。\n打开时尚品鉴窗口即可开始！"
     }
   },
   "BackseatDriver": {
@@ -325,8 +385,18 @@
       "Translated": "轻松获取副本中的通用及职业专属提示。"
     },
     "Description": {
-      "Original": "Backseat driver plugin.",
-      "Translated": "后排指挥插件。"
+      "Original": "No more frantic googling in duties. Use to get general and role-specific duty hints straight in the chat window.",
+      "Translated": "无需再在副本中手忙脚乱地查资料。使用后即可直接在聊天窗口获取通用及职能专属的副本提示。"
+    }
+  },
+  "BardicMemory": {
+    "Punchline": {
+      "Original": "Guess the tune from FFXIV\u0027s orchestrion library",
+      "Translated": "猜猜这首曲子出自 FFXIV 管弦乐琴曲库"
+    },
+    "Description": {
+      "Original": "A music guessing game built on the game\u0027s own orchestrion library. Each round plays a split second of a random track: name it for six points, or stretch the clip until you know the tune.\n\nゲーム内のオーケストリオン譜のライブラリーを使った曲当てゲームです。各ラウンドではランダムな曲がほんの一瞬だけ流れます。曲名を当てれば6ポイント、分からなければ曲が分かるまで再生時間を延ばせます。\n\nEin Musikratespiel auf Basis der spieleigenen Orchestrion-Bibliothek. In jeder Runde erklingt nur ein Sekundenbruchteil eines zufälligen Stücks: Nenne es für sechs Punkte oder verlängere den Ausschnitt, bis du die Melodie erkennst.\n\nUn jeu de devinettes musicales fondé sur la bibliothèque d\u0027orchestrion du jeu. Chaque manche ne joue qu\u0027une fraction de seconde d\u0027un morceau au hasard : nommez-le pour six points, ou allongez l\u0027extrait jusqu\u0027à reconnaître la mélodie.",
+      "Translated": "一款基于游戏内置管弦乐琴曲库的音乐猜谜游戏。每轮会随机播放一首曲目的一瞬间：猜出曲名可得 6 分，或者延长片段，直到你听出旋律。"
     }
   },
   "Bartender": {
@@ -335,8 +405,8 @@
       "Translated": "将热键栏保存为配置档，随时复用，轻松获利。"
     },
     "Description": {
-      "Original": "Save and load hotbar profiles with chat commands and/or macros.\nAllows for automation too!",
-      "Translated": "通过聊天命令和/或宏保存与加载热键栏配置。\r\n也支持自动化操作！"
+      "Original": "Save and load hotbars with macros and/or chat commands. We all need more than 10 hotbars, well now we do have those.",
+      "Translated": "使用宏和/或聊天指令保存与加载热键栏。谁都需要不止10个热键栏，而现在我们确实有了。"
     }
   },
   "BatteryGauge": {
@@ -345,8 +415,8 @@
       "Translated": "追踪你的FFXIV设备电量。"
     },
     "Description": {
-      "Original": "A Dalamud plugin that shows battery information in-game.",
-      "Translated": "一款在游戏中显示电池信息的 Dalamud 插件。"
+      "Original": "Hey, you! Yes, you! Do you play FFXIV on your laptop or Steam Deck? Or are you so addicted to FFXIV that you have a UPS on your desktop just so you can keep playing through power outages? Then this is the plugin for you!\n\nBatteryGauge adds a battery indicator to your server info bar showing your current battery percentage and expected remaining lifespan (as reported by Windows).",
+      "Translated": "嘿，说的就是你！你是不是用笔记本或 Steam Deck 玩 FFXIV？还是说你对 FFXIV 已经痴迷到给台式机装了 UPS，就为了停电时也能继续玩？那这个插件就是为你准备的！\n\nBatteryGauge 会在服务器信息栏添加一个电池指示器，显示当前电量百分比和预计剩余续航时间（由 Windows 报告）。"
     }
   },
   "Beachcomber": {
@@ -402,11 +472,11 @@
   "BetterMinionRoulette": {
     "Punchline": {
       "Original": "Choose which minions show up in the minion roulette",
-      "Translated": "选择哪些宠物会出现在宠物轮盘中。"
+      "Translated": "选择哪些宠物会出现在宠物天选中。"
     },
     "Description": {
       "Original": "Allows any number of minions to be enabled for the minion roulette, instead of having to choose between the \u0022up to 30\u0022 and \u0022EVERYTHING\u0022 modes supported by the game.",
-      "Translated": "允许为宠物轮盘启用任意数量的宠物，而无需在游戏支持的“最多 30 只”和“全部”模式之间进行选择。"
+      "Translated": "允许为宠物天选启用任意数量的宠物，而无需在游戏支持的“最多 30 只”和“全部”模式之间进行选择。"
     }
   },
   "BetterMountRoulette": {
@@ -435,8 +505,8 @@
       "Translated": "是否想要精确到秒的游戏时长详细信息？"
     },
     "Description": {
-      "Original": "Provides expanded functionality to seamlessly track total playtime.\r\n      Use /btime once on each character to add them.\r\n\r\n      - Customisable output formats such as hours or minutes\r\n      - Automatic playtime tracking after character got registered\r\n      - Simple window to see current session playtime\r\n      - Server Info Bar integration\r\n      - Supports multiple characters\r\n    ",
-      "Translated": "提供扩展功能，无缝追踪总游戏时长。\r\n      对每个角色使用一次 \u0060/btime\u0060 命令即可将其添加。\r\n\r\n      - 可自定义输出格式，例如小时或分钟\r\n      - 角色注册后自动追踪游戏时长\r\n      - 显示当前会话游戏时长的简易窗口\r\n      - 服务器信息栏集成\r\n      - 支持多个角色"
+      "Original": "Provides expanded functionality to seamlessly track total playtime.\n      Use /btime once on each character to add them.\n\n      - Supports multiple characters,\n      - Customisable output formats such as hours or minutes\n      - Automatic playtime tracking after character got registered\n      - Simple window to see current session playtime\n      - Server Info Bar integration",
+      "Translated": "提供扩展功能，可无缝统计总游戏时长。\n      在每个角色上使用一次 /btime 即可添加该角色。\n\n      - 支持多角色，\n      - 可自定义输出格式，如小时或分钟\n      - 角色注册后自动追踪游戏时长\n      - 通过简洁窗口查看当前会话游戏时长\n      - 集成服务器信息栏"
     }
   },
   "BetterShadows": {
@@ -455,8 +525,8 @@
       "Translated": "游戏更智能的目标选择系统。"
     },
     "Description": {
-      "Original": "Better Targeting System",
-      "Translated": "更佳的目标选定系统"
+      "Original": "A more intelligent targeting system for the game which also includes new keybinds.",
+      "Translated": "为游戏提供更智能的目标选定系统，并新增了快捷键位。"
     }
   },
   "BigNaelQuotes": {
@@ -465,8 +535,8 @@
       "Translated": "使奈尔语录更加醒目。"
     },
     "Description": {
-      "Original": "Dalamud Plugin that Makes Nael quotes more visible.",
-      "Translated": "让奈尔语录更显眼的 Dalamud 插件。"
+      "Original": "Displays Nael quotes using the Dawntrail gimmick-text so they\u0027re easier to read.",
+      "Translated": "使用「金曦之遗辉」的机制文本样式显示奈尔的台词，以便更易阅读。"
     }
   },
   "BigPlayerDebuffs": {
@@ -485,8 +555,8 @@
       "Translated": "以防光之战士会说多种语言"
     },
     "Description": {
-      "Original": "In case the WoL speaks more than one language",
-      "Translated": "以防光之战士会说多种语言"
+      "Original": "Yes, we have tooltips displayed in two languages now. You paid SE for 4 languages so make very good use of it.\n\n- Interested in localised item descriptions in different languages?\n- Got fed up of transliterated カタカナ and would rather read just the original words?\n\nWe\u0027ve got you! See plugin config to customise your own experience.\n",
+      "Translated": "是的，我们现在支持用两种语言显示悬浮提示了。你可是为 SE 的 4 种语言掏过钱的，那就好好利用起来吧。\n\n- 想看看不同语言版本的道具描述？\n- 受够了片假名音译，只想直接读原文？\n\n交给我们吧！前往插件设置，自定义你的体验。"
     }
   },
   "BisBuddy": {
@@ -515,18 +585,18 @@
       "Translated": "帮助你完成青魔法师法术书的记录"
     },
     "Description": {
-      "Original": "Adds monster names and coordinates to the \u0022Where to Learn\u0022 section of your blue mage spellbook.",
-      "Translated": "在青魔法师的技能书\u0022学习地点\u0022部分添加怪物名称与坐标。"
+      "Original": "Adds a window to show all Blue Magic, letting you search for spells and then teleport or mark the location on your map or open the dutyfinder. Can also mark mobs in world that drop spells you need.",
+      "Translated": "添加一个窗口来显示所有青魔法，让你可以搜索魔法，然后传送、在地图上标记位置或打开任务搜索器。还可以标记世界中掉落你所需魔法的怪物。"
     }
   },
   "BozjaBuddy": {
     "Punchline": {
-      "Original": "Improve your Bozja sufferring. Maybe.",
-      "Translated": "改善你在博兹雅的不幸遭遇。大概吧。"
+      "Original": "Improve your Bozja suffering. Maybe.",
+      "Translated": "改善一下你在博兹雅的受苦体验。也许吧。"
     },
     "Description": {
-      "Original": "A plugin for Bozja content.",
-      "Translated": "用于博兹雅内容的插件。"
+      "Original": "Features:\n• Resistance relic guide and tracking.\n• Info about Lost Actions, Fragments, FATEs/CE, Field Notes e.g. location, drops, marketboard price, fate chains, mettle rewards, exp rewards, etc.\n• Node graph viewer.\n• Weather forecast.\n• Alarms based on time, weather, and FATE/CE.\n• Custom loadouts planning, saving, and sharing. Featuring recommended loadouts from many communities.\n• Overlay for Lost Find Cache. Filterable by name, role, fragment, weight, and Custom Loadout of choice.\n• View Bozja stats and Cache from anywhere. Customisable alert for actions that are running low.\n• Delubrum Reginae (Savage) resources and communities.",
+      "Translated": null
     }
   },
   "Browsingway": {
@@ -551,12 +621,12 @@
   },
   "CWLSLastSeenTool": {
     "Punchline": {
-      "Original": "A tool for tracking when CWLS members were last seen online.",
-      "Translated": "用于追踪跨服通讯贝成员最后上线时间的工具。"
+      "Original": "Tools to make managing Linkshells and Cross-world Linkshells easier.",
+      "Translated": "让管理通讯贝和跨服通讯贝更轻松的工具。"
     },
     "Description": {
-      "Original": "A tool for tracking when CWLS members were last seen online.",
-      "Translated": "用于追踪跨服通讯贝成员最后上线时间的工具。"
+      "Original": "Formerly CWLSLastSeenTool. Tools to make managing Linkshells and Cross-world Linkshells easier. Primarily for keeping track of when you last see memebrs online but more functionality may be added as requested/when I am able. /shelltools to open.",
+      "Translated": "原名 CWLSLastSeenTool。用于更轻松地管理通讯贝和跨服通讯贝的工具。主要用于记录你最后一次看到成员在线的时间，但之后可能会根据需求或在我力所能及时添加更多功能。使用 /shelltools 打开。"
     }
   },
   "CameraLoader": {
@@ -609,6 +679,16 @@
       "Translated": "根据定义的过滤器播放声音并高亮显示文本。"
     }
   },
+  "ChatAnywhere": {
+    "Punchline": {
+      "Original": "Host your chat on a web server so you can talk from anywhere.",
+      "Translated": "将聊天托管在网页服务器上，让你随时随地都能聊天。"
+    },
+    "Description": {
+      "Original": "Features:\n- Real-time chat streaming via Server-Sent Events\n- Supports all channel types: FC, LS/CWLS 1-8, Party, Tell, Say, Shout, Yell, Alliance, and more\n- Custom filters with drag-and-drop reordering, unread badges, and default send channels\n- Tell mode with pin support and recent DM history\n- Send queue: brief countdown after pressing Send so you can cancel accidental sends (opt-in)\n- Emote picker with search and recently used, and FFXIV symbol picker\n- Link previews for trusted sites (Lodestone, YouTube, Twitter/X, Twitch, and more)\n- Appearance customisation: Light and Dark themes, Google Fonts, font size, coloured message backgrounds\n- Passcode authentication for browser access",
+      "Translated": null
+    }
+  },
   "ChatBubbles": {
     "Punchline": {
       "Original": "Enables in-game chat bubbles.",
@@ -625,8 +705,8 @@
       "Translated": "在聊天消息中添加发送者目标名称。"
     },
     "Description": {
-      "Original": "Dalamud plugin to add sender target to chat messages.",
-      "Translated": "可在聊天消息中添加发送者目标名的 Dalamud 插件。"
+      "Original": "Add sender target name in chat messages and displays nearly player targets",
+      "Translated": "在聊天消息中添加发送者与目标名称，并显示附近的玩家目标。"
     }
   },
   "ChatCoordinates": {
@@ -635,8 +715,8 @@
       "Translated": "根据聊天中的坐标在地图上放置标记旗帜。"
     },
     "Description": {
-      "Original": "Place flag markers on map from chat command.",
-      "Translated": "通过聊天指令在地图上放置标记旗帜。"
+      "Original": "Places flag marker on map from coordinates in chat.\nOpens map with given coordinates for current or given zone.\nSee \u0022/coord\u0022 for configuration and usage info.",
+      "Translated": "根据聊天中的坐标在地图上放置标记。\n使用给定坐标打开当前区域或指定区域的地图。\n查看“/coord”了解配置与使用方法。"
     }
   },
   "ChatEmoteColor": {
@@ -655,8 +735,8 @@
       "Translated": "知道他们从多远的地方说话。"
     },
     "Description": {
-      "Original": "Know how far they talk from.",
-      "Translated": "知道他们从多远的地方说话。"
+      "Original": "This plugin will change message in the chat within the \u0022say\u0022 channel (or other ranged channels), darkening people when they\u0027re far from you.",
+      "Translated": "此插件会修改聊天中“说话”频道（或其他受距离限制的频道）的消息，当玩家与你距离较远时将其变暗。"
     }
   },
   "ChatTranslated": {
@@ -695,8 +775,28 @@
       "Translated": "保存并过滤聊天内容。"
     },
     "Description": {
-      "Original": "Plugin to save and filter chats.",
-      "Translated": "保存与筛选聊天记录的插件。"
+      "Original": "Allows for saving chat conversations, separated by groups of people and chat types.",
+      "Translated": "可保存聊天记录，并按人群分组和聊天类型分类。"
+    }
+  },
+  "ChatterShade": {
+    "Punchline": {
+      "Original": "Customize NPC dialogue, speaker names, and backgrounds.",
+      "Translated": "自定义 NPC 对话、说话者名称和背景。"
+    },
+    "Description": {
+      "Original": "Customize dialogue text colors, NPC speaker names, and dialogue backgrounds. Create individual speaker profiles with custom colors for different NPCs.",
+      "Translated": "自定义对话文本颜色、NPC 说话者名称和对话背景。为不同 NPC 创建带有自定义颜色的独立说话者配置。"
+    }
+  },
+  "ChestDiff": {
+    "Punchline": {
+      "Original": "Summarize Free Company chest history by item and player.",
+      "Translated": "按道具和玩家汇总部队储物柜历史记录。"
+    },
+    "Description": {
+      "Original": "ChestDiff reads the visible Free Company chest history, filters rows after a configured date/time, and summarizes deposits and withdrawals by item and player. It only processes rows available from the in-game Free Company Chest Log.\n\nCommands:\n/chestdiff - Open ChestDiff.\n/chestdiff export - Export a summary CSV.\n/chestdiff dump - Export diagnostic raw chest log text to CSV.\n/chestdiff help - Show command help.",
+      "Translated": "ChestDiff 会读取可见的部队储物柜历史记录，筛选出配置日期/时间之后的行，并按物品和玩家汇总存入与取出情况。它仅处理游戏内部队储物柜日志中可用的行。\n\n命令：\n/chestdiff - 打开 ChestDiff。\n/chestdiff export - 导出汇总 CSV。\n/chestdiff dump - 将用于诊断的原始储物柜日志文本导出为 CSV。\n/chestdiff help - 显示命令帮助。"
     }
   },
   "ChillFrames": {
@@ -725,8 +825,18 @@
       "Translated": "狩猎车期间不再尴尬。\n临时过滤掉不含标记或副本信息的喊话与呼喊。"
     },
     "Description": {
-      "Original": "Hides shouts and yells, unless they contain flag coordinates or \u0027switching instance\u0027 messages.\nUse /cleanhunt to turn on for a configurable amount of time (default 1 hour).\nUse /cleanhunt off to disable early.",
-      "Translated": "隐藏喊话与呼喊，除非包含坐标标记或\u0022切换副本\u0022消息。\n使用/cleanhunt开启可配置时长（默认1小时）。\n使用/cleanhunt off提前关闭。"
+      "Original": "Clean Hunt Chat",
+      "Translated": "清理狩猎聊天"
+    }
+  },
+  "Clock": {
+    "Punchline": {
+      "Original": "Tired of missing stuff cause everything is in another timezone? Say less.",
+      "Translated": "受够了因为时区不同而总是错过内容？不用多说。"
+    },
+    "Description": {
+      "Original": "Use this to know the current time in different timezones in a customizable way.\nYou can change the text scale, colors, position and even setup Alarms!",
+      "Translated": "使用本功能，你可以通过自定义方式查看不同时区的当前时间。你可以调整文本缩放、颜色、位置，甚至设置闹钟！"
     }
   },
   "CoinPouch": {
@@ -755,8 +865,8 @@
       "Translated": "追踪、发现并操作你的游戏内收藏"
     },
     "Description": {
-      "Original": "Collections",
-      "Translated": "收藏品"
+      "Original": "Collections provides an interface to track, discover and interact with your Collections in game.\nIntegrates with Glamour systems (Preview, Create Sets, Glamour Plates).\nSupports: Glamour, Mounts, Minions, Emotes, Hairstyles, Triple Triad, Blue Mage, Bardings, Framer Kits, Orchestrions, Outfits, Fashion Accessories, Facewear.",
+      "Translated": null
     }
   },
   "CollectorsAnxiety": {
@@ -785,8 +895,8 @@
       "Translated": "受到RuneLite启发的掉落物品追踪器"
     },
     "Description": {
-      "Original": "RuneLite inspired drop-tracker",
-      "Translated": "受到 RuneLite 启发的掉落物品追踪器"
+      "Original": "Tracks the contents and market value of items dropped while killing monsters. And drops from some other activities such as dungeons, raids, gathering, and maps.",
+      "Translated": "追踪击杀魔物时掉落道具的内容与市场价值，以及迷宫、大型任务、采集和地图等其他活动的掉落。"
     }
   },
   "Compass": {
@@ -815,8 +925,8 @@
       "Translated": "自动调整小队列表顺序。"
     },
     "Description": {
-      "Original": "Automatically rearrange party list for TOP. /conga",
-      "Translated": "自动重排小队列表。/conga"
+      "Original": "Rearrange party list from left to right: /conga",
+      "Translated": "从左到右重新排列小队列表：/conga"
     }
   },
   "Congratulations": {
@@ -825,8 +935,8 @@
       "Translated": "在副本中获得赞时获得听觉奖励。"
     },
     "Description": {
-      "Original": "Get aurally rewarded when you get commended on duties.",
-      "Translated": "在副本中获得赞时获得听觉奖励。"
+      "Original": "Get aurally rewarded when you get commended on duties.\n\nComes with default sounds for when you get commended by 1/3, 2/3, 3/3 or all seven members of the duty you were in, but you can set custom sounds for each type of trigger by opening /congratsconfig.\n\nThe fractioned values are in relation to how many of those members could commend you (i.e. excluding those that were in your party before joining the duty).",
+      "Translated": "在任务副本中获得最优队员推荐时，会播放提示音作为奖励。\n\n内置默认音效，可在你获得 1/3、2/3、3/3 或所在任务副本全部七名队员的推荐时播放；打开 /congratsconfig 即可为每种触发类型设置自定义音效。\n\n这些分数值取决于有多少名队员可以推荐你（即不包括在加入任务副本前就已在你小队中的成员）。"
     }
   },
   "ContactsTracker": {
@@ -835,8 +945,8 @@
       "Translated": "帮你记录副本和遇到的玩家。"
     },
     "Description": {
-      "Original": "Help you remember previous contacts.",
-      "Translated": "帮你记住之前的联系人。"
+      "Original": "Remember to change setting according to your need.\nUse the Settings button to enter analyze window.",
+      "Translated": "请记得根据自身需求调整设置。\n使用“设置”按钮进入分析窗口。"
     }
   },
   "CoordImporter": {
@@ -845,8 +955,8 @@
       "Translated": "将地图坐标导入至默语聊天中。"
     },
     "Description": {
-      "Original": "Import map coordinates to echo chat.",
-      "Translated": "将地图坐标导入至默语聊天中。"
+      "Original": "Import map coordinates from various sources (e.g. Siren Hunts or Bear Toolkit) and dump them into echo chat. Use /ci to open the dialog box.",
+      "Translated": "从多种来源（例如 Siren Hunts 或 Bear Toolkit）导入地图坐标，并输出到默语频道。使用 /ci 打开对话框。"
     }
   },
   "CraftRemaining": {
@@ -869,14 +979,24 @@
       "Translated": "允许你生成宏并模拟各种制作配方，无需打开其他应用。打开你的制作笔记即可开始！"
     }
   },
+  "CreateXIV": {
+    "Punchline": {
+      "Original": "Create your own custom slash commands.",
+      "Translated": "创建属于你自己的自定义斜杠命令。"
+    },
+    "Description": {
+      "Original": "Lets players create custom slash command aliases from an in-game UI.",
+      "Translated": "允许玩家通过游戏内界面创建自定义斜杠命令别名。"
+    }
+  },
   "CrossUp": {
     "Punchline": {
       "Original": "Customize the Cross Hotbar!",
       "Translated": "自定义十字热键栏！"
     },
     "Description": {
-      "Original": "Customize the Cross Hotbar!",
-      "Translated": "自定义十字热键栏！"
+      "Original": "This plugin provides various customizations for the look and feel of the Cross Hotbar.\n\n-Split up the left/right hotbars\n-Display Expanded Hold Controls Separately\n-Customize colors and element positions\n-Greater control over which sets your extra bars are mapped to",
+      "Translated": "本插件为十字热键栏的外观与操作体验提供了多种自定义选项。\n\n- 拆分左/右热键栏\n- 分别显示扩展长按操作\n- 自定义颜色与元素位置\n- 更精细地控制额外热键栏所映射的套装"
     }
   },
   "CrystalRadio": {
@@ -885,8 +1005,8 @@
       "Translated": "在游玩 FFXIV 的同时播放网络电台。"
     },
     "Description": {
-      "Original": "Listen to your favorite internet radio stations directly in-game. Browse stations and manage your favorites. Use /cradio to open the radio player",
-      "Translated": "在游戏中直接收听你喜爱的网络电台。浏览电台并管理你的收藏。使用 /cradio 打开电台播放器。"
+      "Original": "Listen to your favorite internet radio stations directly in-game. Browse stations and manage your favorites. Use /cradio to open the radio player\n",
+      "Translated": "在游戏内直接收听你喜爱的网络电台。浏览电台并管理收藏。使用 /cradio 打开电台播放器。"
     }
   },
   "CurrencyAlert": {
@@ -905,8 +1025,8 @@
       "Translated": "了解如何使用所有游戏内货币。"
     },
     "Description": {
-      "Original": "Figure out what to do with all the ingame currencies.",
-      "Translated": "弄清楚如何处理游戏内的所有货币。"
+      "Original": "Never wonder \u0027What should I do with this?\u0027 again. Access real-time prices from Universalis, identify missing collectibles tied to your currencies, and unlock new possibilities for utilizing your in-game resources effectively.",
+      "Translated": "再也不用纠结“这东西该拿来做什么？”了。接入 Universalis 获取实时价格，找出与手中货币对应的缺失收藏品，解锁更多可能，让游戏内资源得到充分利用。"
     }
   },
   "CurrencyTracker": {
@@ -926,7 +1046,7 @@
     },
     "Description": {
       "Original": "Provides a configurable overlay, configurable alerts, and a powerful rule system for displaying how many currency (or non-currency) items you have (or don\u0027t have). A spiritual successor to CurrencyAlert.",
-      "Translated": "提供一个可自定义的覆盖层、可配置的提醒功能，以及一个强大的规则系统，用于显示你拥有（或缺少）多少货币（或非货币）道具。这是“CurrencyAlert”插件的精神续作。"
+      "Translated": "提供一个可自定义的覆盖层、可配置的提醒功能，以及一个强大的规则系统，用于显示你拥有（或缺少）多少货币（或非货币）道具。这是“货币提醒”插件的精神续作。"
     }
   },
   "CustomEqualizer2782": {
@@ -937,6 +1057,16 @@
     "Description": {
       "Original": "Did you know that the EQ presets in the system settings are powered by a 4-band EQ? Let\u0027s make our own presets!",
       "Translated": "你知道吗？系统设置里的均衡器预设其实是基于 4 段均衡器的！咱们自己来做预设吧！"
+    }
+  },
+  "CustomLoadingScreens": {
+    "Punchline": {
+      "Original": "Your loading screens, your way!",
+      "Translated": "你的加载界面，由你做主！"
+    },
+    "Description": {
+      "Original": "Replaces loading screen imagery with custom defined images.",
+      "Translated": "将加载界面的图像替换为自定义图像。"
     }
   },
   "CustomResolution2782": {
@@ -995,8 +1125,8 @@
       "Translated": "随心所欲，时尚探索"
     },
     "Description": {
-      "Original": "Finder of anything",
-      "Translated": "万物寻踪"
+      "Original": "Adds a convenient quick search akin to Spotlight that lets you open game windows, teleport, find wiki articles, and more.\nPress Control \u002B T to open the search window. This can be changed by searching for \u0022Wotsit Settings\u0022.",
+      "Translated": "添加了类似聚光灯的便捷快速搜索功能，可让你打开游戏窗口、传送、查找 Wiki 文章等。\n按 Control \u002B T 打开搜索窗口。可通过搜索“Wotsit 设置”更改此快捷键。"
     }
   },
   "Dalamud.FullscreenCutscenes": {
@@ -1005,8 +1135,8 @@
       "Translated": "移除超宽屏显示器上过场动画的黑边。"
     },
     "Description": {
-      "Original": "A sample plugin.",
-      "Translated": "一个示例插件。"
+      "Original": "This plugin removes the \u0022letterboxing\u0022 bars when watching cutscenes on ultrawide monitors.\nBeware! You may see things that you are not supposed to be seeing, such as upcoming NPCs popping in or T-posing.\n\nThanks to aers for finding this.",
+      "Translated": "此插件可在使用超宽屏显示器观看过场动画时移除“信箱模式”黑边。\n注意！你可能会看到一些本不该看到的内容，例如即将登场的 NPC 突然出现或摆出 T 字姿势。\n\n感谢 aers 发现了这一点。"
     }
   },
   "Dalamud.LoadingImage": {
@@ -1021,12 +1151,12 @@
   },
   "Dalamud.RichPresence": {
     "Punchline": {
-      "Original": "Show your zone, job, level, name, and world in your Discord status",
-      "Translated": "在你的 Discord 状态中显示当前区域、职业、等级、角色名和服务器"
+      "Original": "Show your character\u0027s job, level, name, and other details in your Discord status.",
+      "Translated": "在 Discord 状态中显示你的角色特职、等级、名称及其他详细信息。"
     },
     "Description": {
-      "Original": "This plugin allows you to show your zone, job, level, name, and world in your Discord status.",
-      "Translated": "此插件可让你的Discord状态显示所在区域、职业、等级、名称和服务器。"
+      "Original": "Show your zone, job, level, name, and world in your Discord status.",
+      "Translated": "在 Discord 状态中显示你的所在地图、特职、等级、角色名和服务器。"
     }
   },
   "DalamudMinesweeper": {
@@ -1035,8 +1165,8 @@
       "Translated": "经典解谜游戏。"
     },
     "Description": {
-      "Original": "A logic puzzle featuring hidden mines.",
-      "Translated": "一个包含地雷爆炸的逻辑谜题。"
+      "Original": "Logic puzzle in which you find and flag hidden mines.\n\nLeft click to uncover a square, right click to place a flag.\nThe game ends when all safe squares have been uncovered.\nClick the smiley face to start a new game.",
+      "Translated": "一款找出并标记隐藏地雷的逻辑解谜游戏。\n\n左键点击翻开方格，右键点击放置旗帜。\n翻开所有安全方格后，游戏结束。\n点击笑脸即可开始新游戏。"
     }
   },
   "DamageInfoPlugin": {
@@ -1065,8 +1195,8 @@
       "Translated": "帮助进行多种骰子游戏的插件。还提供井字棋、扫雷和巴哈姆特骰子等游戏。"
     },
     "Description": {
-      "Original": "Plugin to help with a number of dice games. Also offers games like Tic-Tac-Toe, Minesweeper and Bahamood.",
-      "Translated": "帮助进行多种骰子游戏的插件。还提供井字棋、扫雷和巴哈姆特骰子等游戏。"
+      "Original": "## Modes\n### Venue:\n- Concise display of all concurrent players in a list-based format\n- Supports multiple sorting types (min, max, nearest to)\n- Highlight numbers based on regex matching\n\n### DeathRoll:\n- Supports multiple players\n- Automatic checks to prevent number skipping\n\n### Tournament (1v1 DeathRoll):\n- Automatic bracket generation with byes to fill uneven\n- Forfeit functionality if a player needs to leave\n\n### Blackjack:\n- Automatic reward calculation based on common rules\n- Simplistic, or visual view of cards in play\n- Automatic or manual player-based draw for cards\n\n### Extra Features:\n- Block or prevent players from partaking in any game\n- Accept only /random or /dice commands\n\n## Games\n### Tic-Tac-Toe\n- Play against your friends, or AI\n- Easy, Medium, Hard\n- 3x3, 4x4, 5x5\n\n### Minesweeper\n- Easy, Medium, Hard\n- 8x8, 9x9, 16x16, 18x30\n- Custom Games (planned)\n\nMore features are planned, following user feedback.",
+      "Translated": "## 模式\n### 场所：\n- 以列表形式简洁显示所有同时在线玩家\n- 支持多种排序方式（最小、最大、最接近）\n- 根据正则匹配高亮数字\n\n### 死亡骰子：\n- 支持多名玩家\n- 自动检查以防止跳号\n\n### 锦标赛（1v1 死亡骰子）：\n- 自动生成对阵表，人数不齐时以轮空补齐\n- 玩家需要离开时可弃权\n\n### 21点：\n- 根据通用规则自动计算奖励\n- 简洁或可视化的牌面显示\n- 自动或由玩家手动抽牌\n\n### 额外功能：\n- 屏蔽或阻止玩家参与任何游戏\n- 仅接受 /random 或 /dice 命令\n\n## 游戏\n### 井字棋\n- 与好友或 AI 对战\n- 简单、中等、困难\n- 3x3、4x4、5x5\n\n### 扫雷\n- 简单、中等、困难\n- 8x8、9x9、16x16、18x30\n- 自定义游戏（计划中）\n\n更多功能将根据用户反馈陆续推出。"
     }
   },
   "DeepDungeonDex": {
@@ -1075,8 +1205,8 @@
       "Translated": "实时怪物数据。"
     },
     "Description": {
-      "Original": "A live bestiary for Deep Dungeon. Shows target mob aggro type, a subjective threat level, status vulnerabilities, and a general overview of notable mechanics. Threat level is meant to be taken with a grain of salt, is aimed towards solo players, and assumes a general familiarity with deep dungeon mechanics and the class being played. Information is accurate to the best of my knowledge based on crowdsourced information, but I could use your help! Please open an issue on the GitHub if you\u0027d like to correct inaccurate or untested data. Original by Strati",
-      "Translated": "深层迷宫动态图鉴。显示目标怪物的仇恨类型、主观威胁等级、状态易伤性，以及重要机制的概述。威胁等级仅供参考，主要面向单人玩家，并假设使用者已基本熟悉深层迷宫机制及所玩职业。信息基于众包数据力求准确，但仍需您的协助！如发现错误或未经核实的数据，请在 GitHub 提交问题。原作者：Strati"
+      "Original": "A live bestiary.\nShows target mob aggro type, a subjective threat level, status vulnerabilities, and a general overview of notable mechanics.\nThreat level is meant to be taken with a grain of salt, is aimed towards solo players, and assumes a general familiarity with deep dungeon mechanics and the class being played.\nInformation is accurate to the best of my knowledge based on crowdsourced information, but I could use your help! Please open an issue on the GitHub if you\u0027d like to correct inaccurate or untested data.\nOriginally DeepDungeonDex",
+      "Translated": "实时怪物图鉴。\n显示目标怪物的仇恨类型、主观威胁等级、状态弱点，以及值得注意机制的总体概览。\n威胁等级仅供参考，主要面向单人玩家，并假定玩家对深层迷宫机制和所玩职业有基本了解。\n信息基于众包资料，已尽我所能确保准确，但我仍需要你的帮助！如果你想纠正不准确或未经测试的数据，请在 GitHub 上提交 issue。\n原名 DeepDungeonDex"
     }
   },
   "DeepDungeonTracker": {
@@ -1115,8 +1245,8 @@
       "Translated": "防止手柄输入随机卡死。"
     },
     "Description": {
-      "Original": "An FF14-Plugin that stops controller input from freezing on device changes",
-      "Translated": "一款防止控制器输入在设备变更时卡死的 FF14 插件。"
+      "Original": "Stops controller input from freezing randomly by ensuring FFXIV only polls for controllers when one is actually connected or disconnected. Doesn\u0027t require any configuration.\n\nOriginal plugin by PGGB, icon from Mutant Standard.",
+      "Translated": "通过确保 FFXIV 仅在确实有手柄连接或断开时才轮询手柄，避免手柄输入随机卡死。无需任何配置。\n\n原插件作者 PGGB，图标来自 Mutant Standard。"
     }
   },
   "DiademCalculator": {
@@ -1135,8 +1265,18 @@
       "Translated": "在目标周围绘制方向指示标记，便于报点"
     },
     "Description": {
-      "Original": "Draw the compass directionals around the target for easier callouts.",
-      "Translated": "为目标绘制罗盘方向指示，便于报点。"
+      "Original": "Draw the compass directionals around the target (boss relative or true north)",
+      "Translated": "在目标周围绘制罗盘方位（Boss相对或真北）"
+    }
+  },
+  "DiscordBotFFXIV": {
+    "Punchline": {
+      "Original": "Send message to friends from discord",
+      "Translated": "从 Discord 向好友发送消息"
+    },
+    "Description": {
+      "Original": "Discord / FFXIV bot to send msg from discord to the game",
+      "Translated": "Discord / FFXIV 机器人：用于从 Discord 向游戏内发送消息"
     }
   },
   "Dispeller": {
@@ -1145,8 +1285,8 @@
       "Translated": "轻松清理你的幻化柜。"
     },
     "Description": {
-      "Original": "Analyze your Glamour Dresser for shared models!",
-      "Translated": "分析你的投影台以查找同模装备！"
+      "Original": "A plugin to help you manage your Glamour Dresser by identifying items that share the same visual models or can be stored in the armoire.",
+      "Translated": "一个帮助你管理投影台的插件，可识别外观模型相同的道具或可存入收藏柜的道具。"
     }
   },
   "Distance": {
@@ -1195,8 +1335,8 @@
       "Translated": "\u0022精确查看你的进度。\u0022"
     },
     "Description": {
-      "Original": "Shows your exact hitbox position with a customizable marker",
-      "Translated": "使用自定义标记显示你的精确命中判定框位置。"
+      "Original": "Dot Position adds a simple, customizable marker under your character to show your precise hitbox location.",
+      "Translated": "Dot Position 会在角色脚下添加一个简洁、可自定义的标记，用于显示你精确的判定点位置。"
     }
   },
   "DragoonMayCry": {
@@ -1205,8 +1345,38 @@
       "Translated": "一个根据战斗基础表现评估你表现的插件"
     },
     "Description": {
-      "Original": "DragoonMayCry",
-      "Translated": "DragoonMayCry"
+      "Original": "A plugin that tries to add flavour to combat. You score by dealing damage and keeping your GCD rolling, and lose points if you are not greeding correctly. Now with dynamic BGM.",
+      "Translated": "一款旨在为战斗增添趣味的插件。通过造成伤害并保持 GCD 不空转来得分，若贪输出不当则会扣分。现已加入动态 BGM。"
+    }
+  },
+  "Drawers": {
+    "Punchline": {
+      "Original": "Draw or sheathe a little better(?)",
+      "Translated": "拔刀与收刀的动作稍微好看一点(?)"
+    },
+    "Description": {
+      "Original": "You can use this plugin to use the /draw or /sheathe emotes instead of your usual weapon draw/sheathe. You\u0027ll need to set up the /drawers command as a macro and bind a key to it. \n\n(Also, you\u0027ll obviously need the emotes themselves)",
+      "Translated": "你可以使用这个插件，用 /draw 或 /sheathe 情感动作来代替平时拔出/收起武器的动作。你需要把 /drawers 命令设置为宏，并为其绑定一个按键。\n\n（当然，你显然还需要拥有这些情感动作本身）"
+    }
+  },
+  "Dummy": {
+    "Punchline": {
+      "Original": "kugane striking dummy my beloved",
+      "Translated": "黄金港的木人，我的挚爱"
+    },
+    "Description": {
+      "Original": "a scene-manipulation plugin to reinstate my favorite little guy. adds an untargetable, no-collision dummy at the Kugane Aetheryte",
+      "Translated": "一个用于恢复我最喜欢的小家伙的场景操控插件。在黄金港以太之光处添加一个不可选中、无碰撞的假人。"
+    }
+  },
+  "DutyLootPreview": {
+    "Punchline": {
+      "Original": "Preview duty loot before it drops.",
+      "Translated": "在掉落前预览任务副本战利品。"
+    },
+    "Description": {
+      "Original": "Preview duty loot before it drops.",
+      "Translated": "在掉落前预览任务副本战利品。"
     }
   },
   "DutyPusher": {
@@ -1215,8 +1385,18 @@
       "Translated": "当你的排本任务准备就绪时推送通知到你的设备"
     },
     "Description": {
-      "Original": "DutyPusher",
-      "Translated": "副本推送器"
+      "Original": "You can use this plugin to push notify to your device when your duty is ready",
+      "Translated": "你可以使用此插件，在任务副本准备就绪时向你的设备推送通知。"
+    }
+  },
+  "DutySpeed": {
+    "Punchline": {
+      "Original": "Track your duty completion speeds with ease.",
+      "Translated": "轻松追踪任务副本的通关速度。"
+    },
+    "Description": {
+      "Original": "A simple speedrun timer for FFXIV duties.",
+      "Translated": "一个用于 FFXIV 副本的简易速通计时器。"
     }
   },
   "DutyTracker": {
@@ -1235,8 +1415,18 @@
       "Translated": "根据分辨率自动精细缩放游戏界面。"
     },
     "Description": {
-      "Original": "Dynamic UI Scaling for FFXIV",
-      "Translated": "FFXIV 动态 UI 缩放"
+      "Original": "Automatically finely scales the game UI by resolution.",
+      "Translated": "根据分辨率自动精细缩放游戏界面。"
+    }
+  },
+  "EasyChatlog": {
+    "Punchline": {
+      "Original": "Export your chat and forward it to Discord.",
+      "Translated": "导出聊天记录并转发至 Discord。"
+    },
+    "Description": {
+      "Original": "Captures your in-game chat, exports it (txt/json/html/md) and optionally forwards it live to a Discord channel via webhook or bot. Type /easychatlog to open the main window or /easychatlog config for settings.",
+      "Translated": "记录游戏内聊天内容，可将其导出为（txt/json/html/md），并可选通过 Webhook 或机器人实时转发至 Discord 频道。输入 /easychatlog 打开主窗口，或输入 /easychatlog config 进行设置。"
     }
   },
   "EasyEyes": {
@@ -1259,14 +1449,24 @@
       "Translated": "搜索任意内容并获取其他语言的翻译。\r\n使用 /et 打开界面，或输入 /et \u003C搜索词\u003E 直接搜索！"
     }
   },
+  "EchoXIV": {
+    "Punchline": {
+      "Original": "Bidirectional chat translation in Dalamud with auto-failover. / Traducción bidireccional de chat en Dalamud con failover automático.",
+      "Translated": "Dalamud 中的双向聊天翻译，支持自动故障转移。 / 在 Dalamud 中实现双向聊天翻译，并支持自动故障转移。"
+    },
+    "Description": {
+      "Original": "EchoXIV is a chat translation tool for FFXIV. It translates both incoming and outgoing chat messages so you can communicate more naturally with players who use other languages.\nKey Features:\n- Bidirectional chat translation for incoming and outgoing messages.\n- Configurable reading and writing languages.\n- Multiple translation engines (Google, Papago, LibreTranslate, Yandex, Local AI) with configurable fallback and automatic primary recovery.\n- Integrated Dalamud chat window for translated messages.\n\n[Español]\nEchoXIV es una herramienta de traducción de chat para FFXIV. Traduce mensajes entrantes y salientes para que puedas comunicarte de forma más natural con jugadores que usan otros idiomas.\nCaracterísticas:\n- Traducción bidireccional para mensajes entrantes y salientes.\n- Idiomas de lectura y escritura configurables.\n- Múltiples motores de traducción (Google, Papago, LibreTranslate, Yandex, IA local) con respaldo configurable y recuperación automática del principal.\n- Ventana integrada de Dalamud para mensajes traducidos.",
+      "Translated": null
+    }
+  },
   "Echoglossian": {
     "Punchline": {
       "Original": "Dialogue and other in-game text translations? Yes we have!\nKnown Issues at: https://github.com/lokinmodar/Echoglossian/issues/12",
       "Translated": "游戏内对话文本翻译？我们当然有！\n已知问题请见：https://github.com/lokinmodar/Echoglossian/issues/12"
     },
     "Description": {
-      "Original": "Final Fantasy XIV game text translator",
-      "Translated": "最终幻想XIV游戏文本翻译器"
+      "Original": "Realtime game text translator",
+      "Translated": "实时游戏文本翻译器"
     }
   },
   "EldenRing": {
@@ -1275,8 +1475,8 @@
       "Translated": "重现《艾尔登法环》愚人节玩笑。"
     },
     "Description": {
-      "Original": "Elden Ring April Fools addon",
-      "Translated": "艾尔登法环愚人节插件"
+      "Original": "Currently under development with extra features, should currently function as the April Fools joke did.",
+      "Translated": "目前仍在开发中，将加入额外功能；当前表现应与愚人节玩笑版本一致。"
     }
   },
   "EmoteLog": {
@@ -1295,8 +1495,8 @@
       "Translated": "因为跟踪你的持续伤害效果不应该这么困难。"
     },
     "Description": {
-      "Original": "Dalamud plugin that shows debuffs on the Enemy List.",
-      "Translated": "显示小队列表上 Debuff 的 Dalamud 插件。"
+      "Original": "Displays your debuffs on the enemy list. Original implementation credit to aers.",
+      "Translated": "在敌人列表中显示你的 Debuff。原始实现致谢 aers。"
     }
   },
   "EngageTimer": {
@@ -1335,8 +1535,8 @@
       "Translated": "包含多项功能的插件中的优雷卡追踪器。"
     },
     "Description": {
-      "Original": "A plugin to enchance your Eureka experience, updated for the most current patch",
-      "Translated": "一个增强你在优雷卡体验的插件，已更新至最新补丁。"
+      "Original": "A tool to assist you on your Eureka adventures, now updated for Dawntrail! Type /eurekahelper to get started.\n\nFeatures include:\n- In-Game Tracker GUI\n- Instance Tracker\n- Elementals Tracker\n- Relic Helper\n- Alarms\n- Money NM weather timings\n- More to come",
+      "Translated": "助你畅游优雷卡的实用工具，现已适配金曦之遗辉！输入 /eurekahelper 即可开始使用。\n\n功能包括：\n- 游戏内追踪界面\n- 副本追踪\n- 元素精灵追踪\n- 遗物武器助手\n- 闹钟\n- 刷钱恶名精英的天气刷新时间\n- 更多功能敬请期待"
     }
   },
   "EurekaTrackerAutoPopper": {
@@ -1345,8 +1545,8 @@
       "Translated": "我们都爱优雷卡与新月岛"
     },
     "Description": {
-      "Original": "Automatically notifies you about NMs in Eureka, with the ability to pop them on a tracker.\nOther Features:\n- Fairy Finder\n- Bunny Timer Window\n- Bunny Coffer Helper\n- Stats\n- Quest Guide (clickable coords)\n- Localized (DE, FR, JA)\n\nOccult:\n- Random Treasure Proximity Notification\n- Bunny Carrot Proximity Notification\n- Pot Coffer Helper\n- Pot Timer Window\n- Map Markers For Treasure, Bunny, Pot",
-      "Translated": "自动通知你优雷卡与新月岛中的恶名精英，并可在追踪器上显示其出现。\n其他功能：\n- 元灵探测器\n- 幸福兔计时器窗口\n- 幸福兔宝箱助手\n- 状态\n- 任务指南（可点击坐标）\n- 本地化（德语、法语、日语）\n\n新月岛：\n- 随机宝藏接近通知\n- 宝箱兔胡萝卜接近通知\n- 罐子宝箱助手\n- 罐子计时器窗口\n- 宝藏、宝箱兔、罐子的地图标记"
+      "Original": "A simple tracker for Eureka, and Occult.\nOther Features:\n- Fairy Finder\n- Bunny Timer Window\n- Bunny Coffer Helper\n- Stats\n- Quest Guide (clickable coords)\n- Localized (DE, FR, JA)\n\nOccult:\n- Random Treasure Proximity Notification\n- Bunny Carrot Proximity Notification\n- Pot Coffer Helper\n- Pot Timer Window\n- Map Markers For Treasure, Bunny, Pot, Survey Points\n- Occult Tracker\n\nWebsite (https://tracker.xivstats.com):\n- A simple tracker for occult\n- Players don\u0027t need the plugin to enjoy the benefits",
+      "Translated": null
     }
   },
   "Eventy": {
@@ -1355,8 +1555,18 @@
       "Translated": "再也不会错过任何季节活动"
     },
     "Description": {
-      "Original": "Never forget a seasonal event ever again",
-      "Translated": "再也不会错过任何季节活动"
+      "Original": "Simple but useful calender\n- Current events displayed within a server bar entry for quick viewing\n- Browse through current, upcoming and previously held events\n- Special dates for Liveletters and other important occasions are highlighted",
+      "Translated": "简单实用的日历\n- 在服务器信息栏条目中显示当前活动，方便快速查看\n- 浏览当前、即将举行和以往举办过的活动\n- 制作人来信及其他重要日期的特殊日期会高亮显示"
+    }
+  },
+  "ExpandedHotbars": {
+    "Punchline": {
+      "Original": "Add and control an unlimited number of custom additional hotbars.",
+      "Translated": "添加并管理无限数量的自定义附加热键栏。"
+    },
+    "Description": {
+      "Original": "Create hotbars of any size, spacing, and keybinds, with functions to show and hide these bars dynamically.",
+      "Translated": "创建任意大小、间距和键位的热键栏，并支持动态显示与隐藏这些热键栏。"
     }
   },
   "ExpandedSearchInfo": {
@@ -1385,8 +1595,8 @@
       "Translated": "让FATE变得稍微不那么恶心，保证有效！免责声明：魂晶掉率依然感人。"
     },
     "Description": {
-      "Original": "Displays a list of all FATEs in the current area with: time remaining, percent completed, and bonus marker. Clicking on FATE name will flag it and teleport you, if flying isn\u0027t faster. Works with Eureka and Occult FATEs, and Bozja skirmishes. NOTE: this plugin does not track specific FATEs. You can add the Sonar plugin to track those.",
-      "Translated": "显示当前地区所有危命任务的列表，包含：剩余时间、完成百分比和奖励标记。点击危命任务名称将标记它并传送你，如果飞行并非更快的话。适用于优雷卡和**新月岛**危命任务，以及博兹雅冲突战。注意：此插件不追踪特定危命任务。你可以安装声呐插件来追踪它们。"
+      "Original": "Displays a list of all FATEs in the current area with: time remaining, percent completed, and bonus marker. Clicking on FATE name will flag it and teleport you, if flying isn\u0027t faster. Works with Eureka and Occult FATEs, and Bozja skirmishes.",
+      "Translated": "显示当前地区所有危命任务的列表，包含：剩余时间、完成百分比和加成标记。点击危命任务名称会将其标记在地图上，并在飞行不比传送更快时传送你过去。适用于优雷卡与新月岛危命任务，以及博兹雅冲突战。"
     }
   },
   "FCNameColor": {
@@ -1395,8 +1605,18 @@
       "Translated": "为部队成员的部队标签着色"
     },
     "Description": {
-      "Original": "Color your FC’s tag or the entire nameplate if they are in your FC or other specified FCs.\nWorks using Lodestone data, so it can continue working inside duties as well as on different servers!",
-      "Translated": "为部队成员或其他指定部队的玩家染色部队标签或完整名牌。\n使用Lodestone数据实现，可在副本内及跨服务器持续生效！"
+      "Original": "Color your FC\u0027s tag or the entire nameplate if they are in your FC or other specified FCs.\nWorks using Lodestone data, so it can continue working inside duties as well as on different servers!",
+      "Translated": "为部队简称或"
+    }
+  },
+  "FFXIV.Venues.Directory": {
+    "Punchline": {
+      "Original": "Browse FFXIV roleplay venues in-game with rich filters and schedules.",
+      "Translated": "在游戏内浏览 FFXIV 角色扮演场所，支持丰富的筛选和日程安排。"
+    },
+    "Description": {
+      "Original": "Discover open FFXIV venues by region, data center, world, tags, and schedule. View detailed venue cards with addresses, banners, and external links directly in-game.",
+      "Translated": "按地区、大区、服务器、标签和日程，发现正在营业的 FFXIV 场所。在游戏内直接查看场所详情卡片，内含地址、宣传横幅和外部链接。"
     }
   },
   "FFXIVRPCalendarPlugin": {
@@ -1445,8 +1665,8 @@
       "Translated": "自动隐藏UI元素"
     },
     "Description": {
-      "Original": "Fader Plugin",
-      "Translated": "淡出插件"
+      "Original": "Lets you automatically hide certain game UI elements based on number of conditions.",
+      "Translated": "可根据多种条件自动隐藏指定的游戏UI元素。"
     }
   },
   "FantasyPlayer": {
@@ -1475,8 +1695,8 @@
       "Translated": "始终只需五次*按键即可切换任意职业"
     },
     "Description": {
-      "Original": "Fast Job Switcher",
-      "Translated": "快速切换职业"
+      "Original": "Enables the player to switch jobs using their three letter acronyms as commands. (*: five or more)",
+      "Translated": "允许玩家使用特职的三字母缩写作为指令来切换特职。（*：五个或更多）"
     }
   },
   "FastWaymarksPlugin": {
@@ -1485,8 +1705,18 @@
       "Translated": "当你想要专注于与Boss战斗，而不是摆弄场地标点时。"
     },
     "Description": {
-      "Original": "Fast Waymarks Plugin",
-      "Translated": "快速场地标点插件"
+      "Original": "Fast waymarks with settings for common configurations. Rotate and resize with a handy preview window.",
+      "Translated": "快速设置场景标记，内置常用配置选项。借助便捷的预览窗口进行旋转与缩放。"
+    }
+  },
+  "FateLimit": {
+    "Punchline": {
+      "Original": "See the edge of every FATE, and know before you step out of it.",
+      "Translated": "查看每个危命任务的边界，在踏出范围前提前知晓。"
+    },
+    "Description": {
+      "Original": "FateLimit draws the border of FATE areas right in the world, so you always know where the fight ends and never lose your level sync by wandering out.\n\nWHAT YOU GET\n\n- Five border styles made to sit in Eorzea: Aether ring, Barrier wall, Marching dashes, Crystal runes and FATE ember.\n- Two ways to show them: always, or only when you get close to the edge of the FATE you\u0027re in.\n- A warning colour that creeps in as you near the edge, an on-screen banner with the distance left and a marker on the closest point of the border.\n- Borders that follow the ground over hills and slopes instead of floating through them.\n- Colour, thickness, height, spacing, glow and animation for every style, with a live preview in the settings.\n\nGETTING STARTED\n\nType /fatelimit (or /fl) to open the settings. /fatelimit test places a practice FATE around you so you can try every style without waiting for a real one.\nFound a bug or have an idea? Settings \u003E Diagnostics copies a report and opens a GitHub issue for you, or come and talk about it on Discord: https://discord.gg/9kjUjWDBkJ\n\nPLAYS BY THE RULES\n\nFateLimit is purely visual: it only reads where FATEs are, which the game already shows on your map, and draws over the screen. It never moves your character or sends anything to the game. Settings are stored locally and nothing is ever uploaded.",
+      "Translated": "FateLimit 会在游戏世界中直接绘制出临危受命区域的边界，让你随时清楚战斗在哪里结束，不会因为走过头而丢失等级同步。\n\n主要功能\n\n- 五种贴合艾欧泽亚风格的边界样式：以太之环、屏障之墙、行进虚线、水晶符文与临危余烬。\n- 两种显示方式：始终显示，或仅当你接近所在临危受命的边缘时显示。\n- 接近边缘时会渐渐浮现警示颜色，屏幕上会显示剩余距离的横幅，并在边界最近点标出标记。\n- 边界会顺着山丘与斜坡贴合地面起伏，而不会穿透地形悬在空中。\n- 每种样式均可调整颜色、粗细、高度、间距、辉光与动画，并在设置中实时预览。\n\n快速上手\n\n输入 /fatelimit（或 /fl）即可打开设置。/fatelimit test 会在你周围放置一个练习用临危受命，让你无需等待真正的临危受命，也能试用全部样式。\n发现了 Bug 或有想法？在“设置 \u003E 诊断”中可以复制一份报告并为你打开 GitHub issue，也可以到 Discord 和我们聊聊：https://discord.gg/9kjUjWDBkJ\n\n恪守规则\n\nFateLimit 纯粹是视觉插件：它"
     }
   },
   "FauxHollowsSolver": {
@@ -1525,8 +1755,8 @@
       "Translated": "我准备好了，刚才只是切屏了！"
     },
     "Description": {
-      "Original": "Pass those ready checks, even when alt-tabbed.",
-      "Translated": "即使切换窗口，也能通过准备确认。"
+      "Original": "Flash FFXIV\u0027s program on the taskbar when a /readycheck starts. Use /readyflash to test the window flashing.",
+      "Translated": "当 /readycheck 开始时，让任务栏上的 FFXIV 程序闪烁。使用 /readyflash 测试窗口闪烁效果。"
     }
   },
   "FlashOnTell": {
@@ -1549,6 +1779,16 @@
       "Translated": "根据多重条件筛选浮动文字与弹出文字，并允许调整其位置。"
     }
   },
+  "FontChanger.DalamudPlugin": {
+    "Punchline": {
+      "Original": "comic sans",
+      "Translated": "Comic Sans 字体"
+    },
+    "Description": {
+      "Original": "Better support for fonts.",
+      "Translated": "更好地支持字体。"
+    }
+  },
   "FoodCheck": {
     "Punchline": {
       "Original": "Someone in our group wouldn\u0027t eat their food. I got tired of keeping track if they had or not. Now the plugin does.",
@@ -1557,6 +1797,16 @@
     "Description": {
       "Original": "See who is missing (or running out of) food buff at countdown start and/or ready check and post to echo chat with a customizable message.",
       "Translated": "在倒计时开始和/或准备确认时，查看谁缺少（或即将耗尽）食物 Buff，并使用可自定义的消息发布到默语聊天。"
+    }
+  },
+  "FriendNote": {
+    "Punchline": {
+      "Original": "A simple plugin to add notes to your friends.",
+      "Translated": "一个用于为好友添加备注的简易插件。"
+    },
+    "Description": {
+      "Original": "Add personal notes to friends from the friend list context menu. Right-click a friend\u0027s name to set a note, which will then be shown in the friend list.",
+      "Translated": "通过好友名单的右键菜单为好友添加个人备注。右键点击好友名称即可设置备注，设置后会显示在好友名单中。"
     }
   },
   "Fungah": {
@@ -1589,6 +1839,16 @@
       "Translated": "一个简易插件，供赌场庄家轻松管理所有玩家的赌注，并快速结算每轮赔付，让赌博游戏持续进行。"
     }
   },
+  "Gaolbreak": {
+    "Punchline": {
+      "Original": "Break your UI out of gaol.",
+      "Translated": "让你的界面挣脱牢笼。"
+    },
+    "Description": {
+      "Original": "Layer game windows with plugin windows, enable 3D overlay plugins to draw under UI, and stop ReShade affecting your UI.",
+      "Translated": "将游戏窗口与插件窗口分层，允许 3D 覆盖插件在 UI 下方绘制，并阻止 ReShade 影响你的 UI。"
+    }
+  },
   "GatherBuddy": {
     "Punchline": {
       "Original": "Simplify Gathering and Fishing.",
@@ -1605,8 +1865,8 @@
       "Translated": "增强和自定义职能量谱。"
     },
     "Description": {
-      "Original": "Gauge-O-Matic",
-      "Translated": "量谱助手"
+      "Original": "Gauge-O-Matic allows you to customize your job gauges by adding extra counters, bars, and indicators in a variety of styles",
+      "Translated": "Gauge-O-Matic 可让你通过添加各种样式的额外计数器、进度条和指示器来自定义职业量谱。"
     }
   },
   "GearsetHelperPlugin": {
@@ -1617,6 +1877,16 @@
     "Description": {
       "Original": "Displays extra information about a character\u0027s gearsets when Examine is open, and makes it easy to export gearsets to Etro or Ariyala.",
       "Translated": "在查看他人装备时显示其军装套装的额外信息，并能轻松将套装导出至Etro或Ariyala网站。"
+    }
+  },
+  "GearsetSort": {
+    "Punchline": {
+      "Original": "Better Gearset Sorting",
+      "Translated": "更好的套装排序"
+    },
+    "Description": {
+      "Original": "A cleaner interface to sort your gearsets that allows both swap/insert methods.",
+      "Translated": "更简洁的套装排序界面，支持交换和插入两种方式。"
     }
   },
   "GentleTouch": {
@@ -1632,7 +1902,7 @@
   "GilsTracker": {
     "Punchline": {
       "Original": "Tracks gil gained and spent during the session.",
-      "Translated": "追踪游戏期间获得与花费的金币。"
+      "Translated": "追踪会话期间获得与花费的金币。"
     },
     "Description": {
       "Original": "Counts how much gil you gain or lose while playing.",
@@ -1657,6 +1927,16 @@
     "Description": {
       "Original": "Create and save as many glamour plates as you want. Activate up to 15 of them\nat once at the Glamour Dresser. Supports exporting and importing plates for\neasy sharing.\n",
       "Translated": "随心创建并保存任意数量的幻化模板。可在幻化柜中同时激活最多15个模板。支持导出导入模板以便轻松分享。"
+    }
+  },
+  "GlamourRoulette": {
+    "Punchline": {
+      "Original": "Picks a random outfit!",
+      "Translated": "随机挑选一套外观！"
+    },
+    "Description": {
+      "Original": "Uses the command /glamourroulette to randomly apply a saved Glamour Plate.",
+      "Translated": "使用命令 /glamourroulette 随机应用已保存的投影模板。"
     }
   },
   "GlamourSpamRemover": {
@@ -1695,8 +1975,8 @@
       "Translated": "对游戏内好友系统的改进，包括好友登录/登出通知等功能。"
     },
     "Description": {
-      "Original": "Major improvements to the in-game friend system, like getting login and logout\n      notifications for your friends, and much more.",
-      "Translated": "游戏内好友系统迎来重大改进，例如新增好友登录/登出通知等多项功能。"
+      "Original": "Key Features:\n- Receive notifications when friends using GoodFriend log in or out.\n- Chat messages show how many of your friends are online when you log in.\n\nDeveloper\u0027s Note on Using This Plugin After Patch 7.0:\nAs of Patch 7.0, some of the data that GoodFriend uses to identify players during login/logout events is now visible to anyone nearby your character in-game (not just your friends or party members). GoodFriend itself will still only show notifications for people you\u0027ve added to your in-game friends list - however, please use this plugin only if you\u0027re comfortable with your login/logout activity being theoretically visible to nearby players (note: GoodFriend never sends data for users who don\u0027t have the plugin installed).\n\nIf you ever want to stop sending login/logout events, simply disable or uninstall the plugin. The server does not store any data about you.\n\nFor added privacy, you can now set a \u0027group key\u0027 in the plugin settings. This allows events to be shared only with people using the same key (for example, everyone in your raid group). When a group key is active, your events are never visible to anyone outside your group no matter what.",
+      "Translated": "主要功能：\n- 当使用 GoodFriend 的好友登录或登出时，你会收到通知。\n- 登录游戏时，聊天消息会显示你有多少好友在线。\n\n关于在 7.0 补丁后使用本插件的开发者说明：\n自"
     }
   },
   "GraceGawker": {
@@ -1719,14 +1999,34 @@
       "Translated": "允许你随时随地保存/加载/分享画面设置预设（基于你的系统配置菜单），包括在触发进入战斗、过场动画、任务副本、拍照模式等事件时。同时支持在进入城市或探索区域等条件下的加载。"
     }
   },
+  "Gratis": {
+    "Punchline": {
+      "Original": "A flat, minimal, quality-of-life-packed map.",
+      "Translated": "一张扁平、极简且便利功能齐全的地图。"
+    },
+    "Description": {
+      "Original": "Replaces the in-game map with a flat, minimal ImGui map: search, lenses, filters, travel offers, window presets and dozens of small QoL tweaks. Based on Mappy by MidoriKami and harbingerftw. Open with /gratis.",
+      "Translated": "将游戏内地图替换为扁平、极简的 ImGui 地图：支持探查、透镜、筛选、传送建议、窗口预设以及数十项小型便利性优化。基于 MidoriKami 与 harbingerftw 的 Mappy 制作。使用 /gratis 打开。"
+    }
+  },
+  "Gubal": {
+    "Punchline": {
+      "Original": "Open web pages, wikis, and Lodestone articles in your browser directly from your chat bar.",
+      "Translated": "直接从聊天栏在浏览器中打开网页、Wiki 和 Lodestone 文章。"
+    },
+    "Description": {
+      "Original": "            \n            Inspired by the /wiki command from Guild Wars 2, Gubal lets you open web pages in your browser straight from the in-game chat bar. Named after the Great Gubal Library, just type a slash command followed by what you\u0027re looking for to jump directly to specific guides, item pages, and articles in your default browser.\n            \n            Commands and Examples:\n            \n            /wiki [query] - Search the FFXIV Console Games Wiki (opens in browser):\n            - /wiki great gubal library (opens The Great Gubal Library dungeon guide)\n            - /wiki sightseeing log (opens the Sightseeing Log guide)\n            - /wiki relic weapons (opens the Relic Weapon progression guide)\n            - /wiki blue mage spells (opens the Blue Mage spell list)\n            \n            /lodestone [query] - Search the official Lodestone (opens in browser):\n            - /lodestone patch 7.56 (opens the Patch 7.56 notes directly)\n            - /lodestone maintenance (opens latest server maintenance notices)\n            - /lodestone eorzea database excalibur (opens official item details)\n            - /lodestone community finder (opens the Community Finder)\n            \n            /gubal - Open the configuration window to add, edit, or customize search commands with the {text} placeholder.\n        ",
+      "Translated": "受《激战2》的 /wiki 命令启发，Gubal 让你可以直接在游戏内的聊天栏中打开浏览器网页。其名称源自“巨大冰壁图书馆”，只需输入一个斜杠命令，后接你要查找的内容，即可直接在默认浏览器中跳转到特定的攻略、物品页面和文章。\n\n命令与示例：\n\n/wiki [查询内容] - 搜索 FFXIV Console Games Wiki（在浏览器中打开）：\n- /wiki great gubal library（打开“巨大冰壁图书馆”迷宫攻略）\n- /wiki sightseeing log（打开“探索笔记”攻略）\n- /wiki relic weapons（打开“ relic武器”成长攻略）\n- /wiki blue mage spells（打开“青魔法师”技能列表）\n\n/lodestone [查询内容] - 搜索官方“石之家”（在浏览器中打开）：\n- /lodestone patch 7.56（直接打开 7.56 版本更新笔记）\n- /lodestone maintenance（打开最新的服务器维护公告）\n- /lodestone eorzea database excalibur（打开官方物品详情）\n- /lodestone community finder（打开“社群招募”）\n\n/gubal - 打开配置窗口，以使用 {text} 占位符添加、编辑或自定义搜索命令。"
+    }
+  },
   "HUDLayoutHelper": {
     "Punchline": {
       "Original": "Adds QoL features to the native HUD layout editor: Undo, Redo, Copy, Paste and alignment lines. ",
       "Translated": "为原生HUD布局编辑器添加便利功能：撤销、重做、复制、粘贴和对齐参考线。"
     },
     "Description": {
-      "Original": "FFXIV HUD Layout Helper",
-      "Translated": "FFXIV 界面布局助手"
+      "Original": "Allows you to use keyboard shortcuts in the HUD Layout Editor, like Ctrl\u002BC and Ctrl\u002BV to copy and paste the position of individual HUD elements, and Ctrl\u002BZ and Ctrl\u002BY to undo and redo changes. \n\nCan also display an overlay showing alignment to other elements with Ctrl\u002BR. ",
+      "Translated": "允许你在 HUD 布局编辑器中使用键盘快捷键，例如用 Ctrl\u002BC 和 Ctrl\u002BV 复制并粘贴单个 HUD 元素的位置，用 Ctrl\u002BZ 和 Ctrl\u002BY 撤销和重做更改。\n\n还可以通过 Ctrl\u002BR 显示一个叠加层，用于标示与其他元素的对齐情况。"
     }
   },
   "HUDManager": {
@@ -1765,8 +2065,8 @@
       "Translated": "吟游诗人演奏助手"
     },
     "Description": {
-      "Original": "Bard performance assistant",
-      "Translated": "吟游诗人演奏助手"
+      "Original": "Assist mode for bards who want to play music but don\u0027t know how to.\n- does NOT play anything automatically\n- needs MIDI files to work\n- adapts MIDI tracks to fit in game limitations for you\n- you will be scored :O",
+      "Translated": "为想演奏乐器却不熟悉操作的吟游诗人提供的辅助模式。\n- 不会自动演奏任何内容\n- 需要 MIDI 文件才能工作\n- 自动调整 MIDI 音轨以适配游戏内的限制\n- 你还会获得评分 :O"
     }
   },
   "HighFpsPhysicsPlugin": {
@@ -1775,8 +2075,8 @@
       "Translated": "降低移动物理效果的刷新率，在高帧率下\u0022修复\u0022该问题。"
     },
     "Description": {
-      "Original": "Simple plugin that divides the physics\u0027 refresh rate, making physics (kinda) work at high fps.",
-      "Translated": "一款简单的插件，用于分割物理引擎的刷新率，使其（在某种程度上）能在高帧率下正常工作。"
+      "Original": "Causes the game\u0027s physics to work at higher FPS by making it update every few frames. \nToggle with \u0027/physics t\u0027, or use on/off instead of t. \nMay cause excessive jiggling at lower FPS values. \nDisabling the entire plugin after turning on/off with /physics requires reboot to reenable.",
+      "Translated": "通过让游戏物理每隔几帧更新一次，使其能以更高帧率运行。\n使用“/physics t”切换，或用 on/off 代替 t。\n在较低帧率下可能导致过度晃动。\n使用 /physics 开启/关闭后，若禁用整个插件，需要重启才能重新启用。"
     }
   },
   "HimbeertoniRaidTool": {
@@ -1785,8 +2085,18 @@
       "Translated": "高难副本必备"
     },
     "Description": {
-      "Original": "A collection of useful tools for RaidGroups, including loot management",
-      "Translated": "包含战利品管理等实用工具的团队工具箱。"
+      "Original": "A collection of useful tools for raid groups, including loot management",
+      "Translated": "为大型任务团队提供的一系列实用工具，包括战利品管理。"
+    }
+  },
+  "HitSpark": {
+    "Punchline": {
+      "Original": "Replace the game\u0027s combat numbers with animated, styleable fly text.",
+      "Translated": "将游戏内的战斗数字替换为带动画效果、可自定义样式的浮动文字。"
+    },
+    "Description": {
+      "Original": "HitSpark replaces Final Fantasy XIV\u0027s combat text with its own renderer: better fonts, tuned motion and real impact on critical hits.\n\nWHAT YOU GET\n\n- Every kind of combat text redrawn: damage dealt and taken, healing, misses and evades, status effects, experience, crafting and loot.\n- Eight built-in presets, each a complete look: Classic\u002B, Heroic, Tally, Onslaught, Elemental, Grim, Minimal and Retro.\n- Real motion: arcs, fountains, rising and falling paths, scrolling columns, and punch, shake, flash, sparks and trails on crits.\n- Multi-hits and damage over time that roll up into one number, with DoT ticks in their own colour.\n- Other players\u0027 numbers shown smaller, or hidden, for your party and for everyone else, with a distance limit.\n- Rear and flank hints for positionals, and an option to let numbers pass under the game\u0027s UI.\n- A style editor for every category with a live preview, and presets you can share as a short code.\n\nGETTING STARTED\n\nType /hitspark (or /hs) to open the settings and pick a preset. /hitspark test plays sample numbers on you and your target, even out of combat.\nFound a bug or have an idea? Settings \u003E Diagnostics copies a report and opens a GitHub issue for you.\n\nPLAYS BY THE RULES\n\nHitSpark is purely cosmetic: it redraws text the game already shows you and follows the game\u0027s own flying text and pop-up text options. The only extra is the optional positional hint, worked out from where you\u0027re standing. If a game update breaks it, the game\u0027s own numbers come back on their own. Settings and presets are stored locally and nothing is ever sent anywhere.",
+      "Translated": "HitSpark 会用自带的渲染器替换《最终幻想14》的战斗文字：更出色的字体、更顺滑的动态效果，以及暴击时真正有冲击力的表现。\n\n你将获得\n\n- 重绘所有类型的战斗文字：造成与承受的伤害、治疗、未命中与闪避、状态效果、经验值、制作与战利品。\n- 八款内置预设，每款都是完整风格：经典\u002B、英雄、计数、猛攻、元素、阴森、极简和复古。\n- 真实动态：弧线、喷泉、上升与下落轨迹、滚动列，以及暴击时的冲击、抖动、闪光、火花和拖尾。\n- 多段伤害与持续伤害会合并成一个数字，持续伤害跳数则使用独立颜色。\n- 队友及其他玩家的数字可以缩小显示或隐藏，并支持设置距离限制。\n- 身位技能会显示背面与侧面提示，还可让数字从游戏 UI 下方穿过。\n- 每个类别都有带实时预览的样式编辑器，预设还能通过短代码分享。\n\n快速开始\n\n输入 /hitspark（或 /hs）打开设置并选择预设"
     }
   },
   "Honorific": {
@@ -1805,8 +2115,8 @@
       "Translated": "将你当前职业的热键栏导出为文本格式，同时也支持导入功能！"
     },
     "Description": {
-      "Original": "Backs up your hotbars!",
-      "Translated": "备份你的热键栏！"
+      "Original": "Exports your current class hotbar into a JSON for backups. Allows imports from the same export on classes you don\u0027t have.",
+      "Translated": "将当前职业热键栏导出为 JSON 以便备份。支持将同一导出文件导入至你未拥有的职业。"
     }
   },
   "HotbarHelper": {
@@ -1839,6 +2149,16 @@
       "Translated": "室友插件提供多种功能，帮助您从《最终幻想14》中的其他房屋获取灵感。  \n如果您在寻找特定的房屋或户外家具，可以在住宅区闲逛时查看外观清单。  \n若想了解房屋结构中使用了哪些家具——开启物品覆盖显示即可一览无遗！  \n\n注意：本插件仅提供信息参考，不会协助您摆放家具或实现\u0022卡模型\u0022效果。"
     }
   },
+  "HousingCullFix": {
+    "Punchline": {
+      "Original": "Now with void lighting fixed!",
+      "Translated": "现已修复虚空光照问题！"
+    },
+    "Description": {
+      "Original": "Removes the annoying 400 housing item display limit.",
+      "Translated": "移除烦人的 400 个房屋道具显示上限。"
+    }
+  },
   "HousingHerald": {
     "Punchline": {
       "Original": "Automatic house bidding reminders!",
@@ -1847,6 +2167,16 @@
     "Description": {
       "Original": "A Dalamud plugin for FFXIV that reminds the player when the results are in for the house they bid on",
       "Translated": "FFXIV 房屋竞拍结果通知插件"
+    }
+  },
+  "Housingway": {
+    "Punchline": {
+      "Original": "Experience better housing!",
+      "Translated": "体验更优质的房屋！"
+    },
+    "Description": {
+      "Original": "A housing tweak collection plugin.",
+      "Translated": "一个房屋调整合集插件。"
     }
   },
   "HuntBuddy": {
@@ -1865,8 +2195,8 @@
       "Translated": "基本功能：狩猎雷达 \u002B 狩猎车记录器 \u002B 通知系统 \u002B S级精英怪工具 \u002B\u002B\u002B"
     },
     "Description": {
-      "Original": "Hunt map with spawns points, A-Rank train recorder (w/ export/import sharing), TTS, Chat notifications, Counters for S-Rank",
-      "Translated": "狩猎地图，包含刷新点、A 级精英怪教育记录器（支持导出/导入共享）、文本转语音、聊天通知、S 级精英怪计数器。"
+      "Original": "Hunt map with spawns points, A-Rank train recorder (w/ export/import sharing), TTS, Chat notifications, Counters for S-Rank Spawns",
+      "Translated": "带刷新点的狩猎地图、A怪狩猎车记录器（支持导出/导入分享）、TTS、聊天通知、S怪刷新计数器"
     }
   },
   "Hunty": {
@@ -1896,7 +2226,7 @@
     },
     "Description": {
       "Original": "Points towards your targets when they\u0027re off-screen.",
-      "Translated": "虽不可见，心仍相系（当目标位于屏幕外时，指向它们）"
+      "Translated": "当目标位于屏幕外时，指向它们。"
     }
   },
   "IHateCapsLock": {
@@ -1907,6 +2237,16 @@
     "Description": {
       "Original": "SORRY CAPS\nRemove caps lock when pressing any of the configured keys.",
       "Translated": "抱歉大写锁定\n按下任意配置键时取消大写锁定"
+    }
+  },
+  "InputFlow": {
+    "Punchline": {
+      "Original": "Improves the native text inputs by restoring common text-editing behaviors.",
+      "Translated": "通过恢复常见的文本编辑行为来改进原生文本输入框。"
+    },
+    "Description": {
+      "Original": "Improves the native text inputs by restoring common text-editing shortcuts. Works in all game text inputs: chat, macros, search, etc.\n\nSupported shortcuts:\n    - Ctrl \u002B Left/Right: Jump between words\n    - Ctrl \u002B Shift \u002B Left/Right: Select word by word\n    - Ctrl \u002B Backspace/Delete: Delete words\n    - Ctrl \u002B Insert: Copy\n    - Shift \u002B Insert: Paste\n    - Shift \u002B Delete: Cut\n\nChanges:\n    - Pressing Left/Right with the cursor at the start/end of an input properly clears the selection instead of doing nothing.\n    - Clearing an active selection with Left/Right moves the cursor to the beginning/end of the selection.\n\nSetting:\n    - Configurable word boundary: Choose whether Ctrl \u002B Right jumps to word ends (Discord, IDEs) or word starts (Windows, Notepad\u002B\u002B, ImGui).",
+      "Translated": "通过恢复常用的文本编辑快捷键来改进游戏原生文本输入框。适用于所有游戏文本框：聊天、宏、搜索等。\n\n支持的快捷键：\n    - Ctrl \u002B 左/右：在单词之间跳转\n    - Ctrl \u002B Shift \u002B 左/右：按单词逐个选择\n    - Ctrl \u002B Backspace/Delete：删除单词\n    - Ctrl \u002B Insert：复制\n    - Shift \u002B Insert：粘贴\n    - Shift \u002B Delete：剪切\n\n变更：\n    - 当光标位于输入框开头/结尾时，按左/右方向键会正确清除选区，而不是毫无反应。\n    - 使用左/右方向键清除当前选区时，光标将移动到选区的开头/结尾。\n\n设置：\n    - 可配置的单词边界：选择 Ctrl \u002B 右 是跳转到单词结尾（Discord、IDE 风格）还是单词开头（Windows、Notepad\u002B\u002B、ImGui 风格）。"
     }
   },
   "Inspecto": {
@@ -1945,8 +2285,8 @@
       "Translated": "帮助高亮相关工坊物品"
     },
     "Description": {
-      "Original": "idk search the island workshop or something",
-      "Translated": "不知道，查查无人岛工坊之类的吧。"
+      "Original": "Search items by splitting search terms with | \n     Example: papri|shark|ink \n\nStep-by-step search by splitting terms with a comma [ , ] \n     Example: poti,garn,horn \n     Will search for \u0027poti\u0027 first, then after adding and reopening window, will search for \u0027garn\u0027 \n\n Or just copy and paste the entire Overseas Casuals Squawkbox recommendations. \n\nWorks with every game client language.",
+      "Translated": "使用 | 分隔多个搜索词来搜索道具\n     示例：papri|shark|ink\n\n使用逗号 [ , ] 分隔搜索词以进行分步搜索\n     示例：poti,garn,horn\n     将先搜索“poti”，之后添加并重新打开窗口后，再搜索“garn”\n\n或者直接复制粘贴 Overseas Casuals Squawkbox 的全部推荐内容。\n\n适用于所有游戏客户端语言。"
     }
   },
   "ItemIcons": {
@@ -1985,8 +2325,18 @@
       "Translated": "显示游戏道具的商人位置"
     },
     "Description": {
-      "Original": "Dalamud plugin for item vendors",
-      "Translated": "显示游戏道具的商人位置"
+      "Original": "Adds a context menu option for items that will show you where to find items you can buy off a vendor",
+      "Translated": "为道具添加右键菜单选项，可显示可在商人处购买的道具的获取位置。"
+    }
+  },
+  "ItsUp": {
+    "Punchline": {
+      "Original": "Yes. Still up. Press it.",
+      "Translated": "是的。还开着。按下去。"
+    },
+    "Description": {
+      "Original": "\nDoing your rotation is hard enough without having to stare at your hotbars. This plugin helps you know exactly when an ability you actually care about is back up.\n\nWe don\u0027t want to clutter your screen with a massive status board. This won\u0027t show you everything that\u0027s currently available—instead, it stays completely empty until you use an ability in combat. Once you spend it and it comes off cooldown, the icon pops up to remind you. Press it, and it\u0027s gone again.\n\nBecause it only reminds you about things you\u0027ve already used, it won\u0027t spam your screen before a pull. And for abilities with charges, it only pings when you go from 0 to 1—if you\u0027re sitting on a charge, it stays out of your way since you can already press it.\n\nIt\u0027s perfect for those key rotational abilities you really don\u0027t want to drift. You can also configure each ability so the reminder stays on screen until you press it, or quietly disappears after a few seconds.\n    ",
+      "Translated": "盯着热键栏已经够累了，还要打对循环就更难了。本插件能帮你准确掌握自己真正在意的技能何时转好。\n\n我们不想用一大块状态面板占满你的屏幕。它不会显示当前所有可用技能——恰恰相反，在你于战斗中实际使用某个技能之前，它完全空白。等你用掉它、它冷却结束后，图标才会弹出提醒。按下它，图标便再次消失。\n\n因为它只提醒你已经用过的技能，所以在开怪前不会刷屏。对于有充能的技能，它只会在充能从 0 变为 1 时提示——如果你还留着充能，它不会打扰你，因为你随时都可以按下它。\n\n对于那些你绝不想拖延的关键循环技能，它再合适不过。你还可以为每个技能单独设置：让提醒一直留在屏幕上直到你按下它，或者在几秒后悄然消失。"
     }
   },
   "JobAutoSwitcher": {
@@ -1995,8 +2345,8 @@
       "Translated": "再也不会因为选错职业而错过任务匹配了。"
     },
     "Description": {
-      "Original": "Automatically switches to the correct job when clicking Commence.",
-      "Translated": "排到本时点击“出发”时自动切换至正确的职业。"
+      "Original": "Automatically switches your gearset to match the queued job when you click Commence, bypassing the \u0027class/job is different\u0027 error.",
+      "Translated": "点击“参加”时，自动切换套装以匹配所排特职，从而绕过“职业/特职不符”错误。"
     }
   },
   "JobBars": {
@@ -2015,8 +2365,18 @@
       "Translated": "自定义各职业的随机坐骑。"
     },
     "Description": {
-      "Original": "Job Mount Roulette",
-      "Translated": "职业随机坐骑"
+      "Original": "Enhance your mount roulette experience by customizing which mounts may appear for each job individually.",
+      "Translated": "为每个特职单独自定义可出现的坐骑，以提升你的坐骑随机体验。"
+    }
+  },
+  "JobRoulettePlugin": {
+    "Punchline": {
+      "Original": "Picks a random job!",
+      "Translated": "随机选择一个特职！"
+    },
+    "Description": {
+      "Original": "Uses the command /jobroulette to randomly pick a job and switch to the saved gearset. Can be configured to include or exclude certain jobs.",
+      "Translated": "使用命令 /jobroulette 随机抽取一个特职，并切换到已保存的套装。可配置包含或排除特定特职。"
     }
   },
   "JobTitles": {
@@ -2035,8 +2395,8 @@
       "Translated": "给你自己来一次心跳骤停（灵感源自 joemkdd 的以撒模组）。"
     },
     "Description": {
-      "Original": "Jumpscare plugin.",
-      "Translated": "惊吓插件。"
+      "Original": "/jumpscare or /js : Start/stop jumpscare timer.\n/jumpscareconfig or /jscfg: Open the jumpscare configuration window",
+      "Translated": "/jumpscare 或 /js：开始/停止惊吓计时器。\n/jumpscareconfig 或 /jscfg：打开惊吓配置窗口。"
     }
   },
   "JustBackup": {
@@ -2057,6 +2417,26 @@
     "Description": {
       "Original": "Kapture is a loot tracker to capture drops, obtained items, rolls, and more.\nUse the roll monitor to see who you are waiting on to roll.",
       "Translated": "Kapture是一个用来捕获掉落物、已获取物品、掷骰等内容的战利品追踪器。  \n使用掷骰监视器可以查看你在等待谁的掷骰结果。"
+    }
+  },
+  "Karaoke": {
+    "Punchline": {
+      "Original": "If it\u0027s not \u0027big fat tacos\u0027, what ARE they singing?",
+      "Translated": "如果不是“big fat tacos”，他们到底在唱什么？"
+    },
+    "Description": {
+      "Original": "Shows the lyrics of what\u0027s currently playing, synced to the track time",
+      "Translated": "显示当前正在播放内容的歌词，并与曲目时间同步。"
+    }
+  },
+  "KeybindsPlus": {
+    "Punchline": {
+      "Original": "A almost complete replacement of XIV\u0027s keybind system.",
+      "Translated": "近乎完全替代 XIV 的键位系统。"
+    },
+    "Description": {
+      "Original": "KeybindsPlus is a plugin that allows you to bind *almost* any key on your keyboard and mouse to XIV actions, custom macros/commands, and supported Dalamud plugins. Bind any key, including those not normally supported by the game (F13-F24) to *almost* anything as if it were an actual registered keybind!\n\nSupported Keybinds:\n- Custom Macros and Commands\n- Supported Plugins\n- Targeting*\n- Shortcuts\n- Chat*\n- Hotbars\n\n\u003E * - Some features may be grayed out due to complexities or unavailability. Not all base game keybinds are in KeybindsPlus but may appear as updates progress.\n\n(Thanks Miyabi)",
+      "Translated": "KeybindsPlus 是一款插件，可让你将键盘和鼠标上的*几乎*任意按键绑定到 XIV 技能、自定义宏/指令以及受支持的 Dalamud 插件。将任意按键（包括游戏通常不支持的 F13-F24）绑定到*几乎*任何内容，就像它是实际注册的按键绑定一样！\n\n支持的按键绑定：\n- 自定义宏与指令\n- 支持的插件\n- 选定目标*\n- 快捷键\n- 聊天*\n- 热键栏\n\n\u003E * - 部分功能可能因复杂性或不可用而显示为灰色。并非所有游戏原生按键绑定都包含在 KeybindsPlus 中，但随着更新推进可能会加入。\n\n（感谢 Miyabi）"
     }
   },
   "KikoGuide": {
@@ -2091,12 +2471,12 @@
   },
   "LapCatCounter": {
     "Punchline": {
-      "Original": "Counts how many laps you sit in :3",
-      "Translated": "统计你坐了多久 :3"
+      "Original": "Counts both sides of every shared lap :3",
+      "Translated": "会统计每个共享蛙舌的两侧 :3"
     },
     "Description": {
-      "Original": "Tracks lap sits per person.",
-      "Translated": "追踪每人 lap sits 次数。"
+      "Original": "Tracks the laps you sit in, the LapCats who sit in yours, time spent together, streaks, personal stats, and 60 local achievements.",
+      "Translated": null
     }
   },
   "LaunchpadHotbars": {
@@ -2125,8 +2505,8 @@
       "Translated": "当极限技(LB)可用时获得通知"
     },
     "Description": {
-      "Original": "Get notified when a Limit Break is available",
-      "Translated": "当极限技(LB)可用时获得通知"
+      "Original": "When a Limit Break becomes available, shows a visual notification.",
+      "Translated": "当LB可用时，显示视觉提示。"
     }
   },
   "Linkpearl": {
@@ -2139,24 +2519,44 @@
       "Translated": "一款真正更新的Mumble定位语音插件。毕竟还有人用Mumble...对吧？  \n在Mumble设置中启用\u0022链接游戏并传输位置\u0022功能及Link插件。**不要**启用Final Fantasy XIV插件——它与Linkpearl无关。"
     }
   },
+  "LiteShade": {
+    "Punchline": {
+      "Original": "A little less green.",
+      "Translated": "绿色再少一点。"
+    },
+    "Description": {
+      "Original": "Tweak the game\u0027s colours, use GPose filters anywhere, and add optional depth of field or vignette.",
+      "Translated": "调整游戏色彩，可在任意场景使用集体动作滤镜，并可选添加景深或暗角。"
+    }
+  },
   "LogogramHelper": {
     "Punchline": {
       "Original": "Helper plugin for Eureka\u0027s Logos Actions.",
       "Translated": "Eureka 逻各斯技能辅助插件。"
     },
     "Description": {
-      "Original": "Helper plugin for Eureka\u0027s Logos Actions",
-      "Translated": "优雷卡文理技能辅助插件"
+      "Original": "Shows amounts of possible combinations for Eureka\u0027s Logos Actions upon entering the Logos Manipulator.",
+      "Translated": "进入文理融合器时，显示优雷卡文理技能的可能组合数量。"
     }
   },
   "LootView": {
     "Punchline": {
-      "Original": "Comprehensive loot tracking with statistics and analytics",
-      "Translated": "带有统计分析的全面战利品追踪功能"
+      "Original": "See every item you and your party pick up, as it drops.",
+      "Translated": "实时查看你和小队拾取的所有道具。"
     },
     "Description": {
-      "Original": "Track all your loot with detailed statistics, duty tracking, history browser, trends analysis, and data export. Features modern UI with customizable styles and transparency. NEW in 1.3.0: \u0027loop of\u0027 crafting tracking, \u0027is added to your inventory\u0027 message support, \u0027The\u0027 prefix item name matching, Show On Duty Start setting, Item Blacklist system with right-click context menu. v1.2.6: Enhanced crafting synthesis tracking (coil/plank/length/stack/bolt of items), sack of Nuts support.",
-      "Translated": "追踪所有战利品并附带详细统计、副本记录、历史浏览、趋势分析和数据导出功能。拥有可自定义风格和透明度的现代界面。1.3.0版本新增：\u0027loop of\u0027类制作材料追踪、\u0027已收入物品栏\u0027消息支持、\u0027The\u0027前缀道具名称匹配、进副本时自动显示设置、带右键菜单的道具黑名单系统。v1.2.6版本：增强制作配方追踪（线圈/木板/匹/堆/捆类物品）、坚果袋支持。"
+      "Original": "LootView is a live loot tracker for you and your party, with a permanent history and statistics behind it.\n\nWHAT YOU GET\n\nWorks with every game language: English, Japanese, German and French.\n\n- Live overlay listing every drop with its icon, rarity, quantity, who received it and how long ago.\n- Estimated market value of your haul, priced for your home world through Universalis.\n- Currency drawer beside the overlay with every currency you hold, its cap and the weekly tomestone limit.\n- A banner on screen when another player commends you.\n- Need/Greed panel that appears while rolls are open: time left on every item, each Need, Greed and Pass, who is still deciding, and the winner. Roll Need, Greed or Pass right from the panel, with the game\u0027s own loot window kept out of the way.\n- Collectibles you already have (minions, mounts, orchestrion rolls, Triple Triad cards, emotes, hairstyles, portrait frames) are marked on their icon.\n- Detailed item tooltips with item level, jobs, stats, bonuses, materia slots and market price.\n- Loot tables for dungeons, trials and raids - the duty you are in, or any duty you search for.\n- Searchable history you can filter by item name, rarity, zone, high quality and owner.\n- Statistics: rarity breakdown, top zones, daily and hourly activity, play streaks and period-over-period comparisons.\n- Duty tracker recording your runs, clear times, items per run and personal bests.\n- Export to JSON or CSV whenever you want.\n\nGETTING STARTED\n\nType /lv to open the tracker and /lv config for settings. You can also open it from the server info bar.\nRight-click any item to try it on, look it up, copy its name or blacklist it.\nFound a bug or have an idea? Settings \u003E Diagnostics copies a report and opens a GitHub issue for you, or come and talk about it on Discord: https://discord.gg/9kjUjWDBkJ\n\nPRIVACY\n\nYour history is stored locally in your Dalamud configuration folder and is never uploaded. Market prices are looked up from universalis.app and loot tables from garlandtools.org; both requests send only an item or duty ID. Price lookups can be turned off in the settings.",
+      "Translated": null
+    }
+  },
+  "LooturesRewritten": {
+    "Punchline": {
+      "Original": "Keep track of all the current loot rolls",
+      "Translated": "记录当前所有战利品掷骰"
+    },
+    "Description": {
+      "Original": "Ever wanted to see how who has already rolled on any loot you may want? Now you can!",
+      "Translated": "想知道你心仪的战利品都有谁已经掷过点了吗？现在就能看！"
     }
   },
   "MBHistory": {
@@ -2175,8 +2575,8 @@
       "Translated": "更多技能没问题"
     },
     "Description": {
-      "Original": "This plugin allows for actions to be used on mouseover targets without a macro.",
-      "Translated": "本插件允许不借助宏，即可对鼠标悬停目标使用技能。"
+      "Original": "This plugin lets you target friends or enemies like a macro, without the clunkiness of a macro. /mo opens the configuration.",
+      "Translated": "本插件可以像宏一样选择友方或敌方目标，却没有宏那种笨拙感。/mo 可打开配置。"
     }
   },
   "MPTickBar": {
@@ -2215,8 +2615,8 @@
       "Translated": "记录制作工序并导出为宏。"
     },
     "Description": {
-      "Original": "A crafting macro recorder plugin.",
-      "Translated": "一个制作宏录制插件。"
+      "Original": "Records a crafting rotation you start and provides a way to export it to a macro so you can reutilize it.",
+      "Translated": "记录你开始的制作循环，并提供将其导出为宏的方式，以便重复使用。"
     }
   },
   "MagitekStratagem": {
@@ -2225,8 +2625,18 @@
       "Translated": "FF14的Tobii、Eyeware Eye和Opentrack追踪器支持"
     },
     "Description": {
-      "Original": "Eye and Head tracker integration",
-      "Translated": "眼部和头部追踪器集成"
+      "Original": "Developed by the ingenious Garlean engineer Tobiias, this revolutionary Magitek device empowers adventurers by enabling hands-free enemy targeting with unparalleled precision.",
+      "Translated": "这款革命性的魔导装置由天才加雷马工程师托比阿斯研发，能让冒险者解放双手，以无与伦比的精准度选定敌人目标。"
+    }
+  },
+  "MaidenAlert": {
+    "Punchline": {
+      "Original": "Don\u0027t miss any Maiden spawn anymore!",
+      "Translated": "再也不会错过任何少女刷新了！"
+    },
+    "Description": {
+      "Original": "Maidens will now emit audible notification, chat message and on-screen tracker!",
+      "Translated": "少女现在会发出声音提示、发送聊天消息，并显示屏幕追踪提示！"
     }
   },
   "Malmstone": {
@@ -2235,8 +2645,8 @@
       "Translated": "追踪你还需要进行多少场PvP才能解锁下一个星星路标奖励！"
     },
     "Description": {
-      "Original": "A PVP Series Malmstones Level Calculator",
-      "Translated": "对战星星路标等级计算器"
+      "Original": "Calculates the number of wins/losses needed in different modes of PVP before achieving your target Series Level\n- Receive post-match notifications about progress towards next Series Level\n- Track and display Series Level above 30\n- Calculate Frontline losing streak bonus rewards\n\nUse /pmalm to get started",
+      "Translated": "计算在PvP不同模式中达成目标系列等级所需的胜场/败场数\n- 对局结束后接收下一系列等级进度通知\n- 追踪并显示高于30的系列等级\n- 计算纷争前线连败奖励加成\n\n使用 /pmalm 开始使用"
     }
   },
   "MapGilTracker": {
@@ -2265,8 +2675,8 @@
       "Translated": "藏宝图追踪与统计系统。"
     },
     "Description": {
-      "Original": "Map Party Features.",
-      "Translated": "地图小队功能。"
+      "Original": "Tool for keeping track of treasure maps opened by party members and recording map and dungeon statistics.",
+      "Translated": "用于记录小队成员开启的藏宝图，并统计地图与迷宫数据的工具。"
     }
   },
   "Mappy": {
@@ -2285,8 +2695,8 @@
       "Translated": "随时随地浏览市场布告板。"
     },
     "Description": {
-      "Original": "Market board plugin for Dalamud.",
-      "Translated": "市场布告板插件。"
+      "Original": "Browse the market board. /pmb to open.",
+      "Translated": "浏览市场布告板。使用 /pmb 打开。"
     }
   },
   "MarketUploader": {
@@ -2325,8 +2735,8 @@
       "Translated": "自动以太复制所需的职能。"
     },
     "Description": {
-      "Original": "MimicryHelper plugin.",
-      "Translated": "模仿助手插件。"
+      "Original": "Use /mimic to open up the menu and click on a role to mimic. You may also use d, h, or t in the command, e.g. /mimic d.",
+      "Translated": "使用 /mimic 打开菜单，然后点击要模仿的职能。也可以在命令中使用 d、h 或 t，例如 /mimic d。"
     }
   },
   "Mini": {
@@ -2385,8 +2795,8 @@
       "Translated": "查看素材的获取途径。"
     },
     "Description": {
-      "Original": "A monster loot finder plugin.",
-      "Translated": "怪物掉落战利品查找插件。"
+      "Original": "Check where you can obtain a material from monsters, duties, crafting, gathering or where they can be bought from NPCs.",
+      "Translated": "查看素材可从魔物、副本、制作、采集获得，或从NPC处购买的位置。"
     }
   },
   "MoonbaseOmega": {
@@ -2429,6 +2839,26 @@
       "Translated": "/电台设置, /电台开关, /电台音量, /电台自动启动, /电台自动停止"
     }
   },
+  "MountTilt": {
+    "Punchline": {
+      "Original": "A simple plugin that allows you to adjust your mount tilt.",
+      "Translated": "一个可以调整坐骑倾斜角度的简易插件。"
+    },
+    "Description": {
+      "Original": "A simple plugin that allows you to apply a multiplier to your mount tilt angle and speed when in motion.",
+      "Translated": "一个简单的插件，可让你对坐骑移动时的倾斜角度和速度应用倍率。"
+    }
+  },
+  "MouseLock": {
+    "Punchline": {
+      "Original": "Mouselook without holding right-click.",
+      "Translated": "无需按住右键即可使用鼠标视角。"
+    },
+    "Description": {
+      "Original": "MouseLock keeps FFXIV in mouselook until you actually need the cursor. It pauses for chat, bags, menus, and other UI, and can also turn LMB/RMB into configurable game inputs, hotbar actions, or MouseLock controls.",
+      "Translated": "MouseLock 会让 FFXIV 始终保持鼠标视角模式，直到你真正需要光标时才恢复。在聊天、背包、菜单及其他 UI 界面中，它会自动暂停；此外，它还能将鼠标左键/右键映射为可配置的游戏输入、热键栏技能或 MouseLock 控制操作。"
+    }
+  },
   "MouseTargetTooltip": {
     "Punchline": {
       "Original": "Shows a tooltip with a little information for characters that the mouse is over.",
@@ -2445,8 +2875,8 @@
       "Translated": "将飘浮文字拆分为多个飘浮文字。"
     },
     "Description": {
-      "Original": "A Dalamud Plugin.",
-      "Translated": "一个 Dalamud 插件。"
+      "Original": "Papa asked me for this so here it is.",
+      "Translated": "爸爸跟我要这个，所以我就拿来了。"
     }
   },
   "MusicalGuide": {
@@ -2455,8 +2885,8 @@
       "Translated": "增强视角距离控制与第一人称体验。"
     },
     "Description": {
-      "Original": "Provides real first person view to see your character, and adjusts camera distance based on game conditions (e.g. close in camera when you begin crafting, maximum distance when combat begins or you enter an instanced area)\n\n/mguide to open configuration window.",
-      "Translated": "提供真实的第一人称视角来查看你的角色，并根据游戏情况调整镜头距离（例如，当你开始制作时拉近镜头，战斗开始或进入副本区域时镜头距离最大化）\n\n输入 /mguide 来打开配置窗口。"
+      "Original": "Provides real first person view to see your character, and adjusts camera distance based on game conditions (e.g. close in camera when you begin crafting, maximum distance when combat begins or you enter an instanced area)\n\n/mguide to open configuration window.\n/mguide help for more commands.",
+      "Translated": "提供真正的第一人称视角来观察你的角色，并根据游戏状态自动调整相机距离（例如：开始制作时拉近镜头，进入战斗或进入副本区域时将距离拉至最大）\n\n/mguide 打开配置窗口。\n/mguide help 查看更多指令。"
     }
   },
   "NICEDamage": {
@@ -2465,8 +2895,8 @@
       "Translated": "在你的伤害数字以69结尾时，会在伤害浮动文字中添加\u0022NICE\u0022信息。"
     },
     "Description": {
-      "Original": "Adds the message NICE to your damage flyout when you get a hit ending in 69. No that\u0027s it for real.",
-      "Translated": "当你的伤害数字以69结尾时，在伤害弹出信息中添加\u0022NICE\u0022。真的就这些。"
+      "Original": "Adds the message NICE to your damage flyout when you get a hit ending in 69. Also 67, optionally. Also, your own custom numbers now.",
+      "Translated": "当你的伤害数字以 69 结尾时，会在伤害飘字中显示 NICE 提示。也可选择对 67 生效。现在还支持自定义数字。"
     }
   },
   "NOTED": {
@@ -2481,12 +2911,12 @@
   },
   "NamePlateDebuffs": {
     "Punchline": {
-      "Original": "Displays debuffs on enemy and player nameplates",
-      "Translated": "在敌人和玩家姓名板上显示 debuff 效果"
+      "Original": "Displays debuffs (and more) on nameplates.",
+      "Translated": "在名牌上显示 Debuff（以及更多信息）。"
     },
     "Description": {
-      "Original": "Displays debuffs on nameplates.",
-      "Translated": "在名牌上显示 Debuff。"
+      "Original": "Displays your debuffs on enemy nameplates, and provides config to display debuffs, buffs, and special statuses on player nameplates.",
+      "Translated": "在敌人名牌上显示你施加的 Debuff，并提供配置选项，用于在玩家名牌上显示 Debuff、Buff 和特殊状态。"
     }
   },
   "Namingway": {
@@ -2515,8 +2945,8 @@
       "Translated": "在副本里受挫了？看看可爱的猫娘！"
     },
     "Description": {
-      "Original": "Shows you an image of a random neko character. Click on the image to view the next one.\nYou can choose different image sources, allowing you to look at Catboys, Waifus, Cats, Dogs and more.\n\nSupported APIs:\nnekos.best, Nekos.life, Dog CEO, The Cat API, Pic.re, Waifu.im, Waifu.pics and shibe.online\n\nWarning: You might see naughty images",
-      "Translated": "显示随机猫娘角色的图片。点击图片可查看下一张。\n您可以选择不同的图片来源，浏览猫男、二次元老婆、猫咪、狗狗等多种内容。\n\n支持的API：\nnekos.best、Nekos.life、Dog CEO、The Cat API、Pic.re、Waifu.im、Waifu.pics以及shibe.online\n\n警告：可能会看到不雅图片"
+      "Original": "Shows you an image of a random neko character. Click on the image to view the next one.\nYou can choose different image sources, allowing you to look at Catboys, Waifus, Cats, Dogs and more.\n\nSupported APIs:\nnekos.best, Nekosia, NekosAPI, Nekos.life, Dog CEO, The Cat API, Pic.re, Purrbot and Waifu.im\n\nWarning: You might see naughty images",
+      "Translated": "显示一张随机猫娘角色的图片。点击图片可查看下一张。\n你可以选择不同的图片来源，查看猫男、老婆、猫、狗等图片。\n\n支持的 API：\nnekos.best、Nekosia、NekosAPI、Nekos.life、Dog CEO、The Cat API、Pic.re、Purrbot 和 Waifu.im\n\n警告：可能会看到不雅图片"
     }
   },
   "NextUIPlugin": {
@@ -2545,8 +2975,18 @@
       "Translated": "别因为大厅错误导致游戏崩溃。"
     },
     "Description": {
-      "Original": "A Dalamud Plugin.",
-      "Translated": "一个 Dalamud 插件。"
+      "Original": "A simple plugin that prevent the game from killing itself with lobby error.",
+      "Translated": "一个简单的插件，可防止游戏因大厅错误而自行退出。"
+    }
+  },
+  "NoMouseMoveForward": {
+    "Punchline": {
+      "Original": "Plugin to disable moving forward with LMB\u002BRMB",
+      "Translated": "用于禁用鼠标左右键同时按下时前进的插件"
+    },
+    "Description": {
+      "Original": "A plugin to disable moving forward using LMB\u002BRMB, with separate toggles for walking and flying.",
+      "Translated": "一个用于禁用鼠标左右键同时按下前进的插件，并为行走和飞行提供独立开关。"
     }
   },
   "NoPolice": {
@@ -2555,8 +2995,18 @@
       "Translated": "移除「Weeaboo警察」"
     },
     "Description": {
-      "Original": "NoPolice",
-      "Translated": "无警察"
+      "Original": "Hides the Weeaboo Police",
+      "Translated": "隐藏二次元警察"
+    }
+  },
+  "NoQuestIcons": {
+    "Punchline": {
+      "Original": "Hides every quest icon above NPC nameplates, sortable by type, with peek and toggle hotkeys.",
+      "Translated": "隐藏NPC名牌上方的所有任务图标，可按类型排序，并支持预览和切换热键。"
+    },
+    "Description": {
+      "Original": "Hides every quest icon above NPC nameplates. Icons are sortable and hideable by quest type (Main Scenario, Side Quest, Guildleve, Class/Job Quest, and more), with common types pre-categorized. Includes a peek key to reveal hidden icons on demand and a separate toggle key to switch the whole plugin on/off.",
+      "Translated": "隐藏 NPC 名牌上方的所有任务图标。图标可按任务类型排序和隐藏（主线任务、支线任务、行会理符、职业/特职任务等），常见类型已预先分类。包含一个查看键，可按需显示已隐藏的图标；以及一个独立的切换键，用于开启/关闭整个插件。"
     }
   },
   "NoSoliciting": {
@@ -2585,8 +3035,8 @@
       "Translated": "厌倦了手动输入雪人语？直接点击输入吧！"
     },
     "Description": {
-      "Original": "Tired of typing snae ling?",
-      "Translated": "不想再打“雪人语”了吗？"
+      "Original": "Adds a button on the duty list for /say quests like quest items and emotes have!\n Compatible with all languages and controllers.",
+      "Translated": "在任务列表上为 /say 任务添加一个按钮，就像任务道具和情感动作那样！兼容所有语言和手柄。"
     }
   },
   "NorthStar": {
@@ -2611,12 +3061,12 @@
   },
   "NowPlaying": {
     "Punchline": {
-      "Original": "Display what is playing in your server bar, and play/pause/skip. (Windows only)",
-      "Translated": "在服务器栏显示当前播放内容，并提供播放/暂停/跳过功能。（仅限Windows）"
-    },
-    "Description": {
       "Original": "Display what is playing in your server bar, and play/pause/skip.",
       "Translated": "在服务器栏显示当前播放内容，并可播放/暂停/跳过。"
+    },
+    "Description": {
+      "Original": "Display what is playing in your server bar, and play/pause/skip. Great with macros!",
+      "Translated": "在服务器信息栏显示当前正在播放的内容，并支持播放、暂停与跳过。搭配宏使用效果极佳！"
     }
   },
   "Ntfynder": {
@@ -2695,8 +3145,8 @@
       "Translated": "坠落或死亡时播放OOF！音效。这是你唯一需要的插件！"
     },
     "Description": {
-      "Original": "OOF!",
-      "Translated": "哎哟！"
+      "Original": "i love roblox!!! \n           \nwhimsical and magical features...\n  - when other ppl die\n  - custom mp3\n  - instant access to the hour long documentary on oof by hbomberguy\n          ",
+      "Translated": "我爱 Roblox！！！\n\n异想天开又充满魔力的功能……\n  - 当别人死掉时\n  - 自定义 MP3\n  - 一键观看 hbomberguy 制作的关于 oof 的一小时长纪录片"
     }
   },
   "OpenerCreator": {
@@ -2711,8 +3161,8 @@
   },
   "OrangeGuidanceTomestone": {
     "Punchline": {
-      "Original": "Leave messages like in Souls games. Great chest ahead.",
-      "Translated": "像魂系列游戏那样留言。前方有宝箱。"
+      "Original": "Leave messages like in Souls games. Amazing chest ahead.",
+      "Translated": "像魂系游戏那样留下讯息。前方有绝景。"
     },
     "Description": {
       "Original": "Dark Souls-like messaging system.",
@@ -2725,8 +3175,8 @@
       "Translated": "更便捷地寻找招募队伍。"
     },
     "Description": {
-      "Original": "A Party Finder plugin",
-      "Translated": "招募板插件"
+      "Original": "\n/pf\n/pf on\n/pf off\n\nThis plugin allows you to search for parties based on their descriptions. When you refresh the party finder, if any parties meet your search criteria, a notification sound will play and a link to each party will be displayed in the chat window.\n\nThis plugin will NOT automatically scan PF for you, it only runs additional search logic when you hit the refresh button.",
+      "Translated": "/pf\n/pf on\n/pf off\n\n本插件可根据小队招募的描述进行搜索。刷新招募板时，若有符合搜索条件的小队，将播放提示音，并在聊天窗口显示各小队的链接。\n\n本插件不会自动扫描招募板，仅在点击刷新按钮时执行额外的搜索逻辑。"
     }
   },
   "Paggles": {
@@ -2745,8 +3195,8 @@
       "Translated": "用职业图标、团队职责位置等替换名称！"
     },
     "Description": {
-      "Original": "PartyIcons plugin",
-      "Translated": "小队图标插件"
+      "Original": "Adjusts player nameplates base on current content. For example you can display raid positions (that are assigned automatically by listening to the chat), job icons, or names with job icons.\n\nReverse-engineering effort achieved by authors of JobIcons: haplo, daemitus, Loskh, wozaiha, without them this plugin would not be possible!",
+      "Translated": "根据当前内容调整玩家名牌。例如，你可以显示大型任务位置（通过监听聊天自动分配）、特职图标，或带有特职图标的名称。\n\n本插件的逆向工程工作由 JobIcons 的作者 haplo、daemitus、Loskh、wozaiha 完成，没有他们，就没有本插件！"
     }
   },
   "PartyListExtras": {
@@ -2775,8 +3225,8 @@
       "Translated": "直接在客户端内浏览来自partake.gg的社区活动！"
     },
     "Description": {
-      "Original": "partake.gg, directly on your client!",
-      "Translated": "partake.gg，就在你的客户端里！"
+      "Original": "Browse community events sourced from partake.gg directly from your client!",
+      "Translated": "直接在客户端内浏览来自partake.gg的社区活动！"
     }
   },
   "PartySortPlus": {
@@ -2795,8 +3245,8 @@
       "Translated": "拍拍计数器"
     },
     "Description": {
-      "Original": "Pat counter",
-      "Translated": "拍拍计数器"
+      "Original": "Did you ever wonder how many times your Lala gets a pat? Well, now you can count it!",
+      "Translated": "你有没有想过你的拉拉肥被摸过多少次头？现在你可以数一数了！"
     }
   },
   "Pathfinder": {
@@ -2835,8 +3285,8 @@
       "Translated": "给你的宠物、宝石兽和小仙女起可爱的昵称，并和朋友们分享。"
     },
     "Description": {
-      "Original": "A pet nickname plugin.",
-      "Translated": "一个召唤兽昵称插件。"
+      "Original": "Give your minions, Carbuncles and Faeries cute nicknames\nand share them with your friends.",
+      "Translated": "给你的宠物、宝石兽和小仙女起可爱的昵称，并和朋友们分享。"
     }
   },
   "PetScale": {
@@ -2875,8 +3325,8 @@
       "Translated": "显示你的受击判定框，支持自定义功能。世界首杀团队推荐！"
     },
     "Description": {
-      "Original": "Perfecting Pixels",
-      "Translated": "你脚下怎么有红点？"
+      "Original": "Showing exactly where to stand since 2020. Endorsed by raiders!",
+      "Translated": "自2020年起精准显示站位，深受高难玩家好评！"
     }
   },
   "PlayerTags": {
@@ -2949,24 +3399,54 @@
       "Translated": "改善的房屋系统体验。基于所见即所得的家具选择，可通过快捷键切换模式、开启计数器和吸附功能。"
     }
   },
+  "ProxyPlayer": {
+    "Punchline": {
+      "Original": "Control what\u0027s playing on your computer within XIV!",
+      "Translated": "在 XIV 中控制电脑上正在播放的内容！"
+    },
+    "Description": {
+      "Original": "ProxyPlayer is a simple plugin that allows you to control your Windows or Linux* PC\u0027s media playback from within XIV.\n            \u003E * - Linux support is only supported on official XIVLauncher Wine builds and certain Wine/Proton builds with \u0022AF_UNIX\u0022 support.\n\n            Control your media player from within the game, without having to alt-tab or use a second monitor.\n            Features (depending on your media player):\n            - Play/Pause\n            - Next/Previous Track\n            - Stop\n            - Progress Bar\n            - Cover Art Display\n            - Metadata\n\n            ProxyPlayer comes with either a compact or portrait UI for displaying your media information and can be shown as a native XIV window or ImGui window.\n        ",
+      "Translated": "ProxyPlayer 是一个简单的插件，让你可以在 XIV 中控制 Windows 或 Linux* 电脑的媒体播放。\n            \u003E * - Linux 支持仅适用于官方 XIVLauncher 的 Wine 版本，以及部分支持 \u0022AF_UNIX\u0022 的 Wine/Proton 版本。\n\n            无需 Alt\u002BTab 切换窗口或使用副屏，即可在游戏内控制你的媒体播放器。\n            功能（取决于你的媒体播放器）：\n            - 播放/暂停\n            - 下一首/上一首\n            - 停止\n            - 进度条\n            - 封面显示\n            - 元数据\n\n            ProxyPlayer 提供紧凑或竖版界面来显示媒体信息，并可作为 XIV 原生窗口或 ImGui 窗口显示。"
+    }
+  },
+  "Pseudonamingway": {
+    "Punchline": {
+      "Original": "Give Mendingway and Vendingway the respect they deserve!",
+      "Translated": null
+    },
+    "Description": {
+      "Original": "[English only] A plugin to give various loporrits their correct names.",
+      "Translated": "一个为各种兔兔族赋予正确名字的插件。"
+    }
+  },
+  "PullToOBS": {
+    "Punchline": {
+      "Original": "Automated OBS recording manager for FFXIV encounters.",
+      "Translated": "用于 FFXIV 战斗的自动化 OBS 录制管理器。"
+    },
+    "Description": {
+      "Original": "A Dalamud plugin that automatically controls OBS recording during FFXIV encounters. Captures replay buffer before pulls and full encounter recordings via OBS WebSocket v5. Supports quick-save hotkey for on-demand replay buffer clips. Use /pulltoobs or /pto to configure.",
+      "Translated": "一个在FFXIV战斗期间自动控制OBS录制的Dalamud插件。可在开怪前捕获回放缓冲，并通过OBS WebSocket v5录制完整战斗。支持快速保存热键，用于按需截取回放缓冲片段。使用 /pulltoobs 或 /pto 进行配置。"
+    }
+  },
   "PushyFinder": {
     "Punchline": {
       "Original": "Mobile push notifications for the Party Finder.",
       "Translated": "小队招募的移动推送通知。"
     },
     "Description": {
-      "Original": "Check on your party while away from the computer.",
-      "Translated": "在离开电脑时也能知道小队状态。"
+      "Original": "A plugin that uses Pushover (https://pushover.net), Discord, SimplePush (http://simplepush.io), or Ntfy (https://ntfy.sh) to send mobile push notifications when party members join or leave, or when a duty finder queue is initiated.",
+      "Translated": "一款使用 Pushover（https://pushover.net）、Discord、SimplePush（http://simplepush.io）或 Ntfy（https://ntfy.sh），在小队成员加入或离开，或任务搜索器开始排队时发送手机推送通知的插件。"
     }
   },
   "PvPAnnouncer": {
     "Punchline": {
-      "Original": "Do you want an announcer in your PvP Matches? Metem and the Scions have offered their services!",
-      "Translated": "你想在 PvP 对局中拥有专属播报员吗？梅·特姆和拂晓血盟的成员们愿意为你效劳！"
+      "Original": "Do you want an announcer in your PvP matches, PvE duties, field operations, etc? Metem, the Scions, and more folks have offered their voice!",
+      "Translated": "想让 PvP 对局、PvE 任务、野外活动等场景都有播报员吗？梅特姆、拂晓血盟的成员等众多角色都已献声！"
     },
     "Description": {
-      "Original": "This plugin will cause character voice lines to play mid-match upon specific conditions being met.",
-      "Translated": "本插件会在对局中特定条件满足时播放角色语音。"
+      "Original": "This plugin lets NPCs react to your gameplay. It uses existing character voicelines and recontextualizes them with a bit of comedic timing.",
+      "Translated": "本插件能让 NPC 对你的游戏行为做出反应。它会使用角色现有的语音台词，并借助恰到好处的喜剧节奏，为这些台词赋予新的语境。"
     }
   },
   "PvpStats": {
@@ -2975,8 +3455,8 @@
       "Translated": "PvP对战记录与数据统计追踪器。"
     },
     "Description": {
-      "Original": "Pvp Stats",
-      "Translated": "Pvp 统计"
+      "Original": "Record, browse and filter your Crystalline Conflict, Frontline and Rival Wings match history, view match scoreboards and view aggregated statistics like win rate and average damage dealt per match.",
+      "Translated": "记录、浏览并筛选你的水晶冲突、纷争前线与烈羽争锋对局历史，查看对局计分板，以及胜率、场均伤害等汇总统计。"
     }
   },
   "QoLBar": {
@@ -3029,6 +3509,16 @@
       "Translated": "与好友共享任务进度，一同踏上冒险旅途。提供任务目的地标记，并（即将）解锁传送功能。"
     }
   },
+  "QuestTextRecolor": {
+    "Punchline": {
+      "Original": "Customize quest objective text and popup layout.",
+      "Translated": "自定义任务目标文本与弹窗布局。"
+    },
+    "Description": {
+      "Original": "Customize FFXIV\u0027s center-screen quest objective popup with custom text colors, font size, position, scale, presets, and optional Penumbra-based textures.",
+      "Translated": "自定义 FFXIV 屏幕中央任务目标弹窗的文字颜色、字体大小、位置、缩放和预设，并可选使用基于 Penumbra 的贴图。"
+    }
+  },
   "QuestTracker": {
     "Punchline": {
       "Original": "For the quest completionist",
@@ -3037,6 +3527,16 @@
     "Description": {
       "Original": "Easily track quest completion",
       "Translated": "轻松追踪任务完成情况"
+    }
+  },
+  "QuickSymbols": {
+    "Punchline": {
+      "Original": "Adds a quick special-symbol picker beside the chat mode button.",
+      "Translated": "在聊天模式按钮旁添加了一个快捷特殊符号选择器。"
+    },
+    "Description": {
+      "Original": "Adds a Quick Symbols button beside the chat mode selector and other text inputs.",
+      "Translated": "在聊天模式选择器及其他文本输入框旁添加一个“快捷符号”按钮。"
     }
   },
   "QuietDen": {
@@ -3075,8 +3575,8 @@
       "Translated": "计时你的跳跃解谜！"
     },
     "Description": {
-      "Original": "A speedrun timer intended for jump puzzle houses.",
-      "Translated": "专为跳跳乐房屋设计的竞速计时器。"
+      "Original": "A simple plugin for timing, logging, and ranking player times for your jumping puzzles!",
+      "Translated": "一个简单的插件，可为你的跳跃谜题计时、记录并对玩家用时进行排名！"
     }
   },
   "RandomClassSelector": {
@@ -3091,12 +3591,12 @@
   },
   "RazerReader": {
     "Punchline": {
-      "Original": "Display the battery level of your wireless Razer devices",
-      "Translated": "显示无线雷蛇设备的电池电量"
+      "Original": "Display the battery level of your wireless Razer and Logitech devices",
+      "Translated": "显示雷蛇与罗技无线设备的电池电量"
     },
     "Description": {
-      "Original": "A Dalamud plugin for FFXIV that displays the battery level of your wireless Razer devices",
-      "Translated": "一款 FFXIV 的 Dalamud 插件，可显示您无线雷蛇设备的电池电量。"
+      "Original": "Automatically pull device battery levels and display them in a configurable number of ways!\n\nCurrently supported brands:\n- Razer\n- Logitech",
+      "Translated": "自动获取设备电量，并以多种可配置的方式显示！\n\n目前支持的品牌：\n- 雷蛇\n- 罗技"
     }
   },
   "ReSanctuary": {
@@ -3119,14 +3619,24 @@
       "Translated": "在准备检查完成后于聊天栏显示未就绪玩家名称，并可选择在团队与同盟列表上方添加准备检查状态图标。"
     }
   },
+  "RealTorch": {
+    "Punchline": {
+      "Original": "Set the world alight!",
+      "Translated": "让世界燃烧吧！"
+    },
+    "Description": {
+      "Original": "Makes the torch accessory put out light.",
+      "Translated": "使火把饰品发光。"
+    }
+  },
   "Redirect": {
     "Punchline": {
       "Original": "Simple mouseover and ground-targeting action integration",
       "Translated": "简易鼠标悬停与地面目标技能集成"
     },
     "Description": {
-      "Original": "Action target switching plugin for Dalamud.",
-      "Translated": "适用于Dalamud的技能目标切换插件。"
+      "Original": "Easily change the targeting priority for spells and abilities. Queue macros and ground-targeted actions! Type /redirect to configure.",
+      "Translated": "轻松调整魔法与技能的选定目标优先级。支持宏与地面目标技能排队！输入 /redirect 进行配置。"
     }
   },
   "RemotePartyFinder": {
@@ -3135,8 +3645,8 @@
       "Translated": "众筹招募板网站（将招募信息上传至xivpf.com）"
     },
     "Description": {
-      "Original": "Uploads the PF listings you retrieve to the crowdsourced Remote\nParty Finder website (https://xivpf.com/).",
-      "Translated": "将你检索到的招募信息上传至众包远程招募板网站(https://xivpf.com/)。"
+      "Original": "Uploads the PF listings you retrieve to the crowdsourced Remote Party Finder website (https://xivpf.com/).",
+      "Translated": "将你获取的招募板信息上传至众包远程招募板网站（https://xivpf.com/）。"
     }
   },
   "RenderAdjust": {
@@ -3175,8 +3685,8 @@
       "Translated": "两歧塔实用工具。"
     },
     "Description": {
-      "Original": "Res Stack Counter",
-      "Translated": "Res Stack 计数器"
+      "Original": "List various information about nearby players such as Phantom Job, Remaining Resurrection Stacks in Forked Towers, as well as Knowledge Level. Use /ressc [settings] to open the main or settings window.",
+      "Translated": "列出附近玩家的各种信息，例如辅助职业、分叉之塔中的剩余复生层数以及知见等级。使用 /ressc [settings] 打开主窗口或设置窗口。"
     }
   },
   "ResizableHUD": {
@@ -3189,14 +3699,24 @@
       "Translated": "允许你更自由精确地调整HUD元素的缩放和位置。"
     }
   },
+  "RestoreCameraPivotWhileAutorunning": {
+    "Punchline": {
+      "Original": "Restore legacy camera pivot while auto-running.",
+      "Translated": "自动奔跑时恢复旧版镜头轴心。"
+    },
+    "Description": {
+      "Original": "Temporarily restores legacy camera pivot while auto-running.\nOnly affects Legacy Type movement with Disable camera pivot enabled.",
+      "Translated": "自动奔跑时临时恢复传统镜头枢轴。\n仅在启用“禁用镜头枢轴”且移动模式为传统模式时生效。"
+    }
+  },
   "RetainerAlerts": {
     "Punchline": {
       "Original": "Reminds you about retainer ventures.",
       "Translated": "提醒您检查雇员探险任务。"
     },
     "Description": {
-      "Original": "Reminds you about retainer ventures.",
-      "Translated": "提醒您检查雇员探险任务。"
+      "Original": "A simple plugin to remind you when your retainers are done with their ventures.",
+      "Translated": "一个简单的插件，用于在雇员完成探险时提醒你。"
     }
   },
   "RetainerSales": {
@@ -3235,8 +3755,8 @@
       "Translated": "在游戏中显示来自混沌档案、水晶档案和中央档案的配置"
     },
     "Description": {
-      "Original": "Dalamud plugin for in-game roleplay profiles.",
-      "Translated": "游戏内角色扮演档案的 Dalamud 插件。"
+      "Original": "A plugin for roleplayers, displaying character profiles from Central Archives (centralarchives.org) and its regional RP portals, Chaos Archives (chaosarchives.org) and Crystal Archives (crystalarchives.org), for characters with the RP flag on.",
+      "Translated": "一款面向角色扮演玩家的插件，可为开启了角色扮演标志的角色显示其角色档案，档案来自中央档案馆（centralarchives.org）及其各地区 RP 门户——混沌档案馆（chaosarchives.org）与水晶档案馆（crystalarchives.org）。"
     }
   },
   "RpUtils": {
@@ -3245,8 +3765,8 @@
       "Translated": "支持你的角色扮演需求。"
     },
     "Description": {
-      "Original": "A suite (eventually) of features to support roleplay. Currently only the sonar. /rputils",
-      "Translated": "一套（最终将包含多项功能的）角色扮演辅助工具集。当前仅包含声呐功能。/rputils"
+      "Original": "A suite of features to support roleplay. /rputils",
+      "Translated": "一套支持角色扮演的功能。 /rputils"
     }
   },
   "SRankAssistant": {
@@ -3257,6 +3777,16 @@
     "Description": {
       "Original": "Auto counter for S Rank Summoning! Counts kills, gathering attempts, and even discarding items. Tracker is per zone so you can keep track of multiple locations at once. Even tracks the kills of others.",
       "Translated": "S级怪物召唤自动计数器！统计击杀数、采集尝试次数甚至丢弃物品次数。追踪器按区域划分，可同时追踪多个地点。还能记录他人的击杀数。"
+    }
+  },
+  "SaddlebagExchange": {
+    "Punchline": {
+      "Original": "Marketboard analytics for FFXIV",
+      "Translated": "FFXIV 市场布告板分析"
+    },
+    "Description": {
+      "Original": "Advanced marketboard tools and cross-world arbitrage scanning.",
+      "Translated": "高级市场布告板工具与跨服套利扫描。"
     }
   },
   "SammiPlugin": {
@@ -3275,8 +3805,18 @@
       "Translated": "用于预填充狩猎车侦察追踪器链接的辅助插件"
     },
     "Description": {
-      "Original": "A helper plugin for pre-populating hunt train scout tracker links",
-      "Translated": "用于预填充狩猎车侦察追踪器链接的辅助插件"
+      "Original": "A helper for generating scout tracker links for a-rank hunt trains",
+      "Translated": "用于生成A级狩猎车侦察追踪链接的辅助工具"
+    }
+  },
+  "ScrollableTabs": {
+    "Punchline": {
+      "Original": "Lets you use the mouse wheel to switch tabs (like LB/RB on controllers do).",
+      "Translated": "可使用鼠标滚轮切换标签页（如同手柄上的 LB/RB 键）。"
+    },
+    "Description": {
+      "Original": "Lets you use the mouse wheel to switch tabs (like LB/RB on controllers do).\r\n\r\nThe following windows are supported and can be toggled individually:\r\n\r\n- Aether Currents\r\n- Armoury Chest\r\n- Blue Magic Spellbook\r\n- Character\r\n- Character -\u003E Classes/Jobs\r\n- Character -\u003E Reputation\r\n- Chocobo Saddlebag\r\n- Client List (via /timers)\r\n- Companion\r\n- Currency\r\n- Facewear\r\n- Fashion Accessories\r\n- Field Records\r\n- Fish Guide\r\n- Glamour Dresser (scrolls pages, not tabs)\r\n- Gold Saucer -\u003E Card List\r\n- Gold Saucer -\u003E Decks -\u003E Edit Deck\r\n- Gold Saucer -\u003E Lord of Verminion -\u003E Minion Hotbar\r\n- Icons\r\n- Inventory\r\n- Island Minion Guide\r\n- Master\u0027s Bestiary\r\n- Minions\r\n- Mounts\r\n- Retainer Inventory\r\n- Shared FATE\r\n- Sightseeing Log\r\n\r\nThe Command Panel already includes this functionality and instead has an option to disable its tab-scrolling sound effect.",
+      "Translated": null
     }
   },
   "SeatedSidekickSpectator": {
@@ -3315,8 +3855,18 @@
       "Translated": "将欢乐恶作剧带到艾欧泽亚"
     },
     "Description": {
-      "Original": "Shanbells in Eorzea",
-      "Translated": "艾欧泽亚的仙贝铃"
+      "Original": "Replaces the word \u0027Gil\u0027 with \u0027Shanbells\u0027 (or something else entirely!) in the Currency window and Tooltips.",
+      "Translated": "在货币窗口和悬浮提示中，将“金币”一词替换为“Shanbells”（或完全换成其他内容！）。"
+    }
+  },
+  "ShopItemIcons": {
+    "Punchline": {
+      "Original": "Displays item icons instead of item category icons in shops.",
+      "Translated": "在商店中显示道具图标，而非道具分类图标。"
+    },
+    "Description": {
+      "Original": "Displays item icons instead of item category icons in shops.\r\n      \r\nSupported windows:\r\n\r\n- Shops: Simple merchants that sell items for Gil.\r\n- Item Exchange: Vendors that trade items for items, such as the Wolf Collar Exchange or Itinerant Moogles that exchange items for Irregular Tomestones during the Moogle Treasure Trove event.\r\n- Item Exchange (categorized): Splendors Vendors, the Scrip Exchange or the Wolf Mark Exchange.\r\n- Currency Exchange: Vendors that sell items for currency, such as all the societies vendors, or the Trophy Crystal Exchange.\r\n- Grand Company Seal Exchange: Quartermasters of Grand Companies.\r\n- Rewards: Vendors that provide job gear free of charge.\r\n- Exchange: Calamity Salvager when exchanging old pigments for all-purpose pigments.",
+      "Translated": null
     }
   },
   "ShopItemRevealer": {
@@ -3325,8 +3875,8 @@
       "Translated": "显示商人尚未向你出售的物品。"
     },
     "Description": {
-      "Original": "ShopItemRevealer",
-      "Translated": "商店道具揭示器"
+      "Original": "Opens a window when speaking with a supported vendor, showing items that are not unlocked and what their conditions are. It checks quests, achievements, and reputation requirements.",
+      "Translated": "与支持的商人对话时打开窗口，显示尚未解锁的道具及其解锁条件。会检查任务、成就与友好度要求。"
     }
   },
   "ShowGear": {
@@ -3337,6 +3887,16 @@
     "Description": {
       "Original": "Normally the Fitting Room defaults to showing you just the piece of gear you’re trying on. This plugin inverts that behaviour: when you launch the game, the Fitting Room (plus Item Dyeing and Glamour Plate Selection) will show all your gear by default.\n\nNB: there are some oddities to how Item Dyeing and Glamour Plate Selection behave when this plugin is doing its thing. If you’d rather it not touch those windows at all, there’s an option for that (and more details about the problem) in the settings.\n\nIcon adapted from OpenMoji, CC BY-SA 4.0.",
       "Translated": "通常情况下，试衣间默认仅显示你正在试穿的装备部件。本插件反转了这一行为：当你启动游戏时，试衣间（包括染色与幻化模板选择界面）将默认显示你所有的装备。\n\n注意：当本插件生效时，染色与幻化模板选择界面的行为可能会出现一些异常。如果你希望插件完全不干涉这些窗口，设置中提供了相关选项（并附有关于该问题的更多详情）。\n\n图标改编自OpenMoji，遵循CC BY-SA 4.0协议。"
+    }
+  },
+  "Shrinkage": {
+    "Punchline": {
+      "Original": "Shrinks characters based on their Health!",
+      "Translated": "根据角色的体力值缩小角色！"
+    },
+    "Description": {
+      "Original": "This plugin will shrink and grow characters based on how much health they have, affects you and your party \n\n/shrinkage to open the config window.",
+      "Translated": "此插件会根据角色当前的生命值使其缩小或变大，影响你和小队成员。\n\n/shrinkage 打开配置窗口。"
     }
   },
   "Sightseeingway": {
@@ -3355,8 +3915,8 @@
       "Translated": "让聊天更有趣，支持海盗语和乌尔缇诺语等翻译风格。"
     },
     "Description": {
-      "Original": "Allows you to translate player and NPC chat messages/bubbles.\nSupported languages include: Pirate, Urianger, Leet, Pig Latin, Turkey, Moogle \u0026 Chocobo.",
-      "Translated": "允许翻译玩家与NPC的聊天内容/对话框气泡。  \n支持语言包括：海盗语、古代语、网络语、猪拉丁语、火鸡语、莫古力语及陆行鸟语。"
+      "Original": "Allows you to translate player and NPC chat messages/bubbles.\nSupported languages include: Pirate, Urianger, Leet, Pig Latin, Turkey, Moogle, Chocobo \u0026 Al Bhed.",
+      "Translated": "可翻译玩家与NPC的聊天消息/气泡。\n支持的语言包括：海盗语、于里昂热语、Leet语、猪拉丁语、火鸡语、莫古力语、陆行鸟语和阿尔贝德语。"
     }
   },
   "SimpleCompare": {
@@ -3385,8 +3945,8 @@
       "Translated": "专为重度用户设计的简洁小巧市场布告板插件。"
     },
     "Description": {
-      "Original": "A simple and compact market board plugin for power users.",
-      "Translated": "专为重度用户设计的简洁小巧市场布告板插件。"
+      "Original": "A niche plugin designed to be user-friendly and multi-functional with rich customisation options, for power users.\n\nHighlights:\n  - Compact UI and user theme\n  - Customisable search options\n  - Rich ways for plugin interaction\n\nCheck out the \u0027Introduction\u0027 on Config Window for documentation.\n",
+      "Translated": "一款面向高级用户的小众插件，操作友好、功能丰富，并提供大量自定义选项。\n\n特色功能：\n  - 紧凑的界面与用户主题\n  - 可自定义的搜索选项\n  - 丰富的插件交互方式\n\n有关详细文档，请查看配置窗口中的“介绍”。"
     }
   },
   "SimpleTodo": {
@@ -3395,8 +3955,18 @@
       "Translated": "简单的待办事项列表"
     },
     "Description": {
-      "Original": "Todo List Plugin",
-      "Translated": "待办事项列表插件"
+      "Original": "/ptodo to open the Todo List\n/ptodoconfig to open the Configuration",
+      "Translated": "使用 /ptodo 打开待办事项列表\n使用 /ptodoconfig 打开配置"
+    }
+  },
+  "SimpleTriggers": {
+    "Punchline": {
+      "Original": "For those of us too lazy to read their screens.",
+      "Translated": "给我们这些懒得看屏幕的人。"
+    },
+    "Description": {
+      "Original": "This plugin allows you to create custom triggers to in-game messages.\nOptions include responding through in-game chat, popup toasts, in-game sound effects, and even Text-to-Speech.",
+      "Translated": "本插件允许你针对游戏内消息创建自定义触发器。\n可选方式包括通过游戏内聊天回应、弹窗提示、游戏内音效，甚至文本转语音。"
     }
   },
   "SimpleTweaksPlugin": {
@@ -3425,8 +3995,8 @@
       "Translated": "在当前目标独立窗口中显示聊天消息。"
     },
     "Description": {
-      "Original": "See chat messages posted by your current target.",
-      "Translated": "查看当前目标发布的聊天信息。"
+      "Original": "Adds a /snooper command that shows a separate window that shows only messages from the player you\u0027re currently targeting. Useful for keeping track of different conversations during crowded RP events.",
+      "Translated": "新增 /snooper 命令，可显示一个独立窗口，其中仅显示当前选中目标玩家的消息。在人数众多的 RP 活动中，便于追踪不同的对话。"
     }
   },
   "SonarPlugin": {
@@ -3495,8 +4065,8 @@
       "Translated": "对你精彩操作的机智点评。"
     },
     "Description": {
-      "Original": "Witty commentary to the brilliant things you do.",
-      "Translated": "对你精彩操作的机智点评。"
+      "Original": "Check /narrator for full options or use /narratorvolume to set volume manually.",
+      "Translated": "输入 /narrator 可查看全部选项，或使用 /narratorvolume 手动设置音量。"
     }
   },
   "StatusContrast": {
@@ -3535,8 +4105,8 @@
       "Translated": "类似于/focustarget，但不会覆盖现有目标。"
     },
     "Description": {
-      "Original": "Like /focustarget but with no overrides.",
-      "Translated": "类似于 /focustarget，但不会覆盖现有焦点目标。"
+      "Original": "(PvE-only.) Adds the /stickyfocustarget command, which focuses your current\ntarget, as long as you do not already have a focus target set.\n  \nHave you ever felt focusing was under-utilised? Wanted to use it without a\ndedicated keybind? Do you not even know what focus targeting is?\nYou\u0027ve come to the right place.\n  \nYou can add this command to your Attack Nearest macro and ensure that the\nfirst enemy you target will also become focused, and stay that way, until it dies.\nWith this, you can focus enemies without having to consciously press a keybind,\nand ensure that, for instance, when a focused boss spawns an add and you target it,\nthe boss\u0027 focus will NOT get overriden.\n\nThis plugin does not change the behaviour of the stock /focustarget command,\nand must be triggered either manually or by adding it to a macro.\nPlaceholders are supported.",
+      "Translated": "（仅限PvE。）新增 /stickyfocustarget 命令：在你尚未设置焦点目标时，将当前目标设为焦点目标。\n\n你是否觉得焦点目标功能没有得到充分利用？想用却又不想专门占用一个键位？甚至根本不知道焦点目标是什么？那你来对地方了。\n\n你可以将此命令加入“攻击最近目标”宏，确保你选中的第一个敌人也会被设为焦点目标，并一直保持到它死亡。这样一来，你无需刻意按键就能设置焦点目标；例如，当已设为焦点目标的Boss召唤小怪，而你选中了那只小怪时，Boss的焦点目标也**不会**被覆盖。\n\n本插件不会改变原生 /focustarget 命令的行为，必须手动触发，或将其加入宏中触发。支持占位符。"
     }
   },
   "Stormtalons": {
@@ -3557,6 +4127,26 @@
     "Description": {
       "Original": "\u002B Tracker for current builds, routes and times \n\u002B Builder to improve, solve builds and optimize EXP\n\u002B Configurable notification for return and repairs \n\u002B Helpy filled useful information\n\u002B Custom loot overview with history and export\n\u002B Multiple overlays to help with daily tasks \n\u002B Supports multiple FCs  ",
       "Translated": "\u002B 当前建造方案、路线及时间的追踪器\n\u002B 优化建造方案、解决问题并最大化经验值的建造工具\n\u002B 可配置的返回与修理通知\n\u002B 包含实用信息的帮助系统\n\u002B 带有历史记录与导出功能的自定义战利品概览\n\u002B 辅助日常任务的多重悬浮窗\n\u002B 支持多个部队工房"
+    }
+  },
+  "SuitHighlighter": {
+    "Punchline": {
+      "Original": "Colorizes suit symbols ♥, ♠, ♣, ♦",
+      "Translated": "为花色符号 ♥、♠、♣、♦ 着色"
+    },
+    "Description": {
+      "Original": "When enabled, suit symbols appear in distinct colors in chat.",
+      "Translated": "启用后，花色符号将在聊天中以不同颜色显示。"
+    }
+  },
+  "Sundried": {
+    "Punchline": {
+      "Original": "Never forget your NPC shop sales again!",
+      "Translated": "再也不会忘记你在 NPC 商店的销售记录！"
+    },
+    "Description": {
+      "Original": "Mark items for NPC sale and get reminded to sell them at NPC shops.",
+      "Translated": "标记准备卖给 NPC 的道具，并在前往 NPC 商店出售时收到提醒。"
     }
   },
   "Swatch": {
@@ -3585,8 +4175,8 @@
       "Translated": "自动复制屏幕上任意选定文本。"
     },
     "Description": {
-      "Original": "Dialogue copy will copy text from the dialogue box to your clipboard.",
-      "Translated": "对话复制会将对话框中的文本复制到您的剪贴板。"
+      "Original": "Automatically copy ANY text on your screen.\n\nThere are two modes:\n        -Normal Mode: Automatically copies a select number of text elements to your clipboard.\n        -Text Copy Mode: This mode allows you to copy the text of ANY text element on the screen.\n\nDefault keybinds to toggle between the two modes are:\n      [Left Control] [Left Shift] [Spacebar]",
+      "Translated": "自动复制屏幕上的任意文本。\n\n共有两种模式：\n        -普通模式：自动将若干选定的文本元素复制到剪贴板。\n        -文本复制模式：此模式允许你复制屏幕上任意文本元素中的文本。\n\n用于在两种模式之间切换的默认键位为：\n      [左Ctrl] [左Shift] [空格键]"
     }
   },
   "TargetFurniture": {
@@ -3595,8 +4185,8 @@
       "Translated": "你现在可以从房屋菜单选择家具"
     },
     "Description": {
-      "Original": "You can now select furnitures from the Housing Menu",
-      "Translated": "你现在可以从房屋菜单选择家具"
+      "Original": "Currently, the only possible way to select a housing item is to click the furniture itself, and this can be a problem if you have multiple items close to each other.\n\nThis plugin adds a new option in the Housing Menu that targets the furniture for you",
+      "Translated": "目前，选中房屋道具的唯一方法就是直接点击家具本身，而当你有多件彼此靠近的道具时，这可能会带来不便。\n\n本插件会在房屋菜单中新增一个选项，帮你自动选中对应的家具。"
     }
   },
   "TargetLines": {
@@ -3639,6 +4229,26 @@
       "Translated": "添加通过名称传送至以太水晶或区域的聊天指令。  \n例如：/tp 石场水车 或 /tpm 南森  \n支持为以太水晶设置别名，用于传送指令  \n例如：/tp 家 替代 /tp 部队大厅"
     }
   },
+  "TermFilter2": {
+    "Punchline": {
+      "Original": "An expanded and extremely customizable rewrite of the in-game term filter, this allows players to mask/hide/modify messages containing specific words.",
+      "Translated": "这是对游戏内屏蔽词过滤器的扩展重构版本，支持高度自定义，可让玩家屏蔽、隐藏或修改包含特定词汇的消息。"
+    },
+    "Description": {
+      "Original": "I felt like the vanilla term filter was missing a lot of options, so I added them.\n\u0022If the term filter is so good, why didn\u0027t they make a term filter 2?\u0022",
+      "Translated": "我感觉游戏原版的词条过滤器缺了不少选项，于是就把它们补上了。\n“既然词条过滤器这么好用，为什么他们不出个词条过滤器 2 呢？”"
+    }
+  },
+  "Tether": {
+    "Punchline": {
+      "Original": "Temporary groups for locked instances!",
+      "Translated": "为已锁定的副本创建临时队伍！"
+    },
+    "Description": {
+      "Original": "Create a temporary chats for you and your friends, that are working inside a duty or locked instances. Add how many people u want, and manage it from there!",
+      "Translated": "为你和你的朋友创建一个临时聊天频道，适用于正在任务副本或锁定副本中活动的情况。可按需添加任意人数，并在此进行管理！"
+    }
+  },
   "TextBoxStyler": {
     "Punchline": {
       "Original": "Allows replacing every text box with the background of your choice.",
@@ -3665,8 +4275,8 @@
       "Translated": "配置暴击和直击的音效，以及倒计时音乐。"
     },
     "Description": {
-      "Original": "Deal critical hits just like in the #1 hat simulator, Team Fortress 2.",
-      "Translated": "像头号帽子模拟器《军团要塞2》那样打出暴击。"
+      "Original": "* Set sounds and flavor text to be played/shown whenever you deal direct or critical damage or heal.\n* Set sounds to be played when a countdown is in progress.\n* Use different configurations by job.\n* Use the game\u0027s SFX or your own custom WAV or MP3 files.",
+      "Translated": "* 设置在你造成直击或暴击伤害、或进行治疗时播放音效并显示提示文本。\n* 设置倒计时进行期间播放的音效。\n* 为不同特职使用不同配置。\n* 使用游戏自带音效，或自定义 WAV、MP3 文件。"
     }
   },
   "Tf2Hud": {
@@ -3709,6 +4319,16 @@
       "Translated": "《团队核心》是对游戏内称号选择器的重构版本，但新增了搜索功能。请注意它并未添加设置称号的命令，请使用内置的/title命令。"
     }
   },
+  "ThingsToDoInEorzea": {
+    "Punchline": {
+      "Original": "Unsure what to do? Forgot what you wanted to do? Nonsense! There\u0027s always things to do in Eorzea!",
+      "Translated": "不知道该做什么？忘了自己原本想做什么？胡说！艾欧泽亚永远有做不完的事！"
+    },
+    "Description": {
+      "Original": "\nKeep track of all your objectives and tasks in Eorzea. Whether it\u0027s collecting tomes/items/gear, completing dungeons/trials/raids, FATEs, or purely making a random list of things to do to keep yourself busy, keep yourself organized and on track with this plugin.\n\nFeatures:\n    - Create and manage a list of objectives and tasks.\n    - Automatically track your progress on objectives and tasks.\n    - View your objectives and tasks with a window inspired by the in-game Duty Log.\n    - Automatic translation of objectives and tasks to your game client\u0027s language. (No need to write what you want to do. Just setup how you want to do it and the plugin will fill in the rest!)\n    - Open creativity for just about anything that comes up to mine! (...What? You don\u0027t think making silly challenges like doing Endsinger\u0027s Aria - Extreme with MINE in under 12 minutes a good idea? Seriously, you can make that a task if you want)\n       \nInspired by the idea of \u0022DYOM\u0022 (Design Your Own Mission) and \u0022TTDISA\u0022 (Things To Do In San Andreas) from GTA: San Andreas as well as Simple To-Do List and other similar plugins.\n    ",
+      "Translated": null
+    }
+  },
   "TickTracker": {
     "Punchline": {
       "Original": "Tracks the current tick for HP/MP/GP regen",
@@ -3721,12 +4341,12 @@
   },
   "TidyChat": {
     "Punchline": {
-      "Original": "Better game messages and in-depth chat filters to keep a tidy chat.",
-      "Translated": "更好的游戏消息系统和深入聊天过滤器，保持聊天窗口整洁。"
+      "Original": "Cut down FFXIV chat spam with per-message toggles and shorter system lines.",
+      "Translated": "通过按消息类型开关与精简系统消息行，减少 FFXIV 聊天刷屏。"
     },
     "Description": {
-      "Original": "It is highly recommended to edit the default settings as you may disagree on which messages should be considered \u0022spam\u0022!\n\n            Provides granular filter options to filter nearly all game-related spam, leaving only important game messages in your chat.\n\n            - Filters most spammy game messages\n            - Blocks emote spam from other players\n            - Condenses earned commendations into a single line\n            - Shortens lengthy messages such as joining Novice Network or entering an instanced zone\n            - Blocks repeated messages from appearing for a period of time\n            - Automatically copies most \u0027with your chat mode in /say\u0027 quest dialogue to your clipboard\n            - And more!\n        ",
-      "Translated": "强烈建议您根据个人需求编辑默认设置，因为每个人对何种消息应视为“垃圾信息”的看法可能不同！\n\n            提供精细的筛选选项，可过滤掉几乎所有游戏相关的垃圾信息，仅保留重要的游戏消息在您的聊天窗口中。\n\n            - 过滤大多数垃圾游戏消息\n            - 屏蔽来自其他玩家的情感动作刷屏\n            - 将获得的最优队员信息压缩为单行显示\n            - 缩短冗长的消息，例如加入新人频道或进入副本区域\n            - 在一段时间内阻止重复消息出现\n            - 自动将大多数“使用说话聊天模式”的任务对话复制到您的剪贴板\n            - 以及更多功能！"
+      "Original": "Trim the messages FFXIV dumps into your chat log.\n\n  - Master filters for System, Progress, Loot, Obtained, Crafting, and Gathering\n  - Toggles for currencies, FC and retainer messages, level-ups, mount unlocks, orchestrion lines, deep dungeon pomanders, combat log categories, and more\n  - Shorter rewrites for instance entry, commendations, Novice Network, and treasure dungeon text\n  - Copies /say quest dialogue to your clipboard; can block emote spam from others\n  - Player whitelist, chat history deduplication, per-tomestone hides, and debug logging",
+      "Translated": "精简 FFXIV 灌入聊天栏中的各类消息。\n\n  - 为系统、进度、战利品、获得、制作与采集消息提供总筛选\n  - 可开关货币、部队与雇员消息、升级提示、坐骑解锁、管弦乐琴文本、深层迷宫魔陶器、战斗日志分类等\n  - 精简副本进入、最优队员推荐、新人频道与宝物库的提示文本\n  - 将 /say 任务对话复制到剪贴板；可屏蔽他人的情感动作刷屏\n  - 玩家白名单、聊天记录去重、按神典石种类隐藏、调试日志"
     }
   },
   "Tilted": {
@@ -3735,8 +4355,8 @@
       "Translated": "倾斜镜头，而非角色自身。"
     },
     "Description": {
-      "Original": "Automatic Camera Adjustments",
-      "Translated": "自动镜头调整"
+      "Original": "Automatically adjusts the Third Person Camera Angle/Distance given certain conditions.",
+      "Translated": "在特定条件下自动调整第三人称视角的角度/距离。"
     }
   },
   "Tippy": {
@@ -3775,8 +4395,8 @@
       "Translated": "随时掌握新物品动态。"
     },
     "Description": {
-      "Original": "The Toastingway plugin.",
-      "Translated": "Toastingway 插件。"
+      "Original": "Displays new items, crystals, and gil as toasts.",
+      "Translated": "将新道具、水晶和金币以浮窗提示显示。"
     }
   },
   "TooltipNotes": {
@@ -3787,6 +4407,16 @@
     "Description": {
       "Original": "Right-click any item in your inventory to start adding a note,or make a label in the config window to start adding your own labels",
       "Translated": "右键点击背包中的任意物品开始添加备注，或在配置窗口中创建标签来添加自定义标签"
+    }
+  },
+  "TopSellingItems": {
+    "Punchline": {
+      "Original": "Find cross-DC market opportunities.",
+      "Translated": "寻找跨大区市场商机。"
+    },
+    "Description": {
+      "Original": "Scans Universalis data to find market opportunities.",
+      "Translated": "扫描 Universalis 数据，寻找市场机会。"
     }
   },
   "TotalCharacterLevel": {
@@ -3807,6 +4437,16 @@
     "Description": {
       "Original": "Shows the total level of a Character in the Search Info panel",
       "Translated": "在搜索信息面板中显示角色的总等级。"
+    }
+  },
+  "ToucanTally": {
+    "Punchline": {
+      "Original": "Toucan See scrolling combat text!.",
+      "Translated": "Toucan See 滚动战斗文本！"
+    },
+    "Description": {
+      "Original": "Hides the game\u0027s flying text and pop-up text and shows your hits, heals and buffs beautifully in places you choose. Inspired by the World of Warcraft addon Parrot.\n\n/toucan opens the settings.",
+      "Translated": "隐藏游戏内的浮动文字与弹出文字，并在你指定的位置美观地显示你的伤害、治疗和 Buff。灵感来自《魔兽世界》插件 Parrot。\n\n/toucan 打开设置。"
     }
   },
   "Tourist": {
@@ -3839,14 +4479,24 @@
       "Translated": "从Turtle导入数据，然后在图形界面中管理一切！\n\n已知怪物列表拖拽功能存在一个bug。拖拽功能正常，但拖拽时会出现图形显示问题。这完全只是视觉效果问题但很烦人。箭头功能工作正常。我会尽快修复这个问题。"
     }
   },
+  "TrainTracker": {
+    "Punchline": {
+      "Original": "Hunt train helper to make it easier to track where it\u0027s heading.",
+      "Translated": "狩猎车助手，便于追踪其去向。"
+    },
+    "Description": {
+      "Original": "See just the conductor\u0027s messages so you don\u0027t miss flags, instance messages, or other instructions.",
+      "Translated": "仅显示指挥的消息，以免错过标记、副本消息或其他指示。"
+    }
+  },
   "TriadBuddy": {
     "Punchline": {
       "Original": "Triple triad solver",
       "Translated": "三重斗灵卡牌求解器"
     },
     "Description": {
-      "Original": "Triple triad solver",
-      "Translated": "三重斗灵卡牌求解器"
+      "Original": "Triple triad solver, NPC matches only.\n- highlights next move during mini game\n- evaluates all deck presets before match\n- deck optimizer for NPC\n- adds more details to card collection window",
+      "Translated": "九宫幻卡求解器，仅支持NPC对局。\n- 小游戏过程中高亮显示下一步\n- 对局前评估所有卡组预设\n- 针对NPC的卡组优化器\n- 为卡片收藏窗口添加更多详细信息"
     }
   },
   "TwitchXIV": {
@@ -3859,14 +4509,24 @@
       "Translated": "允许你加入Twitch聊天室并发送消息，（可选）让Twitch聊天内容显示在你的游戏聊天框中。"
     }
   },
+  "UkrChatSupport": {
+    "Punchline": {
+      "Original": "Support for Ukrainian characters in chat input field.",
+      "Translated": "聊天输入框支持乌克兰语字符。"
+    },
+    "Description": {
+      "Original": "Support for Ukrainian characters in chat input field. When using the Ukrainian keyboard layout, this plugin remaps keys so that Ukrainian letters are correctly entered in the chat input. This plugin is supported on Windows only.",
+      "Translated": "支持在聊天输入框中输入乌克兰语字符。使用乌克兰语键盘布局时，本插件会重新映射按键，以便在聊天输入框中正确输入乌克兰语字母。本插件仅支持 Windows。"
+    }
+  },
   "Umbra": {
     "Punchline": {
       "Original": "Adds fully customizable toolbars and 3D world markers to the game.",
       "Translated": "为游戏添加完全可自定义的工具栏和3D世界标记。"
     },
     "Description": {
-      "Original": "Umbra UI",
-      "Translated": "Umbra UI"
+      "Original": "Consolidates common UI elements and actions into a single uniform interface in the form of a set of highly customizable toolbars.",
+      "Translated": "将常用UI元素与操作整合为统一界面，以一组高度可自定义的工具栏形式呈现。"
     }
   },
   "UsedName": {
@@ -3895,8 +4555,8 @@
       "Translated": "将技能保存并加载到热键栏中，无需占用额外的职业热键栏。"
     },
     "Description": {
-      "Original": "Save and load actions into hotbars without taking up extra job hotbars.",
-      "Translated": "将技能保存并加载到热键栏中，无需占用额外的职业热键栏。"
+      "Original": "Allows you to use commands to save the actions in a hotbar and then load them into any other hotbar. Like the vanilla \u0022/hotbar copy\u0022 command, but unlimited, without taking up other hotbars to save the actions.",
+      "Translated": "允许你使用指令将热键栏中的技能保存下来，再加载到任意其他热键栏中。效果类似于原版的“/hotbar copy”指令，但没有数量限制，也无需占用其他热键栏来保存这些技能。"
     }
   },
   "VanillaPlus": {
@@ -3965,8 +4625,8 @@
       "Translated": "查看队伍成员共享的所有天书奇谈副本列表。"
     },
     "Description": {
-      "Original": "WTSync",
-      "Translated": "WTSync"
+      "Original": "WTSync keeps uses an external server to keep track of the duties in your Wondrous Tails book. When you\u0027re in a party, and other players in the party are also using WTSync, you can open a UI to see which duties everyone needs at once in one convenient list.",
+      "Translated": "WTSync 使用外部服务器来记录你天书奇谈中的任务。当你身处小队，且小队中的其他玩家也在使用 WTSync 时，你可以打开一个界面，通过一份便捷的列表一次性查看所有人需要完成的任务。"
     }
   },
   "WachuMakeyMaking": {
@@ -3976,7 +4636,7 @@
     },
     "Description": {
       "Original": "WachuMakeyMaking takes what you have in your inventory and calculates the optimal combination of items to make. Item prices are fetched from Universalis, or can be manually overridden.",
-      "Translated": "WachuMakeyMaking会根据你背包中的材料，计算出制作物品的最佳组合方案。道具价格取自 Universalis，也可手动覆盖。"
+      "Translated": "瓦丘梅基制作会根据你背包中的材料，计算出制作物品的最佳组合方案。道具价格取自 Universalis，也可手动覆盖。"
     }
   },
   "Waitingway.Dalamud": {
@@ -3995,8 +4655,8 @@
       "Translated": "再也不会搞错你的波浪表情了！"
     },
     "Description": {
-      "Original": "Never mess up your wave emoticon again!",
-      "Translated": "再也不会搞错你的波浪表情了！"
+      "Original": "Literally all this plugin does is send \u0022o/\u0022 in chat if you accidentally type \u0022/o\u0022",
+      "Translated": "说白了，这个插件唯一的功能就是：当你误输入“/o”时，在聊天中发送“o/”。"
     }
   },
   "WaymarkPresetPlugin": {
@@ -4035,8 +4695,8 @@
       "Translated": "在服务器信息旁显示你所在的区域/地区/领地信息。"
     },
     "Description": {
-      "Original": "Shows what zone/region/territory you are in next to the server info.",
-      "Translated": "在服务器信息旁显示你所在的区域/地区/领地信息。"
+      "Original": "Shows what zone/region/territory you are in up in the corner next to the server and time info. Open config with /waia.",
+      "Translated": "在服务器和时间信息旁边的角落显示你当前所在的区域/地区/领地。使用 /waia 打开配置。"
     }
   },
   "WhereIsMyMouse": {
@@ -4045,8 +4705,8 @@
       "Translated": "让你不会在屏幕上丢失鼠标指针的踪迹"
     },
     "Description": {
-      "Original": "Never lose track of your mouse again",
-      "Translated": "再也不必担心找不到鼠标了"
+      "Original": "Add UI element on top of the mouse like circle to keep track of your mouse location during gameplay.\nOpen settings with /wmm",
+      "Translated": "在鼠标指针上方添加一个圆形 UI 元素，以便在游戏过程中追踪鼠标位置。使用 /wmm 打开设置。"
     }
   },
   "WheresWOLdo": {
@@ -4061,12 +4721,12 @@
   },
   "WhichMount": {
     "Punchline": {
-      "Original": "Check what mount someone is using and browse the full mount collection.",
-      "Translated": "查看某人当前使用的坐骑并浏览完整坐骑收藏。"
+      "Original": "Shows what mount another player is using. Includes a mount database, chat links, and trial totem tracking.",
+      "Translated": "显示其他玩家正在使用的坐骑。包含坐骑数据库、聊天链接和讨伐战图腾追踪。"
     },
     "Description": {
-      "Original": "Searching for other player\u0027s mount",
-      "Translated": "正在探查其他玩家的坐骑。"
+      "Original": "Shows information about mounts other players are using.\n\nFeatures:\n- \u0027Find Mount\u0027 in a player\u0027s context menu: shows their mount and how to get it.\n- Mount name and unlock status in the target tooltip.\n- Mount database with search, expansion filter and acquisition info.\n- Trial mount tracks with totem counts (inventory, saddlebag, retainers).\n- Chat links: click a mount or totem icon to link it in chat, jump back from any link via \u0027Open in WhichMount\u0027.",
+      "Translated": "显示其他玩家所使用坐骑的信息。\n\n功能：\n- 玩家右键菜单中的“查找坐骑”：显示其坐骑及获取方式。\n- 在目标提示信息中显示坐骑名称与解锁状态。\n- 坐骑数据库，支持搜索、版本筛选与获取方式查询。\n- 讨伐战坐骑追踪，并显示图腾数量（背包、鞍囊、雇员）。\n- 聊天链接：点击坐骑或图腾图标即可将其链接到聊天中；通过“在 WhichMount 中打开”可从任意链接跳回。"
     }
   },
   "WhichPatchWasThat": {
@@ -4095,8 +4755,8 @@
       "Translated": "主动记录治疗、净化、增益等行为。终于能知道是谁对你使用了营救。"
     },
     "Description": {
-      "Original": "Who Did That?",
-      "Translated": "谁 TM 干的？"
+      "Original": "This plugin can track the following actions:\n- Rescues\n- Healing actions\n- Status/Buff Application\n- Cleanses \n- Heals\n- Mitigation\n- Provoke\n- Shirk\n\nThese will be logged in your chat when they are used on your character.",
+      "Translated": "本插件可以追踪以下技能：\n- 营救\n- 治疗技能\n- 状态/Buff 的施加\n- 除垢\n- 治疗\n- 减伤\n- 挑衅\n- 退避\n\n当这些技能作用于你的角色时，会记录在你的聊天窗口中。"
     }
   },
   "WhoSaidWhatNow": {
@@ -4125,8 +4785,8 @@
       "Translated": "在队伍列表上直接显示Discord语音活动状态。"
     },
     "Description": {
-      "Original": "See Discord voice activity indicators directly on your party list.",
-      "Translated": "在队伍列表上直接显示Discord语音活动状态。"
+      "Original": "Once installed, join a Discord voice channel and an XIV party, and have people put their character names in their Discord nicknames (or configure things manually in the plugin settings). You should get colourful outlines around the job icons on the party list: green for talking, blue for muted, red for deafened, and yellow for unknown name.\n\nNote that you\u0027ll get a permission prompt mentioning \u0022StreamKit Overlay\u0022 – this is expected.\n\nSome icons by Google, Apache 2.0.",
+      "Translated": "安装完成后，加入一个 Discord 语音频道和一个 FF14 小队，并让成员将角色名填入自己的 Discord 昵称（或在插件设置中手动配置）。小队列表中的特职图标周围应会出现彩色轮廓：绿色表示正在说话，蓝色表示已静音，红色表示已拒听，黄色表示名称未知。\n\n请注意，你会收到一个提到“StreamKit Overlay”的权限提示——这是正常现象。\n\n部分图标由 Google 提供，遵循 Apache 2.0 许可。"
     }
   },
   "Wikilinx": {
@@ -4135,8 +4795,8 @@
       "Translated": "FFXIV维基和艾欧泽亚数据库右键菜单整合"
     },
     "Description": {
-      "Original": "Wiki and Eorzea DB context menu integration plugin",
-      "Translated": "Wiki与艾欧泽亚数据库右键菜单集成插件"
+      "Original": "Never forget how to get an item again! Just right-click, and *gobbie-BOOM!* Integrates with any community wiki as well as the official Eorzea DB.",
+      "Translated": "再也不用忘记道具怎么获得了！只需右键点击，然后 *哥布林——砰！* 即可。支持任意社区 Wiki，也支持官方艾欧泽亚数据库。"
     }
   },
   "WinTitle": {
@@ -4179,6 +4839,16 @@
       "Translated": "访问无人岛后使用/wso命令。"
     }
   },
+  "WukLamark": {
+    "Punchline": {
+      "Original": "Create custom map markers on the map/minimap! Like \u003Cflag\u003E but permanent.",
+      "Translated": "在地图/小地图上创建自定义地图标记！类似 \u003Cflag\u003E，但永久有效。"
+    },
+    "Description": {
+      "Original": "Allows players to create and manage persistent custom map markers across Eorzea. Whether it\u0027s a favorite GPose spot, a venue you want to revisit, or any interesting location, WukLamark lets you drop a map marker that appears seamlessly on both your main map and minimap.\n\nFeatures:\n- Customizable game icons and shapes for map markers (with optional icon tinting).\n- Custom map marker icons.\n   \u003E To add a custom icon, open the WukLamark window and click on \u0027Upload a new custom icon\u0027.\n- Per-marker icon/shape sizes.\n- Organize map markers into groups (with map marker import/export).\n- Cross-character sharing configurations.\n- Crossworld markers.\n- Add personal notes for context.\n- Import/export one or multiple map markers with friends.\n- Templates for quick map marker creation with predefined properties.\n\nThink of it as dropping a flag on the map but persistent.\n        ",
+      "Translated": "让玩家能够在艾欧泽亚各地创建并管理持久化的自定义地图标记。无论是心仪的 GPose 取景点、想要再次造访的场所，还是任何有趣的地点，WukLamark 都能让你放置地图标记，并使其无缝显示在主地图和小地图上。\n\n功能：\n- 可自定义地图标记的游戏图标与形状（支持为图标可选染色）。\n- 自定义地图标记图标。\n   \u003E 如需添加自定义图标，请打开 WukLamark 窗口并点击“上传新的自定义图标”。\n- 可为每个标记单独设置图标/形状大小。\n- 将地图标记整理为"
+    }
+  },
   "XIVChat": {
     "Punchline": {
       "Original": "Use chat away from the game.",
@@ -4205,8 +4875,8 @@
       "Translated": "自动或通过指令切换控制器/鼠标模式。"
     },
     "Description": {
-      "Original": "The Great Controller HUD Switcher",
-      "Translated": "伟大的控制器 HUD 切换器"
+      "Original": "A simple tool to automatically switch between keyboard and controller hud\u0027s when pressing WASD or moving the left joystick. You can setup a macro to add the actions to your hotbar.",
+      "Translated": "一个简单工具，可在按下 WASD 或移动左摇杆时，自动在键盘与手柄 HUD 之间切换。你可以设置宏，将相关技能添加到热键栏。"
     }
   },
   "XIVDeck.FFXIVPlugin": {
@@ -4255,8 +4925,8 @@
       "Translated": "将连击拆分为更多按键以实现按键膨胀。需要青魔法师技能。"
     },
     "Description": {
-      "Original": "This plugin splits combos and native abilities into more buttons.",
-      "Translated": "本插件会将连击和职业技能拆分为多个按钮。"
+      "Original": "This plugin splits combos and mutually exclusive abilities onto several buttons. For example, a 1-1-1 combo would become 1-2-3.",
+      "Translated": "本插件会将连击与互斥技能拆分到多个按钮上。例如，1-1-1 的连击会变为 1-2-3。"
     }
   },
   "XIVWindowResizer": {
@@ -4265,8 +4935,8 @@
       "Translated": "游戏窗口缩放插件。想在144p屏幕上拍8K截图吗？现在可以实现了。"
     },
     "Description": {
-      "Original": "Game window resizing plugin mostly intended for users who want to take screenshots at resolutions higher than their display resolution without going fullscreen and using DSR and similar features.",
-      "Translated": "主要为窗口缩放插件的游戏窗口大小调整。"
+      "Original": "Set your game window to arbitrary size not limited by your display resolution. Mostly useful for taking high-resolution screenshots without going fullscreen and using DSR/FSR.\r\nRequires borderless or windowed mode.",
+      "Translated": "将游戏窗口设为不受显示器分辨率限制的任意尺寸。主要用于在不切换全屏、也不使用 DSR/FSR 的情况下拍摄高分辨率截图。\n需要无边框窗口或窗口模式。"
     }
   },
   "XivFatalFrame": {
@@ -4275,8 +4945,8 @@
       "Translated": "在死亡（及其他事件）时自动截图。"
     },
     "Description": {
-      "Original": "Takes screenshots automatically for events.",
-      "Translated": "在某些事件发生时自动截图。"
+      "Original": "Takes a screenshot upon death (and other events).",
+      "Translated": "在死亡（及其他事件）时自动截图。"
     }
   },
   "XivGearExport": {
@@ -4285,8 +4955,28 @@
       "Translated": "一个简易工具，可轻松将你的装备方案导出至xivgear.app。"
     },
     "Description": {
-      "Original": "A plugin that allows easy export of gearsets to xivgear.app.",
-      "Translated": "一款便于将装备套装导出至 xivgear.app 的插件。"
+      "Original": "A plugin that allows easy export of your gearsets to xivgear.app in edit or view mode. Also includes the ability to export your gearsets from the gearset list.\n\nUse /xivgearexport or /xge to export your current gear set.",
+      "Translated": "一款可将你的套装便捷导出至 xivgear.app 的插件，支持编辑或查看模式。此外，还能从套装列表中导出套装。\n\n使用 /xivgearexport 或 /xge 导出你当前的套装。"
+    }
+  },
+  "XivReflex": {
+    "Punchline": {
+      "Original": "Integrates NVIDIA Reflex Low Latency to reduce System Latency.",
+      "Translated": "集成 NVIDIA Reflex 低延迟技术，以降低系统延迟。"
+    },
+    "Description": {
+      "Original": "NVIDIA Reflex Low Latency reduces system input lag by dynamically aligning the game\u0027s engine updates closer to the moment your GPU actually draws the frame on screen.\r\n\r\nRequirements:\r\n\r\n- NVIDIA GeForce 900 Series or newer\r\n- NVIDIA Driver version 456.38 or newer",
+      "Translated": "NVIDIA Reflex 低延迟技术通过动态调整游戏引擎的更新时机，使其更贴近 GPU 实际将画面绘制到屏幕上的时刻，从而降低系统输入延迟。\n\n要求：\n\n- NVIDIA GeForce 900 系列或更新型号\n- NVIDIA 驱动程序版本 456.38 或更高版本"
+    }
+  },
+  "YokaiCheck": {
+    "Punchline": {
+      "Original": "Tracking assistant for Yo-kai Watch rewards.",
+      "Translated": "妖怪手表奖励追踪助手。"
+    },
+    "Description": {
+      "Original": "Yo-kai Check is a small plugin to assist you in tracking the rewards of the Yo-kai Watch event.\r\nIt can be opened with /yokai and shows a list of minions, weapons and how many medals you still need.\r\nWhen you have a minion summoned, the amount of medals you have and need for the weapon is displayed in the Server Info Bar.",
+      "Translated": "Yo-kai Check 是一个小型插件，可帮助你追踪妖怪手表活动的奖励。\n可通过 /yokai 打开，并显示宠物、武器列表以及你还需多少战章。\n当你召唤出宠物时，服务器信息栏会显示你当前拥有的战章数量以及兑换武器所需的战章数量。"
     }
   },
   "ZDs": {
@@ -4305,8 +4995,8 @@
       "Translated": "用时尚风格完成你的黄道武器。"
     },
     "Description": {
-      "Original": "Complete your Zodiac relic with style.",
-      "Translated": "用时尚风格完成你的黄道武器。"
+      "Original": "This plugin attempts to help you complete your Zodiac weapon in various ways.",
+      "Translated": "本插件旨在通过多种方式协助你完成黄道武器。"
     }
   },
   "autoSweep": {
@@ -4325,8 +5015,8 @@
       "Translated": "使无边框窗口模式与Aero快捷键完美兼容"
     },
     "Description": {
-      "Original": "Proper borderless window mode.",
-      "Translated": "无边框窗口模式。"
+      "Original": "Borderless window can now be properly minimized (by clicking on taskbar or by win\u002Bdown shortcut); when moved between monitors (win\u002Bshift\u002Bleft/right), resolution is updated automatically.",
+      "Translated": "无边框窗口现在可以正常最小化了（点击任务栏或使用 Win\u002B下 快捷键）；当窗口在显示器之间移动时（Win\u002BShift\u002B左/右），分辨率会自动更新。"
     }
   },
   "cl_showpos": {
