@@ -71,7 +71,7 @@ internal class ConfigWindow : Window
         ImGui.AlignTextToFramePadding();
 
         var enableFastGithub = _configuration.EnableFastGithub;
-        if (ImGui.Checkbox("开启卫月第三方仓库加速",
+        if (ImGui.Checkbox("开启卫月第三方Github仓库加速",
                 ref enableFastGithub))
         {
             _configuration.EnableFastGithub = enableFastGithub;
