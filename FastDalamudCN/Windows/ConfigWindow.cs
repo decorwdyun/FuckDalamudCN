@@ -79,8 +79,7 @@ internal class ConfigWindow : Window
             Save();
         }
 
-        ImGuiComponents.HelpMarker(
-            "只会反代加速 https://raw.githubusercontent.com 之类的 Github 相关的库链\n其他的比如 https://love.puni.sh 如果使用 CloudFlare则会使用优选IP直连");
+        ImGuiComponents.HelpMarker("通过反向代理加速 GitHub 上的第三方仓库，例如 https://raw.githubusercontent.com");
 
         var enableMainRepoPluginLocalization = _configuration.EnableMainRepoPluginLocalization;
         if (ImGui.Checkbox("开启主库插件简介翻译",

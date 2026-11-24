@@ -7,8 +7,7 @@ using Microsoft.Extensions.Logging;
 namespace FastDalamudCN.Network;
 
 internal class HappyEyeballsCallback(
-    ILogger<HappyEyeballsCallback> logger,
-    DnsResolver dnsResolver)
+    ILogger<HappyEyeballsCallback> logger)
     : IDisposable
 {
     private readonly ILogger _logger = logger;
@@ -24,7 +23,7 @@ internal class HappyEyeballsCallback(
 
     public async ValueTask<Stream> ConnectCallback(SocketsHttpConnectionContext context, CancellationToken token)
     {
-        var sortedRecords = await dnsResolver.GetSortedAddressesAsync(context.DnsEndPoint.Host, token);
+        var addresses = await Dns.GetHostAddressesAsync(context.DnsEndPoint.Host, AddressFamily.InterNetwork, token);
         var now = DateTime.UtcNow;
 
         foreach (var (ip, expiry) in _penalizedAddresses)
@@ -35,9 +34,9 @@ internal class HappyEyeballsCallback(
             }
         }
 
-        var prioritized = new List<IPAddress>(sortedRecords.Count);
+        var prioritized = new List<IPAddress>(addresses.Length);
         var penalized = new List<IPAddress>();
-        foreach (var record in sortedRecords)
+        foreach (var record in addresses)
         {
             if (_penalizedAddresses.TryGetValue(record, out var expiry) && expiry > now)
             {
