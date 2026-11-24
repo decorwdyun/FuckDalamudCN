@@ -1,4 +1,3 @@
-using FastDalamudCN.Network;
 using FastDalamudCN.Network.Abstractions;
 using FastDalamudCN.Network.Proxy;
 using Microsoft.Extensions.Logging;
@@ -48,7 +47,7 @@ internal sealed class RaceConditionAwareRequestExecutor(
         var response = await sendFunc(request, cancellationToken);
         return await statistics.TrackResponseAsync(response, cancellationToken);
     }
-    
+
     private async Task<HttpResponseMessage> ExecuteRaceAsync(
         HttpRequestMessage originalRequest,
         Uri originalUri,
@@ -73,8 +72,7 @@ internal sealed class RaceConditionAwareRequestExecutor(
 
         foreach (var proxyUri in proxyUris)
         {
-            var requestClone = CloneRequest(originalRequest);
-            requestClone.RequestUri = proxyUri;
+            var requestClone = originalRequest.CloneForSend(proxyUri);
 
             var task = Task.Run(async () =>
             {
@@ -95,16 +93,14 @@ internal sealed class RaceConditionAwareRequestExecutor(
 
             tasks.Add(task);
         }
-        
+
         HttpResponseMessage? successResponse = null;
-        var completedTasks = 0;
         var errors = new List<(Uri ProxyUri, Exception Error)>();
 
         while (tasks.Count > 0)
         {
             var completedTask = await Task.WhenAny(tasks);
             tasks.Remove(completedTask);
-            completedTasks++;
 
             try
             {
@@ -128,12 +124,12 @@ internal sealed class RaceConditionAwareRequestExecutor(
                 logger.LogTrace("竞速任务异常: {Error}", ex.Message);
             }
         }
-        
+
         if (successResponse != null)
         {
             return await statistics.TrackResponseAsync(successResponse, cancellationToken);
         }
-        
+
         logger.LogWarning("所有代理都失败了 ({Count}), 原始URL: {Uri}", errors.Count, originalUri);
         foreach (var (proxyUri, error) in errors)
         {
@@ -141,29 +137,5 @@ internal sealed class RaceConditionAwareRequestExecutor(
         }
 
         throw new HttpRequestException($"所有 {errors.Count} 个代理请求都失败了", errors.FirstOrDefault().Error);
-    }
-
-    /// <summary>
-    /// 克隆HTTP请求
-    /// </summary>
-    private static HttpRequestMessage CloneRequest(HttpRequestMessage request)
-    {
-        var clone = new HttpRequestMessage(request.Method, request.RequestUri)
-        {
-            Content = request.Content,
-            Version = request.Version
-        };
-
-        foreach (var header in request.Headers)
-        {
-            clone.Headers.TryAddWithoutValidation(header.Key, header.Value);
-        }
-
-        foreach (var property in request.Options)
-        {
-            clone.Options.TryAdd(property.Key, property.Value);
-        }
-
-        return clone;
     }
 }

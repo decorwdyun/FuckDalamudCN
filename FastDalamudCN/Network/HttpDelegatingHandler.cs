@@ -69,59 +69,44 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
         if (!IsValidUrl(originalUri) && request.Method == HttpMethod.Get)
         {
             // 小店喜欢显示公告？
-            return new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new StringContent("[]", Encoding.UTF8, "application/json"),
-                RequestMessage = request
-            };
+            return EmptyRepositoryResponse(request);
         }
 
-        PrepareRequestHeaders(request);
+        request.Headers.TryAddWithoutValidation("User-Agent",
+            $"Dalamud/{_dalamudVersionProvider.DalamudAssemblyVersion}");
 
-        var isPluginMaster = _pluginRepositoryStore.ContainsPluginMasterUrl(originalUri.ToString());
-
-        if (request.Method == HttpMethod.Get && _configuration.EnablePluginManifestCache)
+        if (_configuration.EnablePluginManifestCache &&
+            _httpCacheService.TryGetCachedResponse(request, originalUri, out var cachedResponse))
         {
-            if (_httpCacheService.TryGetCachedResponse(request, originalUri, out var cachedResponse))
-            {
-                _logger.LogTrace("从缓存中读取了 {OriginalUri}", originalUri);
-                await Task.Delay(TimeSpan.FromMilliseconds(120), cancellationToken);
-                return cachedResponse!;
-            }
+            _logger.LogTrace("从缓存中读取了 {OriginalUri}", originalUri);
+            await Task.Delay(TimeSpan.FromMilliseconds(120), cancellationToken);
+            return cachedResponse;
         }
 
         try
         {
-            HttpResponseMessage response;
-            if (isPluginMaster)
-            {
-                response = await SendWithPluginMasterPolicyAsync(request, cancellationToken);
-            }
-            else
-            {
-                response = await _requestExecutor.ExecuteAsync(
-                    request,
-                    base.SendAsync,
-                    cancellationToken);
-            }
-
+            var response = _pluginRepositoryStore.ContainsPluginMasterUrl(originalUri.ToString())
+                ? await SendWithPluginMasterPolicyAsync(request, cancellationToken)
+                : await _requestExecutor.ExecuteAsync(request, base.SendAsync, cancellationToken);
             return await HandleResponseAsync(response, request, originalUri, cancellationToken);
         }
         catch (Exception e)
         {
-            return HandleRequestException(e, request);
+            RecordFailure();
+            if (request.RequestUri?.ToString().StartsWith(OfficialRepoPattern) == true)
+            {
+                _logger.LogWarning(e, "官方库请求失败，返回伪造响应: {RequestUri}", request.RequestUri);
+                return EmptyRepositoryResponse(request);
+            }
+
+            _logger.LogWarning(e, "错误: 无法访问: {RequestUri}. 若能看到此错误，通常为网络问题。", request.RequestUri);
+            throw;
         }
     }
 
-
     private async Task<HttpResponseMessage> HandleResponseAsync(HttpResponseMessage response,
-        HttpRequestMessage request, Uri? originalUri, CancellationToken ct)
+        HttpRequestMessage request, Uri originalUri, CancellationToken ct)
     {
-        if (originalUri == null)
-        {
-            return response;
-        }
-
         if (!response.IsSuccessStatusCode && !originalUri.ToString().EndsWith("png"))
         {
             LogFailure(originalUri, response.StatusCode);
@@ -132,8 +117,7 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
         _errorCount = 0;
         await _pluginLocalizationService.TranslatePluginDescriptionsAsync(response, originalUri, ct);
 
-        if (_configuration.EnablePluginManifestCache && request.Method == HttpMethod.Get &&
-            request.ShouldCache(originalUri))
+        if (_configuration.EnablePluginManifestCache)
         {
             var duration = RequestFilter.IsGithub(originalUri) ? TimeSpan.FromMinutes(15) : TimeSpan.FromMinutes(5);
             return await _httpCacheService.CacheResponseAsync(response, request, originalUri, duration, ct);
@@ -157,28 +141,13 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
         _logger.LogWarning("如果这是你添加的错误/失效的库链，请在卫月仓库删除此条。此错误非插件崩溃。");
     }
 
-    private HttpResponseMessage HandleRequestException(Exception e, HttpRequestMessage request)
+    private static HttpResponseMessage EmptyRepositoryResponse(HttpRequestMessage request)
     {
-        RecordFailure();
-
-        if (request.RequestUri?.ToString().StartsWith(OfficialRepoPattern) == true)
+        return new HttpResponseMessage(HttpStatusCode.OK)
         {
-            _logger.LogWarning(e, "官方库请求失败，返回伪造响应: {RequestUri}", request.RequestUri);
-            return new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new StringContent("[]", Encoding.UTF8, "application/json"),
-                RequestMessage = request
-            };
-        }
-
-        _logger.LogWarning(e, "错误: 无法访问: {RequestUri}. 若能看到此错误，通常为网络问题。", request.RequestUri);
-        throw e;
-    }
-
-    private void PrepareRequestHeaders(HttpRequestMessage request)
-    {
-        request.Headers.TryAddWithoutValidation("User-Agent",
-            $"Dalamud/{_dalamudVersionProvider.DalamudAssemblyVersion}");
+            Content = new StringContent("[]", Encoding.UTF8, "application/json"),
+            RequestMessage = request
+        };
     }
 
     private static bool IsValidUrl(Uri uri)
@@ -217,7 +186,7 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             cts.CancelAfter(timeoutThisAttempt);
 
-            var clonedRequest = CloneRequest(request);
+            var clonedRequest = request.CloneForSend();
 
             try
             {
@@ -253,26 +222,5 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
         }
 
         throw new TimeoutException($"请求 {request.RequestUri} 超过 {overallBudget.TotalSeconds} 秒未完成");
-    }
-
-    private static HttpRequestMessage CloneRequest(HttpRequestMessage request)
-    {
-        var clone = new HttpRequestMessage(request.Method, request.RequestUri)
-        {
-            Content = request.Content,
-            Version = request.Version
-        };
-
-        foreach (var header in request.Headers)
-        {
-            clone.Headers.TryAddWithoutValidation(header.Key, header.Value);
-        }
-
-        foreach (var option in request.Options)
-        {
-            clone.Options.TryAdd(option.Key, option.Value);
-        }
-
-        return clone;
     }
 }

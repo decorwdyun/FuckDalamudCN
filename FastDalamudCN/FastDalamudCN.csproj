@@ -9,6 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <InternalsVisibleTo Include="FastDalamudCN.Tests" />
         <PackageReference Include="Dalamud.Extensions.MicrosoftLogging" Version="4.0.1"/>
         <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.1" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.1" />
