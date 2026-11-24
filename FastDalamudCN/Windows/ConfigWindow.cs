@@ -157,7 +157,7 @@ internal class ConfigWindow : Window
 #if !DEBUG
                 _lastCanCheckTime = DateTime.Now.AddSeconds(20);
 #endif
-                _ = _proxyProvider.CheckProxiesAsync();
+                _ = _proxyProvider.CheckProxiesAsync(refreshConfiguration: true);
             }
 
             ImGui.EndDisabled();

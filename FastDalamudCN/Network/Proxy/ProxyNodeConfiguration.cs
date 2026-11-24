@@ -1,49 +1,42 @@
+using System.Text.Json;
+
 namespace FastDalamudCN.Network.Proxy;
 
 internal static class ProxyNodeConfiguration
 {
-    public static List<ProxyNode> CreateDefaultNodes()
-    {
-        var sources = new[]
-        {
-            new
-            {
-                Url = "https://gh-proxy.org/https://github.com/decorwdyun/DalamudPlugins/blob/main/FastDalamudCN/random.bin",
-                Tags = new[] { "cloudflare" }
-            },
-            new
-            {
-                Url = "https://hk.gh-proxy.org/https://github.com/decorwdyun/DalamudPlugins/blob/main/FastDalamudCN/random.bin",
-                Tags = new[] { "standard" }
-            },
-            new
-            {
-                Url = "https://ghfast.top/https://raw.githubusercontent.com/decorwdyun/DalamudPlugins/main/FastDalamudCN/random.bin",
-                Tags = new[] { "standard" }
-            },
-            new
-            {
-                Url = "https://fb.xuolu.com/https://github.com/decorwdyun/DalamudPlugins/blob/main/FastDalamudCN/random.bin",
-                Tags = new[] { "short-cache" }
-            }
-        };
+    public const string ProbeFileUrl =
+        "https://github.com/decorwdyun/DalamudPlugins/blob/main/FastDalamudCN/random.bin";
 
-        return sources.Select(s => new ProxyNode
-        {
-            CheckUrl = s.Url,
-            Prefix = ExtractPrefix(s.Url),
-            Tags = s.Tags.ToHashSet()
-        }).ToList();
+    public const string RemoteNodesUrl =
+        "https://raw.githubusercontent.com/decorwdyun/FuckDalamudCN/master/proxy-nodes.json";
+
+    public static string[] CreateBootstrapNodes() =>
+    [
+        "https://gh-proxy.org/",
+        "https://v4.gh-proxy.org/",
+        "https://fb.xuolu.com/"
+    ];
+
+    public static async Task<string[]> ReadRemoteNodesAsync(HttpContent content, CancellationToken cancellationToken)
+    {
+        await using var stream = await content.ReadAsStreamAsync(cancellationToken);
+        var prefixes = await JsonSerializer.DeserializeAsync<string?[]>(stream, cancellationToken: cancellationToken);
+
+        return (prefixes ?? [])
+            .Select(NormalizePrefix)
+            .OfType<string>()
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
     }
 
-    private static string ExtractPrefix(string url)
+    private static string? NormalizePrefix(string? prefix)
     {
-        if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
+        if (!Uri.TryCreate(prefix, UriKind.Absolute, out var uri) || uri.Scheme != Uri.UriSchemeHttps ||
+            uri.AbsolutePath != "/" || uri.UserInfo.Length != 0 || uri.Query.Length != 0 || uri.Fragment.Length != 0)
         {
-            return string.Empty;
+            return null;
         }
 
-        var portPart = uri.IsDefaultPort ? "" : $":{uri.Port}";
-        return $"{uri.Scheme}://{uri.Host}{portPart}/";
+        return uri.GetLeftPart(UriPartial.Authority) + "/";
     }
 }

@@ -1,6 +1,7 @@
-using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Net.Http.Headers;
 using System.Security.Cryptography;
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
 
 namespace FastDalamudCN.Network.Proxy;
@@ -8,14 +9,19 @@ namespace FastDalamudCN.Network.Proxy;
 internal sealed class GithubProxyProvider : IDisposable
 {
     private const string ExpectedSha256 = "1a17f2c74ee9a1c22cb0f04bee90902e0e0c5b1fa739fd3957fcee4f42365c27";
+    private const int MaxProxyLatencyMs = 15_000;
+    private const int FastProxyWindowMs = 120;
 
     private readonly Configuration _configuration;
     private readonly HttpClient _httpClient;
     private readonly ILogger<GithubProxyProvider> _logger;
-    private readonly List<ProxyNode> _nodes;
+    private readonly string[] _bootstrapNodes = ProxyNodeConfiguration.CreateBootstrapNodes();
     private readonly Timer _timer;
-    private readonly SemaphoreSlim _checkSemaphore;
-    private readonly ConcurrentDictionary<string, long> _proxyLatencies;
+
+    private volatile IReadOnlyDictionary<string, long> _proxyLatencies;
+    private string[] _remoteNodes = [];
+    private int _checkInProgress;
+    private volatile bool _disposed;
 
     private int _acceleratedCount;
 
@@ -26,9 +32,7 @@ internal sealed class GithubProxyProvider : IDisposable
     {
         _logger = logger;
         _configuration = configuration;
-        _nodes = ProxyNodeConfiguration.CreateDefaultNodes();
-        _checkSemaphore = new SemaphoreSlim(1, 1);
-        _proxyLatencies = new ConcurrentDictionary<string, long>();
+        _proxyLatencies = _bootstrapNodes.ToDictionary(prefix => prefix, _ => long.MaxValue);
 
         _httpClient = new HttpClient(new SocketsHttpHandler
         {
@@ -40,18 +44,13 @@ internal sealed class GithubProxyProvider : IDisposable
             Timeout = TimeSpan.FromSeconds(10)
         };
 
-        foreach (var node in _nodes)
-        {
-            _proxyLatencies[node.Prefix] = long.MaxValue;
-        }
-
-        Task.Run(() => CheckProxiesAsync(force: true));
+        Task.Run(() => CheckProxiesAsync(force: true, refreshConfiguration: true));
 
         _timer = new Timer(async void (_) =>
         {
             try
             {
-                await CheckProxiesAsync();
+                await CheckProxiesAsync(refreshConfiguration: true);
             }
             catch (Exception ex)
             {
@@ -66,88 +65,79 @@ internal sealed class GithubProxyProvider : IDisposable
 
     public void Dispose()
     {
+        _disposed = true;
         _timer.Dispose();
         _httpClient.Dispose();
-        _checkSemaphore.Dispose();
     }
 
-    public async Task CheckProxiesAsync(bool force = false, CancellationToken cancellationToken = default)
+    public async Task CheckProxiesAsync(
+        bool force = false,
+        bool refreshConfiguration = false,
+        CancellationToken cancellationToken = default)
     {
-        if (!_configuration.EnableFastGithub && !force)
+        if (_disposed || (!_configuration.EnableFastGithub && !force) ||
+            Interlocked.Exchange(ref _checkInProgress, 1) != 0)
         {
             return;
         }
 
-        if (!await _checkSemaphore.WaitAsync(0, cancellationToken))
-        {
-            return;
-        }
-
-        CancellationTokenSource? cts = null;
         try
         {
-            cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            cts.CancelAfter(TimeSpan.FromSeconds(30));
+            cancellationToken.ThrowIfCancellationRequested();
+            var knownNodes = _bootstrapNodes.Concat(_remoteNodes).Distinct(StringComparer.OrdinalIgnoreCase);
+            var measured = await MeasureNodesAsync(knownNodes, cancellationToken);
+            UpdateProxyLatencies(measured);
 
-            var tasks = _nodes.Select(node => CheckSingleNodeAsync(node, cts.Token)).ToArray();
-            await Task.WhenAll(tasks);
+            if (!refreshConfiguration || _disposed)
+            {
+                return;
+            }
+
+            var remoteNodes = await FetchRemoteNodesAsync(measured, cancellationToken);
+            if (remoteNodes == null)
+            {
+                return;
+            }
+
+            var newNodes = remoteNodes.Where(prefix => !measured.ContainsKey(prefix));
+            foreach (var (prefix, latency) in await MeasureNodesAsync(newNodes, cancellationToken))
+            {
+                measured.Add(prefix, latency);
+            }
+
+            cancellationToken.ThrowIfCancellationRequested();
+            _remoteNodes = remoteNodes;
+            UpdateProxyLatencies(measured);
+        }
+        catch (ObjectDisposedException) when (_disposed)
+        {
         }
         finally
         {
-            cts?.Dispose();
-            _checkSemaphore.Release();
+            Volatile.Write(ref _checkInProgress, 0);
         }
     }
 
-    public string? SelectFastestProxy(string originalUrl, IEnumerable<string>? excludePrefixes = null)
+    public string? SelectFastestProxy(IEnumerable<string>? excludePrefixes = null)
     {
-        var excluded = excludePrefixes?.ToHashSet() ?? new HashSet<string>();
-
-        var validNodes = _nodes
-            .Where(node => !excluded.Contains(node.Prefix))
-            .Select(node => new NodeWithLatency(
-                node,
-                _proxyLatencies.GetValueOrDefault(node.Prefix, long.MaxValue)
-            ))
-            .Where(x => x.Latency < 15000)
-            .ToList();
-
-        if (validNodes.Count == 0)
+        var availableNodes = GetAvailableNodes(excludePrefixes).ToArray();
+        if (availableNodes.Length == 0)
         {
             return null;
         }
 
-        var candidatePrefixes = SelectCandidatesByUrl(originalUrl, validNodes);
+        var maxLatency = availableNodes.Min(node => node.Value) + FastProxyWindowMs;
+        var candidates = availableNodes.Where(node => node.Value <= maxLatency).ToArray();
 
-        if (candidatePrefixes.Count == 0)
-        {
-            return null;
-        }
-
-        return candidatePrefixes[Random.Shared.Next(candidatePrefixes.Count)];
+        return candidates[Random.Shared.Next(candidates.Length)].Key;
     }
 
-    public List<string> SelectMultipleFastProxies(string originalUrl, int count, IEnumerable<string>? excludePrefixes = null)
+    public List<string> SelectMultipleFastProxies(int count, IEnumerable<string>? excludePrefixes = null)
     {
-        var excluded = excludePrefixes?.ToHashSet() ?? new HashSet<string>();
-
-        var validNodes = _nodes
-            .Where(node => !excluded.Contains(node.Prefix))
-            .Select(node => new NodeWithLatency(
-                node,
-                _proxyLatencies.GetValueOrDefault(node.Prefix, long.MaxValue)
-            ))
-            .Where(x => x.Latency < 15000)
-            .OrderBy(x => x.Latency)
-            .ToList();
-
-        if (validNodes.Count == 0) return [];
-        
-        var candidateNodes = GetCandidateNodesByUrl(originalUrl, validNodes);
-        
-        return candidateNodes
+        return GetAvailableNodes(excludePrefixes)
+            .OrderBy(node => node.Value)
             .Take(count)
-            .Select(x => x.Node.Prefix)
+            .Select(node => node.Key)
             .ToList();
     }
 
@@ -156,66 +146,75 @@ internal sealed class GithubProxyProvider : IDisposable
         Interlocked.Increment(ref _acceleratedCount);
     }
 
-    private record NodeWithLatency(ProxyNode Node, long Latency);
-
-    private List<NodeWithLatency> GetCandidateNodesByUrl(string originalUrl, List<NodeWithLatency> validNodes)
+    private IEnumerable<KeyValuePair<string, long>> GetAvailableNodes(IEnumerable<string>? excludePrefixes)
     {
-        var isZip = originalUrl.EndsWith(".zip", StringComparison.OrdinalIgnoreCase);
+        var excluded = excludePrefixes?.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        return _proxyLatencies.Where(node => node.Value < MaxProxyLatencyMs && excluded?.Contains(node.Key) != true);
+    }
 
-        if (isZip)
+    private void UpdateProxyLatencies(IReadOnlyDictionary<string, long> measured)
+    {
+        var activeNodes = _remoteNodes.Any(prefix => measured[prefix] < MaxProxyLatencyMs)
+            ? _remoteNodes
+            : _bootstrapNodes;
+
+        _proxyLatencies = activeNodes.ToDictionary(prefix => prefix, prefix => measured[prefix]);
+    }
+
+    private async Task<Dictionary<string, long>> MeasureNodesAsync(IEnumerable<string> prefixes, CancellationToken cancellationToken)
+    {
+        var measurements = await Task.WhenAll(prefixes.Select(async prefix =>
+            (Prefix: prefix, Latency: await CheckSingleNodeAsync(prefix, cancellationToken))));
+        return measurements.ToDictionary(node => node.Prefix, node => node.Latency, StringComparer.OrdinalIgnoreCase);
+    }
+
+    private async Task<string[]?> FetchRemoteNodesAsync(
+        IReadOnlyDictionary<string, long> measured,
+        CancellationToken cancellationToken)
+    {
+        foreach (var prefix in _bootstrapNodes.OrderBy(prefix => measured[prefix]))
         {
-            var zipCandidates = validNodes
-                .Where(x => x.Node.Tags.Contains("short-cache"))
-                .OrderBy(x => x.Latency)
-                .ToList();
+            using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            timeout.CancelAfter(TimeSpan.FromSeconds(5));
 
-            if (zipCandidates.Count > 0)
+            try
             {
-                return zipCandidates;
+                using var request = new HttpRequestMessage(HttpMethod.Get, prefix + ProxyNodeConfiguration.RemoteNodesUrl);
+                request.Headers.CacheControl = new CacheControlHeaderValue { NoCache = true };
+                using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, timeout.Token);
+                response.EnsureSuccessStatusCode();
+
+                var nodes = await ProxyNodeConfiguration.ReadRemoteNodesAsync(response.Content, timeout.Token);
+                if (nodes.Length > 0)
+                {
+                    _logger.LogDebug("已通过 {Proxy} 加载 {NodeCount} 个远端代理节点", prefix, nodes.Length);
+                    return nodes;
+                }
+
+                _logger.LogDebug("通过 {Proxy} 获取的远端列表没有有效代理节点", prefix);
+            }
+            catch (Exception ex) when (ex is HttpRequestException or JsonException or IOException ||
+                                       (ex is OperationCanceledException && !cancellationToken.IsCancellationRequested))
+            {
+                _logger.LogDebug(ex, "通过 {Proxy} 获取远端代理节点失败", prefix);
             }
         }
 
-        return validNodes.OrderBy(x => x.Latency).ToList();
+        _logger.LogWarning("未能获取远端代理节点，沿用已知的节点配置");
+        return null;
     }
 
-    private List<string> SelectCandidatesByUrl(string originalUrl, List<NodeWithLatency> validNodes)
-    {
-        var isZip = originalUrl.EndsWith(".zip", StringComparison.OrdinalIgnoreCase);
-
-        if (isZip)
-        {
-            var zipCandidates = validNodes
-                .Where(x => x.Node.Tags.Contains("short-cache"))
-                .ToList();
-
-            if (zipCandidates.Count > 0)
-            {
-                var min = zipCandidates.Min(x => x.Latency);
-                return zipCandidates
-                    .Where(x => x.Latency <= min + 120)
-                    .Select(x => x.Node.Prefix)
-                    .ToList();
-            }
-        }
-
-        var minLatency = validNodes.Min(x => x.Latency);
-        return validNodes
-            .Where(x => x.Latency <= minLatency + 120)
-            .Select(x => x.Node.Prefix)
-            .ToList();
-    }
-
-    private async Task CheckSingleNodeAsync(ProxyNode node, CancellationToken cancellationToken = default)
+    private async Task<long> CheckSingleNodeAsync(string prefix, CancellationToken cancellationToken)
     {
         try
         {
-            var minLatencyMs = double.MaxValue;
-            var hasValidResponse = false;
+            var checkUrl = prefix + ProxyNodeConfiguration.ProbeFileUrl;
+            var minLatencyMs = long.MaxValue;
 
             for (var attempt = 0; attempt < 2; attempt++)
             {
                 var stopwatch = Stopwatch.StartNew();
-                using var response = await _httpClient.GetAsync(node.CheckUrl, cancellationToken);
+                using var response = await _httpClient.GetAsync(checkUrl, cancellationToken);
                 stopwatch.Stop();
 
                 if (response is { IsSuccessStatusCode: true, Content.Headers.ContentLength: > 0 })
@@ -228,21 +227,15 @@ internal sealed class GithubProxyProvider : IDisposable
                         continue;
                     }
 
-                    var latencyMs = stopwatch.Elapsed.TotalMilliseconds;
-                    if (latencyMs < minLatencyMs)
-                    {
-                        minLatencyMs = latencyMs;
-                    }
-
-                    hasValidResponse = true;
+                    minLatencyMs = Math.Min(minLatencyMs, stopwatch.ElapsedMilliseconds);
                 }
             }
 
-            _proxyLatencies[node.Prefix] = hasValidResponse ? (long)minLatencyMs : long.MaxValue;
+            return minLatencyMs;
         }
-        catch
+        catch (Exception) when (!cancellationToken.IsCancellationRequested)
         {
-            _proxyLatencies[node.Prefix] = long.MaxValue;
+            return long.MaxValue;
         }
     }
 }

@@ -18,7 +18,7 @@ internal sealed partial class GithubProxySelector(
         }
 
         var normalizedUri = NormalizeGithubRawUri(originalUri);
-        var fastestPrefix = proxyProvider.SelectFastestProxy(originalUri.ToString(), excludePrefixes);
+        var fastestPrefix = proxyProvider.SelectFastestProxy(excludePrefixes);
 
         if (fastestPrefix == null)
         {
@@ -41,7 +41,7 @@ internal sealed partial class GithubProxySelector(
         }
 
         var normalizedUri = NormalizeGithubRawUri(originalUri);
-        var proxyPrefixes = proxyProvider.SelectMultipleFastProxies(originalUri.ToString(), count, excludePrefixes);
+        var proxyPrefixes = proxyProvider.SelectMultipleFastProxies(count, excludePrefixes);
 
         var proxyUris = new List<Uri>();
         foreach (var prefix in proxyPrefixes)
