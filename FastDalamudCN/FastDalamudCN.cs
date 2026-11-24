@@ -55,6 +55,7 @@ public sealed class FastDalamudCN : IDalamudPlugin
             serviceCollection.AddSingleton<HappyEyeballsCallback>();
             
             serviceCollection.AddSingleton<GithubProxyProvider>();
+            serviceCollection.AddSingleton<ProxyStatistics>();
             serviceCollection.AddSingleton<IProxySelector, GithubProxySelector>();
             serviceCollection.AddSingleton<IHttpCacheService, HttpCacheService>();
             serviceCollection.AddSingleton<HijackedPluginRepositoryStore>();

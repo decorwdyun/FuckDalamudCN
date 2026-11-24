@@ -84,11 +84,6 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
         {
             if (_httpCacheService.TryGetCachedResponse(request, originalUri, out var cachedResponse))
             {
-                if (RequestFilter.IsGithub(originalUri))
-                {
-                    _proxyProvider.RecordSuccess();
-                }
-
                 _logger.LogTrace("从缓存中读取了 {OriginalUri}", originalUri);
                 await Task.Delay(TimeSpan.FromMilliseconds(120), cancellationToken);
                 return cachedResponse!;
@@ -135,11 +130,6 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
         }
 
         _errorCount = 0;
-        if (_configuration.EnableFastGithub && RequestFilter.IsGithub(originalUri))
-        {
-            _proxyProvider.RecordSuccess();
-        }
-
         await _pluginLocalizationService.TranslatePluginDescriptionsAsync(response, originalUri, ct);
 
         if (_configuration.EnablePluginManifestCache && request.Method == HttpMethod.Get &&

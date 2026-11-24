@@ -8,7 +8,7 @@ namespace FastDalamudCN.Network.Execution;
 internal sealed class RaceConditionAwareRequestExecutor(
     ILogger<RaceConditionAwareRequestExecutor> logger,
     IProxySelector proxySelector,
-    GithubProxyProvider proxyProvider,
+    ProxyStatistics statistics,
     HijackedPluginRepositoryStore pluginRepositoryStore,
     int maxConcurrentRequests = 3)
     : IRequestExecutor
@@ -33,12 +33,20 @@ internal sealed class RaceConditionAwareRequestExecutor(
         }
 
         var proxyUri = proxySelector.BuildProxyUri(originalUri, null);
-        if (proxyUri != null)
-        {
-            request.RequestUri = proxyUri;
-        }
+        return proxyUri != null
+            ? await SendViaProxyAsync(request, proxyUri, sendFunc, cancellationToken)
+            : await sendFunc(request, cancellationToken);
+    }
 
-        return await sendFunc(request, cancellationToken);
+    private async Task<HttpResponseMessage> SendViaProxyAsync(
+        HttpRequestMessage request,
+        Uri proxyUri,
+        Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> sendFunc,
+        CancellationToken cancellationToken)
+    {
+        request.RequestUri = proxyUri;
+        var response = await sendFunc(request, cancellationToken);
+        return await statistics.TrackResponseAsync(response, cancellationToken);
     }
     
     private async Task<HttpResponseMessage> ExecuteRaceAsync(
@@ -57,8 +65,7 @@ internal sealed class RaceConditionAwareRequestExecutor(
 
         if (proxyUris.Count == 1)
         {
-            originalRequest.RequestUri = proxyUris[0];
-            return await sendFunc(originalRequest, cancellationToken);
+            return await SendViaProxyAsync(originalRequest, proxyUris[0], sendFunc, cancellationToken);
         }
 
         using var raceCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
@@ -124,8 +131,7 @@ internal sealed class RaceConditionAwareRequestExecutor(
         
         if (successResponse != null)
         {
-            proxyProvider.RecordSuccess();
-            return successResponse;
+            return await statistics.TrackResponseAsync(successResponse, cancellationToken);
         }
         
         logger.LogWarning("所有代理都失败了 ({Count}), 原始URL: {Uri}", errors.Count, originalUri);

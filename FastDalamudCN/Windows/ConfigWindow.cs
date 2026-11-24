@@ -16,6 +16,7 @@ internal class ConfigWindow : Window
 {
     private readonly Configuration _configuration;
     private readonly GithubProxyProvider _proxyProvider;
+    private readonly ProxyStatistics _proxyStatistics;
     private readonly IDalamudPluginInterface _pluginInterface;
     private readonly IHttpCacheService _httpCacheService;
 
@@ -25,12 +26,14 @@ internal class ConfigWindow : Window
         IDalamudPluginInterface pluginInterface,
         Configuration configuration,
         GithubProxyProvider proxyProvider,
+        ProxyStatistics proxyStatistics,
         IHttpCacheService httpCacheService
     ) : base("FastDalamudCN - 配置")
     {
         _pluginInterface = pluginInterface;
         _configuration = configuration;
         _proxyProvider = proxyProvider;
+        _proxyStatistics = proxyStatistics;
         _httpCacheService = httpCacheService;
         Flags = ImGuiWindowFlags.AlwaysAutoResize;
         SizeCondition = ImGuiCond.Always;
@@ -112,7 +115,9 @@ internal class ConfigWindow : Window
                                    + "这将解决卫月本体偶尔无法识别系统代理导致无法加载插件列表的问题");
 
 
-        ImGui.TextColored(ImGuiColors.HealerGreen, $"自本次启动以来共为你加速 {_proxyProvider.AcceleratedCount} 次");
+        var statistics = _proxyStatistics.Current;
+        ImGui.TextColored(ImGuiColors.HealerGreen,
+            $"累计加速 {statistics.AcceleratedCount:N0} 次，代理下载 {Util.FormatBytes(statistics.DownloadedBytes)}");
 
 
         if (ImGui.TreeNodeEx("FAQS###FastDalamudCN-Notes"))

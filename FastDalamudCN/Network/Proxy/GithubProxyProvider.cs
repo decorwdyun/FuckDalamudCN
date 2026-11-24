@@ -23,8 +23,6 @@ internal sealed class GithubProxyProvider : IDisposable
     private int _checkInProgress;
     private volatile bool _disposed;
 
-    private int _acceleratedCount;
-
     public GithubProxyProvider(
         ILogger<GithubProxyProvider> logger,
         Configuration configuration,
@@ -60,8 +58,6 @@ internal sealed class GithubProxyProvider : IDisposable
     }
 
     public IReadOnlyDictionary<string, long> ProxyLatencies => _proxyLatencies;
-
-    public int AcceleratedCount => _acceleratedCount;
 
     public void Dispose()
     {
@@ -139,11 +135,6 @@ internal sealed class GithubProxyProvider : IDisposable
             .Take(count)
             .Select(node => node.Key)
             .ToList();
-    }
-
-    public void RecordSuccess()
-    {
-        Interlocked.Increment(ref _acceleratedCount);
     }
 
     private IEnumerable<KeyValuePair<string, long>> GetAvailableNodes(IEnumerable<string>? excludePrefixes)
