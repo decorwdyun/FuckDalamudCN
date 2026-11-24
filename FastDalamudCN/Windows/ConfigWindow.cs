@@ -62,7 +62,7 @@ internal class ConfigWindow : Window
         ImGui.AlignTextToFramePadding();
 
         var enableFastGithub = _configuration.EnableFastGithub;
-        if (ImGui.Checkbox("开启卫月第三方Github仓库加速",
+        if (ImGui.Checkbox("开启卫月第三方 GitHub 仓库加速",
                 ref enableFastGithub))
         {
             _configuration.EnableFastGithub = enableFastGithub;
@@ -70,7 +70,18 @@ internal class ConfigWindow : Window
             Save();
         }
 
-        ImGuiComponents.HelpMarker("通过反向代理加速 GitHub 上的第三方仓库，例如 https://raw.githubusercontent.com");
+        ImGui.SameLine();
+        ImGuiComponents.HelpMarker("通过反向代理加速 GitHub 仓库的加载与下载。");
+
+        var enableCloudflarePreferredIp = _configuration.EnableCloudflarePreferredIp;
+        if (ImGui.Checkbox("使用 Cloudflare 优选 IP", ref enableCloudflarePreferredIp))
+        {
+            _configuration.EnableCloudflarePreferredIp = enableCloudflarePreferredIp;
+            Save();
+        }
+
+        ImGui.SameLine();
+        ImGuiComponents.HelpMarker("新建连接时，如果目标域名的 IPv4 地址全部属于 Cloudflare，会先尝试优选 IP，并保留原始地址作为备选。");
 
         var enableMainRepoPluginLocalization = _configuration.EnableMainRepoPluginLocalization;
         if (ImGui.Checkbox("开启主库插件简介翻译",

@@ -52,6 +52,7 @@ public sealed class FastDalamudCN : IDalamudPlugin
             serviceCollection.AddSingleton<CommandHandler>();
 
             serviceCollection.AddSingleton<PluginLocalizationService>();
+            serviceCollection.AddSingleton<DnsResolver>();
             serviceCollection.AddSingleton<HappyEyeballsCallback>();
             
             serviceCollection.AddSingleton<GithubProxyProvider>();

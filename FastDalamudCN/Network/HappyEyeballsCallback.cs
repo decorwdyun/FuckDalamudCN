@@ -7,7 +7,9 @@ using Microsoft.Extensions.Logging;
 namespace FastDalamudCN.Network;
 
 internal class HappyEyeballsCallback(
-    ILogger<HappyEyeballsCallback> logger)
+    ILogger<HappyEyeballsCallback> logger,
+    Configuration configuration,
+    DnsResolver dnsResolver)
     : IDisposable
 {
     private readonly ILogger _logger = logger;
@@ -23,7 +25,8 @@ internal class HappyEyeballsCallback(
 
     public async ValueTask<Stream> ConnectCallback(SocketsHttpConnectionContext context, CancellationToken token)
     {
-        var addresses = await Dns.GetHostAddressesAsync(context.DnsEndPoint.Host, AddressFamily.InterNetwork, token);
+        var addresses = await dnsResolver.GetSortedAddressesAsync(
+            context.DnsEndPoint.Host, configuration.EnableCloudflarePreferredIp, token);
         var now = DateTime.UtcNow;
 
         foreach (var (ip, expiry) in _penalizedAddresses)
