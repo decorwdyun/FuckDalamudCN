@@ -185,7 +185,7 @@ internal class ConfigWindow : Window
 
         ImGui.Separator();
 
-        if (ImGui.Button("打开插件主页")) Util.OpenLink("https://github.com/decorwdyun/FastDalamudCN");
+        if (ImGui.Button("打开插件主页")) Util.OpenLink("https://github.com/decorwdyun/FuckDalamudCN");
         ImGui.SameLine();
         if (ImGui.Button("问题反馈")) Util.OpenLink("https://github.com/decorwdyun/DalamudPlugins/issues/new");
         ImGui.SameLine();
