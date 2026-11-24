@@ -48,19 +48,7 @@ internal class ConfigWindow : Window
             return;
 
         DrawNetworkTab();
-        DrawUnbanTab();
         DrawAboutTab();
-    }
-
-    private void DrawUnbanTab()
-    {
-        using var tab = ImRaii.TabItem("原Unban##FastDalamudCN-Unban");
-        if (!tab)
-            return;
-        ImGui.AlignTextToFramePadding();
-
-        ImGui.Text("OtterCorp 卫月已全面移除插件封锁相关代码、所以不再需要 Unban 了");
-        ImGui.Text($"如果你不需要本插件的其他功能的话，可以直接卸载！");
     }
 
     private void DrawNetworkTab()
