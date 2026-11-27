@@ -25,8 +25,49 @@ internal class HappyEyeballsCallback(
 
     public async ValueTask<Stream> ConnectCallback(SocketsHttpConnectionContext context, CancellationToken token)
     {
-        var addresses = await dnsResolver.GetSortedAddressesAsync(
-            context.DnsEndPoint.Host, configuration.EnableCloudflarePreferredIp, token);
+        var resolution = await dnsResolver.ResolveAsync(
+            context.DnsEndPoint.Host,
+            configuration.EnableCloudflarePreferredIp,
+            configuration.EnableDohFallback,
+            token).ConfigureAwait(false);
+
+        try
+        {
+            return await ConnectToAddressesAsync(resolution.Addresses, context.DnsEndPoint.Port, token)
+                .ConfigureAwait(false);
+        }
+        catch (Exception) when (!resolution.UsedDoh &&
+                                configuration.EnableDohFallback &&
+                                !token.IsCancellationRequested)
+        {
+            var fallbackAddresses = await dnsResolver.TryResolveFallbackViaDohAsync(
+                context.DnsEndPoint.Host,
+                resolution.Addresses,
+                configuration.EnableCloudflarePreferredIp,
+                enableDohFallback: true,
+                token).ConfigureAwait(false);
+
+            if (fallbackAddresses is not { Length: > 0 })
+            {
+                throw;
+            }
+
+            _logger.LogDebug("使用 DoH 返回地址重新连接 {Host}", context.DnsEndPoint.Host);
+            return await ConnectToAddressesAsync(fallbackAddresses, context.DnsEndPoint.Port, token)
+                .ConfigureAwait(false);
+        }
+    }
+
+    private async Task<NetworkStream> ConnectToAddressesAsync(
+        IPAddress[] addresses,
+        int port,
+        CancellationToken token)
+    {
+        if (addresses.Length == 0)
+        {
+            throw new SocketException((int)SocketError.HostNotFound);
+        }
+
         var now = DateTime.UtcNow;
 
         foreach (var (ip, expiry) in _penalizedAddresses)
@@ -62,7 +103,7 @@ internal class HappyEyeballsCallback(
 
             delayCts.CancelAfter(ConnectionBackoff * i);
 
-            var task = AttemptConnection(record, context.DnsEndPoint.Port, linkedToken.Token, delayCts.Token);
+            var task = AttemptConnection(record, port, linkedToken.Token, delayCts.Token);
             tasks.Add(task);
 
             var nextDelayCts = CancellationTokenSource.CreateLinkedTokenSource(linkedToken.Token);
@@ -76,19 +117,6 @@ internal class HappyEyeballsCallback(
         // line to explode, so we're safe to clean everything up.
         linkedToken.Cancel();
         tasks.ForEach(task => { task.ContinueWith(CleanupConnectionTask); });
-// #if DEBUG
-        // try
-        // {
-        //     if (stream is { Socket.RemoteEndPoint: IPEndPoint endPoint })
-        //     {
-        //         logger.LogTrace("已建立连接: {Hostname} -> {IpAddress}", context.DnsEndPoint.Host, endPoint.Address);
-        //     }
-        // }
-        // catch
-        // {
-        //     // ignored
-        // }
-// #endif
         return stream;
     }
 

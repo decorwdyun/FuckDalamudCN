@@ -13,6 +13,7 @@ internal sealed class GithubProxyProvider : IDisposable
     private const int FastProxyWindowMs = 120;
 
     private readonly Configuration _configuration;
+    private readonly DnsResolver _dnsResolver;
     private readonly HttpClient _httpClient;
     private readonly ILogger<GithubProxyProvider> _logger;
     private readonly string[] _bootstrapNodes = ProxyNodeConfiguration.CreateBootstrapNodes();
@@ -26,10 +27,12 @@ internal sealed class GithubProxyProvider : IDisposable
     public GithubProxyProvider(
         ILogger<GithubProxyProvider> logger,
         Configuration configuration,
-        HappyEyeballsCallback happyEyeballsCallback)
+        HappyEyeballsCallback happyEyeballsCallback,
+        DnsResolver dnsResolver)
     {
         _logger = logger;
         _configuration = configuration;
+        _dnsResolver = dnsResolver;
         _proxyLatencies = _bootstrapNodes.ToDictionary(prefix => prefix, _ => long.MaxValue);
 
         _httpClient = new HttpClient(new SocketsHttpHandler
@@ -204,21 +207,34 @@ internal sealed class GithubProxyProvider : IDisposable
 
             for (var attempt = 0; attempt < 2; attempt++)
             {
-                var stopwatch = Stopwatch.StartNew();
-                using var response = await _httpClient.GetAsync(checkUrl, cancellationToken);
-                stopwatch.Stop();
-
-                if (response is { IsSuccessStatusCode: true, Content.Headers.ContentLength: > 0 })
+                try
                 {
-                    var contentBytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
-                    var sha256 = SHA256.HashData(contentBytes);
+                    var stopwatch = Stopwatch.StartNew();
+                    using var response = await _httpClient.GetAsync(checkUrl, cancellationToken);
+                    stopwatch.Stop();
 
-                    if (Convert.ToHexStringLower(sha256) != ExpectedSha256)
+                    if (response is { IsSuccessStatusCode: true, Content.Headers.ContentLength: > 0 })
                     {
-                        continue;
-                    }
+                        var contentBytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
+                        var sha256 = SHA256.HashData(contentBytes);
 
-                    minLatencyMs = Math.Min(minLatencyMs, stopwatch.ElapsedMilliseconds);
+                        if (Convert.ToHexStringLower(sha256) != ExpectedSha256)
+                        {
+                            continue;
+                        }
+
+                        minLatencyMs = Math.Min(minLatencyMs, stopwatch.ElapsedMilliseconds);
+                    }
+                }
+                catch (HttpRequestException ex) when (
+                    attempt == 0 &&
+                    _configuration.EnableDohFallback &&
+                    !cancellationToken.IsCancellationRequested &&
+                    Uri.TryCreate(checkUrl, UriKind.Absolute, out var probeUri) &&
+                    DnsResolver.ShouldTriggerDohFallback(ex))
+                {
+                    await _dnsResolver.TryPromoteHostToDohAsync(
+                        probeUri.Host, enableDohFallback: true, cancellationToken);
                 }
             }
 

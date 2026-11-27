@@ -21,6 +21,7 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
     private readonly IHttpCacheService _httpCacheService;
     private readonly IRequestExecutor _requestExecutor;
     private readonly HijackedPluginRepositoryStore _pluginRepositoryStore;
+    private readonly DnsResolver _dnsResolver;
 
     private int _errorCount;
 
@@ -33,7 +34,8 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
         IHttpCacheService httpCacheService,
         IRequestExecutor requestExecutor,
         HappyEyeballsCallback happyEyeballsCallback,
-        HijackedPluginRepositoryStore pluginRepositoryStore)
+        HijackedPluginRepositoryStore pluginRepositoryStore,
+        DnsResolver dnsResolver)
     {
         _logger = logger;
         _dalamudVersionProvider = dalamudVersionProvider;
@@ -43,6 +45,7 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
         _httpCacheService = httpCacheService;
         _requestExecutor = requestExecutor;
         _pluginRepositoryStore = pluginRepositoryStore;
+        _dnsResolver = dnsResolver;
 
         InnerHandler = new SocketsHttpHandler
         {
@@ -87,7 +90,7 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
         {
             var response = _pluginRepositoryStore.ContainsPluginMasterUrl(originalUri.ToString())
                 ? await SendWithPluginMasterPolicyAsync(request, cancellationToken)
-                : await _requestExecutor.ExecuteAsync(request, base.SendAsync, cancellationToken);
+                : await _requestExecutor.ExecuteAsync(request, SendWithDohFallbackAsync, cancellationToken);
             return await HandleResponseAsync(response, request, originalUri, cancellationToken);
         }
         catch (Exception e)
@@ -191,7 +194,7 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
             try
             {
                 lastResponse?.Dispose();
-                lastResponse = await _requestExecutor.ExecuteAsync(clonedRequest, base.SendAsync, cts.Token);
+                lastResponse = await _requestExecutor.ExecuteAsync(clonedRequest, SendWithDohFallbackAsync, cts.Token);
 
                 if (lastResponse.IsSuccessStatusCode)
                 {
@@ -223,4 +226,34 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
 
         throw new TimeoutException($"请求 {request.RequestUri} 超过 {overallBudget.TotalSeconds} 秒未完成");
     }
+
+    private async Task<HttpResponseMessage> SendWithDohFallbackAsync(
+        HttpRequestMessage request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
+        }
+        catch (HttpRequestException ex) when (
+            _configuration.EnableDohFallback &&
+            !cancellationToken.IsCancellationRequested &&
+            request.RequestUri is { Host: var host } &&
+            CanRetryForDohFallback(request) &&
+            DnsResolver.ShouldTriggerDohFallback(ex))
+        {
+            if (!await _dnsResolver.TryPromoteHostToDohAsync(host, enableDohFallback: true, cancellationToken)
+                    .ConfigureAwait(false))
+            {
+                throw;
+            }
+
+            _logger.LogInformation("检测到 {Host} 握手或连接异常，使用 DoH 重试请求", host);
+            var retryRequest = request.CloneForSend();
+            return await base.SendAsync(retryRequest, cancellationToken).ConfigureAwait(false);
+        }
+    }
+
+    private static bool CanRetryForDohFallback(HttpRequestMessage request) =>
+        request.Content is null || request.Method == HttpMethod.Get || request.Method == HttpMethod.Head;
 }

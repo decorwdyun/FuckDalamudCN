@@ -19,6 +19,7 @@ internal class ConfigWindow : Window
     private readonly ProxyStatistics _proxyStatistics;
     private readonly IDalamudPluginInterface _pluginInterface;
     private readonly IHttpCacheService _httpCacheService;
+    private readonly DnsResolver _dnsResolver;
 
     private DateTime _lastCanCheckTime = DateTime.MinValue;
 
@@ -27,7 +28,8 @@ internal class ConfigWindow : Window
         Configuration configuration,
         GithubProxyProvider proxyProvider,
         ProxyStatistics proxyStatistics,
-        IHttpCacheService httpCacheService
+        IHttpCacheService httpCacheService,
+        DnsResolver dnsResolver
     ) : base("FastDalamudCN - 配置")
     {
         _pluginInterface = pluginInterface;
@@ -35,6 +37,7 @@ internal class ConfigWindow : Window
         _proxyProvider = proxyProvider;
         _proxyStatistics = proxyStatistics;
         _httpCacheService = httpCacheService;
+        _dnsResolver = dnsResolver;
         Flags = ImGuiWindowFlags.AlwaysAutoResize;
         SizeCondition = ImGuiCond.Always;
     }
@@ -83,6 +86,17 @@ internal class ConfigWindow : Window
         ImGui.SameLine();
         ImGuiComponents.HelpMarker("新建连接时，如果目标域名的 IPv4 地址全部属于 Cloudflare，会先尝试优选 IP，并保留原始地址作为备选。");
 
+        var enableDohFallback = _configuration.EnableDohFallback;
+        if (ImGui.Checkbox("DNS 异常时使用 DoH 兜底", ref enableDohFallback))
+        {
+            _configuration.EnableDohFallback = enableDohFallback;
+            _dnsResolver.ClearCache();
+            Save();
+        }
+
+        ImGui.SameLine();
+        ImGuiComponents.HelpMarker("默认仍使用系统 DNS；仅当解析失败、返回异常 IP，或建连/证书校验异常时，才使用大陆 DoH（阿里 / 腾讯 DNS）尝试修复。\n不影响系统代理与 TUN Fake-IP。");
+
         var enableMainRepoPluginLocalization = _configuration.EnableMainRepoPluginLocalization;
         if (ImGui.Checkbox("开启主库插件简介翻译",
                 ref enableMainRepoPluginLocalization))
@@ -110,6 +124,7 @@ internal class ConfigWindow : Window
             if (ImGui.Button("清除缓存"))
             {
                 _httpCacheService.ClearCache();
+                _dnsResolver.ClearCache();
             }
         }
 
