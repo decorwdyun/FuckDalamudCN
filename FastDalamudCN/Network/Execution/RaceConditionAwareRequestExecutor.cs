@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net;
 using FastDalamudCN.Network.Abstractions;
 using FastDalamudCN.Network.Proxy;
@@ -100,11 +101,13 @@ internal sealed class RaceConditionAwareRequestExecutor : IRequestExecutor
 
             try
             {
+                var startTimestamp = Stopwatch.GetTimestamp();
                 var response = await sendFunc(attemptRequest, cancellationToken).ConfigureAwait(false);
+                var elapsedMs = (long)Stopwatch.GetElapsedTime(startTimestamp).TotalMilliseconds;
                 if (response.IsSuccessStatusCode)
                 {
                     lastResponse?.Dispose();
-                    _proxySelector.ReportProxySuccess(currentProxyUri);
+                    _proxySelector.ReportProxySuccess(currentProxyUri, elapsedMs);
                     return await _trackResponse(response, cancellationToken).ConfigureAwait(false);
                 }
 
@@ -232,7 +235,7 @@ internal sealed class RaceConditionAwareRequestExecutor : IRequestExecutor
                 if (result.Response is { IsSuccessStatusCode: true })
                 {
                     winningResponse = result.Response;
-                    _proxySelector.ReportProxySuccess(result.ProxyUri);
+                    _proxySelector.ReportProxySuccess(result.ProxyUri, result.ElapsedMs);
                     break;
                 }
 
@@ -286,10 +289,12 @@ internal sealed class RaceConditionAwareRequestExecutor : IRequestExecutor
         request.RequestUri = proxyUri;
         try
         {
+            var startTimestamp = Stopwatch.GetTimestamp();
             var response = await sendFunc(request, cancellationToken).ConfigureAwait(false);
+            var elapsedMs = (long)Stopwatch.GetElapsedTime(startTimestamp).TotalMilliseconds;
             if (response.IsSuccessStatusCode)
             {
-                _proxySelector.ReportProxySuccess(proxyUri);
+                _proxySelector.ReportProxySuccess(proxyUri, elapsedMs);
                 return await _trackResponse(response, cancellationToken).ConfigureAwait(false);
             }
 
@@ -316,10 +321,12 @@ internal sealed class RaceConditionAwareRequestExecutor : IRequestExecutor
         var requestClone = originalRequest.CloneForSend(proxyUri);
         try
         {
+            var startTimestamp = Stopwatch.GetTimestamp();
             var response = await sendFunc(requestClone, cancellationToken).ConfigureAwait(false);
+            var elapsedMs = (long)Stopwatch.GetElapsedTime(startTimestamp).TotalMilliseconds;
             if (response.IsSuccessStatusCode)
             {
-                return new RaceAttemptResult(response, proxyUri, Error: null, ShouldPenalizeProxy: false);
+                return new RaceAttemptResult(response, proxyUri, elapsedMs, Error: null, ShouldPenalizeProxy: false);
             }
 
             var statusCode = response.StatusCode;
@@ -327,16 +334,17 @@ internal sealed class RaceConditionAwareRequestExecutor : IRequestExecutor
             return new RaceAttemptResult(
                 Response: null,
                 ProxyUri: proxyUri,
+                ElapsedMs: elapsedMs,
                 Error: new HttpRequestException($"Status: {statusCode}", null, statusCode),
                 ShouldPenalizeProxy: ShouldRetryProxyStatus(statusCode));
         }
         catch (OperationCanceledException ex) when (cancellationToken.IsCancellationRequested)
         {
-            return new RaceAttemptResult(Response: null, ProxyUri: proxyUri, Error: ex, ShouldPenalizeProxy: false);
+            return new RaceAttemptResult(Response: null, ProxyUri: proxyUri, ElapsedMs: 0, Error: ex, ShouldPenalizeProxy: false);
         }
         catch (Exception ex)
         {
-            return new RaceAttemptResult(Response: null, ProxyUri: proxyUri, Error: ex, ShouldPenalizeProxy: true);
+            return new RaceAttemptResult(Response: null, ProxyUri: proxyUri, ElapsedMs: 0, Error: ex, ShouldPenalizeProxy: true);
         }
     }
 
@@ -383,6 +391,7 @@ internal sealed class RaceConditionAwareRequestExecutor : IRequestExecutor
     private readonly record struct RaceAttemptResult(
         HttpResponseMessage? Response,
         Uri ProxyUri,
+        long ElapsedMs,
         Exception? Error,
         bool ShouldPenalizeProxy);
 }

@@ -56,7 +56,8 @@ internal sealed partial class GithubProxySelector(
 
     public void ReportProxyFailure(Uri proxyUri) => proxyProvider.ReportProxyFailure(proxyUri);
 
-    public void ReportProxySuccess(Uri proxyUri) => proxyProvider.ReportProxySuccess(proxyUri);
+    public void ReportProxySuccess(Uri proxyUri, long elapsedMs) =>
+        proxyProvider.ReportProxySuccess(proxyUri, elapsedMs);
 
     private static Uri NormalizeGithubRawUri(Uri uri)
     {

@@ -8,5 +8,5 @@ internal interface IProxySelector
 
     void ReportProxyFailure(Uri proxyUri);
 
-    void ReportProxySuccess(Uri proxyUri);
+    void ReportProxySuccess(Uri proxyUri, long elapsedMs);
 }

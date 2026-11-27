@@ -12,10 +12,21 @@ internal sealed class GithubProxyProvider : IDisposable
 {
     internal const string ExpectedSha256 = "1a17f2c74ee9a1c22cb0f04bee90902e0e0c5b1fa739fd3957fcee4f42365c27";
     internal const int MaxProxyLatencyMs = 4_000;
-    private const int FastProxyWindowMs = 120;
+
+    private const double EwmaAlpha = 0.3;
+    private const double FastProxyWindowRatio = 0.30;
+    private const long MinFastProxyWindowMs = 80;
+    private const long MaxFastProxyWindowMs = 250;
 
     private static readonly TimeSpan DefaultProbeTimeout = TimeSpan.FromSeconds(4);
-    private static readonly TimeSpan ProxyFailurePenalty = TimeSpan.FromSeconds(60);
+    private static readonly TimeSpan PenaltyHistoryDecayWindow = TimeSpan.FromMinutes(15);
+    private static readonly TimeSpan[] PenaltyBackoffSteps =
+    [
+        TimeSpan.FromSeconds(30),
+        TimeSpan.FromMinutes(2),
+        TimeSpan.FromMinutes(5),
+        TimeSpan.FromMinutes(10)
+    ];
 
     private readonly Configuration _configuration;
     private readonly DnsResolver _dnsResolver;
@@ -24,10 +35,12 @@ internal sealed class GithubProxyProvider : IDisposable
     private readonly string[] _bootstrapNodes;
     private readonly string _expectedSha256;
     private readonly Func<DateTime> _utcNow;
+    private readonly Func<int, int> _nextRandom;
     private readonly TimeSpan _probeTimeout;
     private readonly Timer? _timer;
     private readonly object _latencyLock = new();
-    private readonly ConcurrentDictionary<string, DateTime> _penalizedProxies = new(StringComparer.OrdinalIgnoreCase);
+    private readonly object _penaltyLock = new();
+    private readonly ConcurrentDictionary<string, ProxyPenaltyState> _proxyPenalties = new(StringComparer.OrdinalIgnoreCase);
 
     private volatile IReadOnlyDictionary<string, long> _proxyLatencies;
     private string[] _remoteNodes = [];
@@ -67,7 +80,8 @@ internal sealed class GithubProxyProvider : IDisposable
         Func<DateTime>? utcNow = null,
         TimeSpan? probeTimeout = null,
         bool disposeHandler = false,
-        string? expectedSha256 = null)
+        string? expectedSha256 = null,
+        Func<int, int>? nextRandom = null)
     {
         _logger = logger;
         _configuration = configuration;
@@ -75,6 +89,7 @@ internal sealed class GithubProxyProvider : IDisposable
         _bootstrapNodes = bootstrapNodes;
         _expectedSha256 = expectedSha256 ?? ExpectedSha256;
         _utcNow = utcNow ?? (() => DateTime.UtcNow);
+        _nextRandom = nextRandom ?? Random.Shared.Next;
         _probeTimeout = probeTimeout ?? DefaultProbeTimeout;
         _proxyLatencies = _bootstrapNodes.ToDictionary(prefix => prefix, _ => long.MaxValue, StringComparer.OrdinalIgnoreCase);
 
@@ -117,7 +132,20 @@ internal sealed class GithubProxyProvider : IDisposable
             return;
         }
 
-        _penalizedProxies[prefix] = _utcNow().Add(ProxyFailurePenalty);
+        var now = _utcNow();
+        lock (_penaltyLock)
+        {
+            var previousFailures = 0;
+            if (_proxyPenalties.TryGetValue(prefix, out var existing) &&
+                now - existing.PenaltyUntilUtc < PenaltyHistoryDecayWindow)
+            {
+                previousFailures = existing.ConsecutiveFailures;
+            }
+
+            var nextFailures = previousFailures + 1;
+            var backoff = PenaltyBackoffSteps[Math.Min(nextFailures - 1, PenaltyBackoffSteps.Length - 1)];
+            _proxyPenalties[prefix] = new ProxyPenaltyState(nextFailures, now.Add(backoff));
+        }
     }
 
     public void ClearProxyPenalty(string prefix)
@@ -127,7 +155,10 @@ internal sealed class GithubProxyProvider : IDisposable
             return;
         }
 
-        _penalizedProxies.TryRemove(prefix, out _);
+        lock (_penaltyLock)
+        {
+            _proxyPenalties.TryRemove(prefix, out _);
+        }
     }
 
     public void ReportProxyFailure(Uri proxyUri)
@@ -138,12 +169,66 @@ internal sealed class GithubProxyProvider : IDisposable
         }
     }
 
-    public void ReportProxySuccess(Uri proxyUri)
+    public void ReportProxySuccess(Uri proxyUri, long elapsedMs)
     {
-        if (TryExtractPrefix(proxyUri, out var prefix))
+        if (!TryExtractPrefix(proxyUri, out var prefix))
         {
-            ClearProxyPenalty(prefix);
+            return;
         }
+
+        RecordProxySuccess(prefix, elapsedMs);
+    }
+
+    internal void RecordProxySuccess(string prefix, long elapsedMs)
+    {
+        if (string.IsNullOrWhiteSpace(prefix))
+        {
+            return;
+        }
+
+        var now = _utcNow();
+        lock (_penaltyLock)
+        {
+            if (_proxyPenalties.TryGetValue(prefix, out var existing))
+            {
+                var remainingFailures = existing.ConsecutiveFailures - 1;
+                if (remainingFailures <= 0)
+                {
+                    _proxyPenalties.TryRemove(prefix, out _);
+                }
+                else
+                {
+                    // 逐步衰减失败计数，同时解除当前活跃惩罚，防止抽风节点一次成功后直接回到零失败历史
+                    _proxyPenalties[prefix] = new ProxyPenaltyState(remainingFailures, now);
+                }
+            }
+        }
+
+        var sampleMs = Math.Clamp(elapsedMs, 1L, MaxProxyLatencyMs - 1);
+        lock (_latencyLock)
+        {
+            var current = _proxyLatencies;
+            if (!current.TryGetValue(prefix, out var existingLatency))
+            {
+                return;
+            }
+
+            var updatedLatency = existingLatency < MaxProxyLatencyMs
+                ? Math.Max(1L, (long)Math.Round(existingLatency * (1.0 - EwmaAlpha) + sampleMs * EwmaAlpha))
+                : sampleMs;
+
+            var updated = new Dictionary<string, long>(current, StringComparer.OrdinalIgnoreCase)
+            {
+                [prefix] = updatedLatency
+            };
+            _proxyLatencies = updated;
+        }
+    }
+
+    internal static long ComputeFastWindowMs(long minLatencyMs)
+    {
+        var proportional = (long)Math.Round(Math.Max(0L, minLatencyMs) * FastProxyWindowRatio);
+        return Math.Clamp(proportional, MinFastProxyWindowMs, MaxFastProxyWindowMs);
     }
 
     public async Task CheckProxiesAsync(
@@ -203,21 +288,79 @@ internal sealed class GithubProxyProvider : IDisposable
             return null;
         }
 
-        var maxLatency = pool.Min(node => node.Value) + FastProxyWindowMs;
-        var candidates = pool.Where(node => node.Value <= maxLatency).ToArray();
+        var minLatency = pool.Min(node => node.Value);
+        var maxLatency = minLatency + ComputeFastWindowMs(minLatency);
+        var candidates = pool
+            .Where(node => node.Value <= maxLatency)
+            .OrderBy(node => node.Value)
+            .ToArray();
 
-        return candidates[Random.Shared.Next(candidates.Length)].Key;
+        return candidates[PickIndex(candidates.Length)].Key;
     }
 
     public List<string> SelectMultipleFastProxies(int count, IEnumerable<string>? excludePrefixes = null)
     {
+        if (count <= 0)
+        {
+            return [];
+        }
+
         var (healthy, penalized) = PartitionAvailableNodes(excludePrefixes);
-        return healthy
-            .OrderBy(node => node.Value)
-            .Concat(penalized.OrderBy(node => node.Value))
+        var orderedHealthy = healthy.OrderBy(node => node.Value).ToList();
+        var orderedPenalized = penalized.OrderBy(node => node.Value).ToList();
+
+        if (orderedHealthy.Count > 1)
+        {
+            PromoteTopTierPrimary(orderedHealthy);
+        }
+        else if (orderedHealthy.Count == 0 && orderedPenalized.Count > 1)
+        {
+            PromoteTopTierPrimary(orderedPenalized);
+        }
+
+        return orderedHealthy
+            .Concat(orderedPenalized)
             .Take(count)
             .Select(node => node.Key)
             .ToList();
+    }
+
+    private void PromoteTopTierPrimary(List<KeyValuePair<string, long>> orderedNodes)
+    {
+        var minLatency = orderedNodes[0].Value;
+        var maxLatency = minLatency + ComputeFastWindowMs(minLatency);
+
+        var topTierCount = 0;
+        while (topTierCount < orderedNodes.Count && orderedNodes[topTierCount].Value <= maxLatency)
+        {
+            topTierCount++;
+        }
+
+        if (topTierCount <= 1)
+        {
+            return;
+        }
+
+        var chosenIndex = PickIndex(topTierCount);
+        if (chosenIndex == 0)
+        {
+            return;
+        }
+
+        var chosen = orderedNodes[chosenIndex];
+        orderedNodes.RemoveAt(chosenIndex);
+        orderedNodes.Insert(0, chosen);
+    }
+
+    private int PickIndex(int count)
+    {
+        if (count <= 1)
+        {
+            return 0;
+        }
+
+        var raw = _nextRandom(count);
+        return Math.Clamp(raw, 0, count - 1);
     }
 
     private (List<KeyValuePair<string, long>> Healthy, List<KeyValuePair<string, long>> Penalized)
@@ -236,15 +379,25 @@ internal sealed class GithubProxyProvider : IDisposable
                 continue;
             }
 
-            if (_penalizedProxies.TryGetValue(node.Key, out var expiry))
+            if (_proxyPenalties.TryGetValue(node.Key, out var state))
             {
-                if (expiry > now)
+                if (state.PenaltyUntilUtc > now)
                 {
                     penalized.Add(node);
                     continue;
                 }
 
-                _penalizedProxies.TryRemove(new KeyValuePair<string, DateTime>(node.Key, expiry));
+                if (now - state.PenaltyUntilUtc >= PenaltyHistoryDecayWindow)
+                {
+                    lock (_penaltyLock)
+                    {
+                        if (_proxyPenalties.TryGetValue(node.Key, out var currentState) &&
+                            currentState == state)
+                        {
+                            _proxyPenalties.TryRemove(node.Key, out _);
+                        }
+                    }
+                }
             }
 
             healthy.Add(node);
@@ -420,4 +573,6 @@ internal sealed class GithubProxyProvider : IDisposable
         prefix = string.Empty;
         return false;
     }
+
+    private readonly record struct ProxyPenaltyState(int ConsecutiveFailures, DateTime PenaltyUntilUtc);
 }

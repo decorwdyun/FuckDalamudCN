@@ -114,7 +114,7 @@ public class RaceConditionAwareRequestExecutorTests
         Assert.True(stopwatch.Elapsed < TimeSpan.FromSeconds(2));
         Assert.True(failedContent.Disposed);
         Assert.Contains(selector.FailureReports, uri => uri.Host == "p1.example");
-        Assert.Contains(selector.SuccessReports, uri => uri.Host == "p2.example");
+        Assert.Contains(selector.SuccessReports, report => report.ProxyUri.Host == "p2.example" && report.ElapsedMs >= 0);
     }
 
     [Fact]
@@ -200,7 +200,7 @@ public class RaceConditionAwareRequestExecutorTests
     private sealed class StubProxySelector(params string[] prefixes) : IProxySelector
     {
         public List<Uri> FailureReports { get; } = [];
-        public List<Uri> SuccessReports { get; } = [];
+        public List<(Uri ProxyUri, long ElapsedMs)> SuccessReports { get; } = [];
 
         public Uri? BuildProxyUri(Uri originalUri, HashSet<string>? excludePrefixes = null)
         {
@@ -227,6 +227,6 @@ public class RaceConditionAwareRequestExecutorTests
 
         public void ReportProxyFailure(Uri proxyUri) => FailureReports.Add(proxyUri);
 
-        public void ReportProxySuccess(Uri proxyUri) => SuccessReports.Add(proxyUri);
+        public void ReportProxySuccess(Uri proxyUri, long elapsedMs) => SuccessReports.Add((proxyUri, elapsedMs));
     }
 }
