@@ -108,26 +108,40 @@ internal sealed class RaceConditionAwareRequestExecutor : IRequestExecutor
                 {
                     lastResponse?.Dispose();
                     _proxySelector.ReportProxySuccess(currentProxyUri, elapsedMs);
+                    if (attempt > 0)
+                    {
+                        _logger.LogTrace("[ProxyReq] 故障转移成功 (第 {Attempt}/{MaxAttempts} 次): {ProxyHost} -> {StatusCode} (耗时 {ElapsedMs}ms) | {OriginalUri}",
+                            attempt + 1, maxAttempts, currentProxyUri.Host, (int)response.StatusCode, elapsedMs, originalUri);
+                    }
+                    else
+                    {
+                        _logger.LogTrace("[ProxyReq] 代理请求成功: {ProxyHost} -> {StatusCode} (耗时 {ElapsedMs}ms) | {OriginalUri}",
+                            currentProxyUri.Host, (int)response.StatusCode, elapsedMs, originalUri);
+                    }
+
                     return await _trackResponse(response, cancellationToken).ConfigureAwait(false);
                 }
 
                 if (!ShouldRetryProxyStatus(response.StatusCode) || !canRetry)
                 {
                     lastResponse?.Dispose();
+                    _logger.LogTrace("[ProxyReq] 代理返回 {StatusCode}（不触发容灾）: {ProxyHost} (耗时 {ElapsedMs}ms) | {OriginalUri}",
+                        (int)response.StatusCode, currentProxyUri.Host, elapsedMs, originalUri);
                     return response;
                 }
 
                 _proxySelector.ReportProxyFailure(currentProxyUri);
                 lastResponse?.Dispose();
                 lastResponse = response;
-                _logger.LogDebug("代理返回 {StatusCode}，尝试切换备用代理: {ProxyUri}",
-                    (int)response.StatusCode, currentProxyUri);
+                _logger.LogTrace("[ProxyReq] 代理返回 {StatusCode}，尝试切换备用代理 (第 {Attempt}/{MaxAttempts} 次): {ProxyHost} (耗时 {ElapsedMs}ms)",
+                    (int)response.StatusCode, attempt + 1, maxAttempts, currentProxyUri.Host, elapsedMs);
             }
             catch (Exception ex) when (!cancellationToken.IsCancellationRequested && canRetry)
             {
                 _proxySelector.ReportProxyFailure(currentProxyUri);
                 lastException = ex;
-                _logger.LogDebug(ex, "代理请求失败，尝试切换备用代理: {ProxyUri}", currentProxyUri);
+                _logger.LogTrace("[ProxyReq] 代理请求异常，尝试切换备用代理 (第 {Attempt}/{MaxAttempts} 次): {ProxyHost} | {ErrorType}: {ErrorMessage}",
+                    attempt + 1, maxAttempts, currentProxyUri.Host, ex.GetType().Name, ex.Message);
             }
 
             if (attempt + 1 < maxAttempts)
@@ -175,11 +189,23 @@ internal sealed class RaceConditionAwareRequestExecutor : IRequestExecutor
         var errors = new List<(Uri ProxyUri, Exception Error)>(proxyUris.Count);
 
         HttpResponseMessage? winningResponse = null;
+        Uri? winningProxy = null;
+        long winningElapsedMs = 0;
         var nextIndex = 0;
 
-        void LaunchNext()
+        if (_logger.IsEnabled(LogLevel.Trace))
         {
+            var hosts = string.Join(", ", proxyUris.Select(u => u.Host));
+            _logger.LogTrace("[Race] 开始阶梯竞速: {OriginalUri} | 候选=[{Proxies}], 阶梯延迟={HedgeDelayMs}ms",
+                originalUri, hosts, (int)_hedgeDelay.TotalMilliseconds);
+        }
+
+        void LaunchNext(string trigger)
+        {
+            var attemptIndex = nextIndex + 1;
             var proxyUri = proxyUris[nextIndex++];
+            _logger.LogTrace("[Race] 发起第 {Index}/{Total} 路 ({Trigger}): {ProxyHost} | 目标={OriginalUri}",
+                attemptIndex, proxyUris.Count, trigger, proxyUri.Host, originalUri);
             var task = ExecuteRaceAttemptAsync(originalRequest, proxyUri, sendFunc, raceCts.Token);
             inFlight.Add(task);
             allTasks.Add(task);
@@ -187,13 +213,13 @@ internal sealed class RaceConditionAwareRequestExecutor : IRequestExecutor
 
         try
         {
-            LaunchNext();
+            LaunchNext("首发");
 
             while (inFlight.Count > 0 || nextIndex < proxyUris.Count)
             {
                 if (inFlight.Count == 0)
                 {
-                    LaunchNext();
+                    LaunchNext("失败立即补发");
                     continue;
                 }
 
@@ -201,7 +227,7 @@ internal sealed class RaceConditionAwareRequestExecutor : IRequestExecutor
                 {
                     while (nextIndex < proxyUris.Count)
                     {
-                        LaunchNext();
+                        LaunchNext("并发补发");
                     }
                 }
 
@@ -217,7 +243,7 @@ internal sealed class RaceConditionAwareRequestExecutor : IRequestExecutor
                     if (finished == delayTask)
                     {
                         cancellationToken.ThrowIfCancellationRequested();
-                        LaunchNext();
+                        LaunchNext("超时补发");
                         continue;
                     }
 
@@ -235,6 +261,8 @@ internal sealed class RaceConditionAwareRequestExecutor : IRequestExecutor
                 if (result.Response is { IsSuccessStatusCode: true })
                 {
                     winningResponse = result.Response;
+                    winningProxy = result.ProxyUri;
+                    winningElapsedMs = result.ElapsedMs;
                     _proxySelector.ReportProxySuccess(result.ProxyUri, result.ElapsedMs);
                     break;
                 }
@@ -247,7 +275,8 @@ internal sealed class RaceConditionAwareRequestExecutor : IRequestExecutor
                 if (result.Error is not null)
                 {
                     errors.Add((result.ProxyUri, result.Error));
-                    _logger.LogTrace("代理失败: {ProxyUri}, 错误: {Error}", result.ProxyUri, result.Error.Message);
+                    _logger.LogTrace("[Race] 候选失败: {ProxyHost} | {Error} (耗时 {ElapsedMs}ms, 降权={Penalize})",
+                        result.ProxyUri.Host, result.Error.Message, result.ElapsedMs, result.ShouldPenalizeProxy);
                 }
             }
         }
@@ -266,6 +295,8 @@ internal sealed class RaceConditionAwareRequestExecutor : IRequestExecutor
 
         if (winningResponse is not null)
         {
+            _logger.LogTrace("[Race] 竞速胜出: {ProxyHost} | TTFB={ElapsedMs}ms, 共发起 {Launched}/{Total} 路 | 目标={OriginalUri}",
+                winningProxy?.Host, winningElapsedMs, nextIndex, proxyUris.Count, originalUri);
             return await _trackResponse(winningResponse, cancellationToken).ConfigureAwait(false);
         }
 
@@ -274,7 +305,7 @@ internal sealed class RaceConditionAwareRequestExecutor : IRequestExecutor
         _logger.LogWarning("所有代理都失败了 ({Count}), 原始URL: {Uri}", errors.Count, originalUri);
         foreach (var (proxyUri, error) in errors)
         {
-            _logger.LogDebug("  - {ProxyUri}: {Error}", proxyUri, error.Message);
+            _logger.LogTrace("  - {ProxyUri}: {Error}", proxyUri, error.Message);
         }
 
         throw new HttpRequestException($"所有 {errors.Count} 个代理请求都失败了", errors.FirstOrDefault().Error);

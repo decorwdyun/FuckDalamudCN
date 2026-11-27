@@ -82,7 +82,7 @@ internal sealed class
         if (_configuration.EnablePluginManifestCache &&
             _httpCacheService.TryGetCachedResponse(request, originalUri, out var cachedResponse))
         {
-            _logger.LogTrace("从缓存中读取了 {OriginalUri}", originalUri);
+            _logger.LogTrace("[Cache] 命中缓存: {OriginalUri}", originalUri);
             await Task.Delay(TimeSpan.FromMilliseconds(120), cancellationToken);
             return cachedResponse;
         }
@@ -135,6 +135,7 @@ internal sealed class
         if (Interlocked.Increment(ref _errorCount) >= MaxErrorCount)
         {
             Interlocked.Exchange(ref _errorCount, 0);
+            _logger.LogTrace("[Http] 连续失败达到阈值 ({Threshold})，触发后台代理池重测", MaxErrorCount);
             _ = _proxyProvider.CheckProxiesAsync();
         }
     }
@@ -186,6 +187,11 @@ internal sealed class
             }
 
             var timeoutThisAttempt = remaining <= perAttemptBudget ? remaining : perAttemptBudget;
+            if (attempt > 0)
+            {
+                _logger.LogTrace("[Http] 主库请求重试 (第 {Attempt}/2 次): {Uri} | 剩余预算={RemainingMs}ms, 本次预算={AttemptBudgetMs}ms",
+                    attempt + 1, request.RequestUri, (long)remaining.TotalMilliseconds, (long)timeoutThisAttempt.TotalMilliseconds);
+            }
 
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             cts.CancelAfter(timeoutThisAttempt);
@@ -197,10 +203,20 @@ internal sealed class
                 lastResponse?.Dispose();
                 lastResponse = await _requestExecutor.ExecuteAsync(clonedRequest, SendWithDohFallbackAsync, cts.Token);
 
-                if (lastResponse.IsSuccessStatusCode || !ShouldRetryPluginMasterStatus(lastResponse.StatusCode))
+                if (lastResponse.IsSuccessStatusCode)
                 {
                     return lastResponse;
                 }
+
+                if (!ShouldRetryPluginMasterStatus(lastResponse.StatusCode))
+                {
+                    _logger.LogTrace("[Http] 主库返回 {StatusCode}（非瞬态错误，不再重试）: {Uri}",
+                        (int)lastResponse.StatusCode, request.RequestUri);
+                    return lastResponse;
+                }
+
+                _logger.LogTrace("[Http] 主库第 {Attempt}/2 次尝试返回 {StatusCode}，准备重试: {Uri} (已耗时 {ElapsedMs}ms)",
+                    attempt + 1, (int)lastResponse.StatusCode, request.RequestUri, stopwatch.ElapsedMilliseconds);
             }
             catch (Exception ex)
             {
@@ -212,6 +228,9 @@ internal sealed class
                 {
                     throw;
                 }
+
+                _logger.LogTrace("[Http] 主库第 {Attempt}/2 次尝试异常: {Uri} | {ErrorType}: {ErrorMessage} (已耗时 {ElapsedMs}ms)",
+                    attempt + 1, request.RequestUri, ex.GetType().Name, ex.Message, stopwatch.ElapsedMilliseconds);
             }
         }
 
@@ -253,7 +272,8 @@ internal sealed class
                 throw;
             }
 
-            _logger.LogInformation("检测到 {Host} 握手或连接异常，使用 DoH 重试请求", host);
+            _logger.LogTrace("[Http] 检测到 {Host} 握手/连接异常 ({ErrorType})，已切换 DoH 重试: {Uri}",
+                host, ex.InnerException?.GetType().Name ?? ex.HttpRequestError.ToString(), request.RequestUri);
             var retryRequest = request.CloneForSend();
             return await base.SendAsync(retryRequest, cancellationToken).ConfigureAwait(false);
         }

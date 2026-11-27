@@ -28,7 +28,7 @@ internal sealed partial class GithubProxySelector(
         excludePrefixes?.Add(fastestPrefix);
 
         var proxyUri = new Uri(fastestPrefix + normalizedUri);
-        logger.LogTrace("选择代理: {OriginalUri} -> {ProxyUri}", originalUri, proxyUri);
+        logger.LogTrace("[Proxy] 重写地址: {OriginalUri} -> {ProxyUri}", originalUri, proxyUri);
 
         return proxyUri;
     }

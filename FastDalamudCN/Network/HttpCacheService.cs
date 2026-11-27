@@ -49,7 +49,8 @@ public class HttpCacheService(ILogger<HttpCacheService> logger) : IHttpCacheServ
             var content = await response.Content.ReadAsByteArrayAsync(timeout.Token);
             var entry = new CachedHttpResponse(response, content);
             _memoryCache.Set(originalUri.ToString(), entry, duration);
-            logger.LogTrace("已缓存响应: {Uri}, 有效期: {Duration}", originalUri, duration);
+            logger.LogTrace("[Cache] 已写入缓存: {Uri} (大小={SizeBytes}B, 有效期={Duration})",
+                originalUri, content.Length, duration);
             cachedResponse = entry.ToHttpResponseMessage(request);
         }
         catch (Exception)

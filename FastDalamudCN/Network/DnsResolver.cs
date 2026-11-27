@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Security.Authentication;
@@ -124,6 +125,12 @@ internal sealed class DnsResolver
             var dohAddresses = await TryDohLookupAsync(hostname, token).ConfigureAwait(false);
             if (dohAddresses.Length > 0)
             {
+                if (_logger.IsEnabled(LogLevel.Trace))
+                {
+                    _logger.LogTrace("[DNS] 命中 DoH 记忆: {Hostname} -> [{Addresses}]",
+                        hostname, FormatAddresses(dohAddresses));
+                }
+
                 RecordLastResolution(normalizedHost, dohAddresses, usedDoh: true);
                 var sortedDoh = await ApplyCloudflarePreferredAsync(
                     hostname, dohAddresses, preferCloudflare, canUseDoh, token).ConfigureAwait(false);
@@ -131,11 +138,13 @@ internal sealed class DnsResolver
             }
 
             _dohPreferredHosts.TryRemove(normalizedHost, out _);
+            _logger.LogTrace("[DNS] 已记忆 DoH 解析失败，回退系统 DNS: {Hostname}", hostname);
         }
 
         IPAddress[] original = [];
         SocketException? systemException = null;
         var systemTimedOut = false;
+        var systemStart = Stopwatch.GetTimestamp();
         try
         {
             original = await LookupSystemWithOptionalTimeoutAsync(hostname, canUseDoh, token).ConfigureAwait(false);
@@ -150,6 +159,7 @@ internal sealed class DnsResolver
             systemException = new SocketException((int)SocketError.TimedOut);
         }
 
+        var systemElapsedMs = (long)Stopwatch.GetElapsedTime(systemStart).TotalMilliseconds;
         var isSystemInvalid = systemException is not null ||
                               systemTimedOut ||
                               original.Length == 0 ||
@@ -157,21 +167,48 @@ internal sealed class DnsResolver
 
         if (isSystemInvalid && canUseDoh)
         {
-            _logger.LogDebug("系统 DNS 解析 {Hostname} 异常或返回无效地址，尝试使用 DoH 兜底", hostname);
+            if (_logger.IsEnabled(LogLevel.Trace))
+            {
+                var reason = systemTimedOut
+                    ? $"系统 DNS 超时(>{(int)_systemLookupTimeout.TotalMilliseconds}ms)"
+                    : systemException is not null
+                        ? $"系统 DNS 异常({systemException.SocketErrorCode})"
+                        : original.Length == 0
+                            ? "返回空记录"
+                            : "返回异常地址";
+                _logger.LogTrace("[DNS] Stage1 触发 DoH 兜底: {Hostname} | 原因={Reason} | 系统结果=[{SystemAddresses}] (耗时 {ElapsedMs}ms)",
+                    hostname, reason, FormatAddresses(original), systemElapsedMs);
+            }
+
             var dohAddresses = await TryDohLookupAsync(hostname, token).ConfigureAwait(false);
             if (dohAddresses.Length > 0)
             {
                 MarkHostDohPreferred(normalizedHost);
                 RecordLastResolution(normalizedHost, dohAddresses, usedDoh: true);
+                if (_logger.IsEnabled(LogLevel.Trace))
+                {
+                    _logger.LogTrace("[DNS] Stage1 DoH 兜底成功: {Hostname} -> [{DohAddresses}] (记忆 {Minutes}min)",
+                        hostname, FormatAddresses(dohAddresses), (int)DohPreferenceDuration.TotalMinutes);
+                }
+
                 var sortedDoh = await ApplyCloudflarePreferredAsync(
                     hostname, dohAddresses, preferCloudflare, canUseDoh, token).ConfigureAwait(false);
                 return new DnsResolutionResult(sortedDoh, UsedDoh: true);
             }
+
+            _logger.LogTrace("[DNS] Stage1 DoH 兜底未获得有效地址: {Hostname}", hostname);
         }
 
         if (systemException is not null)
         {
             throw systemException;
+        }
+
+        if (_logger.IsEnabled(LogLevel.Trace))
+        {
+            var tag = original.Any(IsFakeIpAddress) ? " [Fake-IP]" : string.Empty;
+            _logger.LogTrace("[DNS] 系统解析: {Hostname} -> [{Addresses}]{Tag} (耗时 {ElapsedMs}ms)",
+                hostname, FormatAddresses(original), tag, systemElapsedMs);
         }
 
         if (IsDohEligibleHost(normalizedHost))
@@ -192,12 +229,26 @@ internal sealed class DnsResolver
         CancellationToken token)
     {
         var normalizedHost = NormalizeHost(hostname);
-        if (!enableDohFallback ||
-            _dohClient is null ||
-            !IsDohEligibleHost(normalizedHost) ||
-            failedAddresses.Any(IsFakeIpAddress) ||
-            IsHostInWindow(_dohCooldownHosts, normalizedHost))
+        if (!enableDohFallback || _dohClient is null)
         {
+            return null;
+        }
+
+        if (!IsDohEligibleHost(normalizedHost))
+        {
+            _logger.LogTrace("[DNS] Stage2A 跳过 DoH 兜底: {Hostname} | 原因=非公网域名", hostname);
+            return null;
+        }
+
+        if (failedAddresses.Any(IsFakeIpAddress))
+        {
+            _logger.LogTrace("[DNS] Stage2A 跳过 DoH 兜底: {Hostname} | 原因=Fake-IP 托管", hostname);
+            return null;
+        }
+
+        if (IsHostInWindow(_dohCooldownHosts, normalizedHost))
+        {
+            _logger.LogTrace("[DNS] Stage2A 跳过 DoH 兜底: {Hostname} | 原因=冷却期内", hostname);
             return null;
         }
 
@@ -205,6 +256,8 @@ internal sealed class DnsResolver
         if (dohAddresses.Length == 0)
         {
             SetDohCooldown(normalizedHost);
+            _logger.LogTrace("[DNS] Stage2A DoH 未返回有效地址，进入冷却({Minutes}min): {Hostname}",
+                (int)DohCooldownDuration.TotalMinutes, hostname);
             return null;
         }
 
@@ -212,12 +265,22 @@ internal sealed class DnsResolver
         if (!dohAddresses.Any(address => !failedSet.Contains(address)))
         {
             SetDohCooldown(normalizedHost);
+            if (_logger.IsEnabled(LogLevel.Trace))
+            {
+                _logger.LogTrace("[DNS] Stage2A DoH 结果与失败地址一致，进入冷却({Minutes}min): {Hostname} -> [{Addresses}]",
+                    (int)DohCooldownDuration.TotalMinutes, hostname, FormatAddresses(dohAddresses));
+            }
+
             return null;
         }
 
         MarkHostDohPreferred(normalizedHost);
         RecordLastResolution(normalizedHost, dohAddresses, usedDoh: true);
-        _logger.LogInformation("连接到 {Hostname} 失败且 DoH 返回新地址，切换至 DoH 结果重试", hostname);
+        if (_logger.IsEnabled(LogLevel.Trace))
+        {
+            _logger.LogTrace("[DNS] Stage2A 发现新地址，切换 DoH 重连: {Hostname} | 旧=[{OldAddresses}] -> 新=[{NewAddresses}] (记忆 {Minutes}min)",
+                hostname, FormatAddresses(failedAddresses), FormatAddresses(dohAddresses), (int)DohPreferenceDuration.TotalMinutes);
+        }
 
         return await ApplyCloudflarePreferredAsync(
             hostname, dohAddresses, preferCloudflare, enableDohFallback: true, token).ConfigureAwait(false);
@@ -236,6 +299,7 @@ internal sealed class DnsResolver
 
         if (!_lastResolutions.TryGetValue(normalizedHost, out var lastResolution))
         {
+            _logger.LogTrace("[DNS] Stage2B 跳过 DoH 升级: {Hostname} | 原因=无近期直连解析记录(可能走系统代理)", hostname);
             return false;
         }
 
@@ -245,6 +309,18 @@ internal sealed class DnsResolver
             lastResolution.OriginalAddresses.Any(IsFakeIpAddress) ||
             IsHostInWindow(_dohCooldownHosts, normalizedHost))
         {
+            if (_logger.IsEnabled(LogLevel.Trace))
+            {
+                var reason = lastResolution.UsedDoh
+                    ? "已在使用 DoH"
+                    : lastResolution.OriginalAddresses.Any(IsFakeIpAddress)
+                        ? "Fake-IP 托管"
+                        : IsHostInWindow(_dohCooldownHosts, normalizedHost)
+                            ? "冷却期内"
+                            : "解析记录已过期";
+                _logger.LogTrace("[DNS] Stage2B 跳过 DoH 升级: {Hostname} | 原因={Reason}", hostname, reason);
+            }
+
             return false;
         }
 
@@ -252,6 +328,8 @@ internal sealed class DnsResolver
         if (dohAddresses.Length == 0)
         {
             SetDohCooldown(normalizedHost);
+            _logger.LogTrace("[DNS] Stage2B DoH 未返回有效地址，进入冷却({Minutes}min): {Hostname}",
+                (int)DohCooldownDuration.TotalMinutes, hostname);
             return false;
         }
 
@@ -259,12 +337,23 @@ internal sealed class DnsResolver
         if (!dohAddresses.Any(address => !originalSet.Contains(address)))
         {
             SetDohCooldown(normalizedHost);
+            if (_logger.IsEnabled(LogLevel.Trace))
+            {
+                _logger.LogTrace("[DNS] Stage2B DoH 结果与系统解析一致，进入冷却({Minutes}min): {Hostname} -> [{Addresses}]",
+                    (int)DohCooldownDuration.TotalMinutes, hostname, FormatAddresses(dohAddresses));
+            }
+
             return false;
         }
 
         MarkHostDohPreferred(normalizedHost);
         RecordLastResolution(normalizedHost, dohAddresses, usedDoh: true);
-        _logger.LogInformation("检测到 {Hostname} 的系统 DNS 与 DoH 解析结果不一致，临时切换至 DoH", hostname);
+        if (_logger.IsEnabled(LogLevel.Trace))
+        {
+            _logger.LogTrace("[DNS] Stage2B 系统与 DoH 结果不一致，升级至 DoH 重试: {Hostname} | 系统=[{SystemAddresses}] -> DoH=[{DohAddresses}] (记忆 {Minutes}min)",
+                hostname, FormatAddresses(lastResolution.OriginalAddresses), FormatAddresses(dohAddresses), (int)DohPreferenceDuration.TotalMinutes);
+        }
+
         return true;
     }
 
@@ -274,6 +363,7 @@ internal sealed class DnsResolver
         _dohCooldownHosts.Clear();
         _lastResolutions.Clear();
         _dohClient?.ClearCache();
+        _logger.LogTrace("[DNS] 已清空 DNS 状态缓存");
     }
 
     internal static bool ShouldTriggerDohFallback(HttpRequestException exception)
@@ -348,13 +438,22 @@ internal sealed class DnsResolver
             return original;
         }
 
-        var preferred = await ResolveCloudflarePreferredAsync(hostname, enableDohFallback, token).ConfigureAwait(false);
-        return preferred.Length > 0
-            ? preferred.Concat(original).Distinct().ToArray()
-            : original;
+        var (preferred, source) = await ResolveCloudflarePreferredAsync(hostname, enableDohFallback, token).ConfigureAwait(false);
+        if (preferred.Length == 0)
+        {
+            return original;
+        }
+
+        if (_logger.IsEnabled(LogLevel.Trace))
+        {
+            _logger.LogTrace("[DNS] Cloudflare 优选生效: {Hostname} -> 优选=[{Preferred}], 原始=[{Original}] (来源={Source})",
+                hostname, FormatAddresses(preferred), FormatAddresses(original), source);
+        }
+
+        return preferred.Concat(original).Distinct().ToArray();
     }
 
-    private async Task<IPAddress[]> ResolveCloudflarePreferredAsync(
+    private async Task<(IPAddress[] Addresses, string Source)> ResolveCloudflarePreferredAsync(
         string hostname,
         bool enableDohFallback,
         CancellationToken token)
@@ -365,7 +464,7 @@ internal sealed class DnsResolver
             var dohPreferred = ExtractCloudflarePreferred(await TryDohLookupAsync(PreferredHost, token).ConfigureAwait(false));
             if (dohPreferred.Length > 0)
             {
-                return dohPreferred;
+                return (dohPreferred, "DoH记忆");
             }
 
             _dohPreferredHosts.TryRemove(PreferredHost, out _);
@@ -379,7 +478,7 @@ internal sealed class DnsResolver
             var preferred = ExtractCloudflarePreferred(candidates);
             if (preferred.Length > 0)
             {
-                return preferred;
+                return (preferred, "系统DNS");
             }
         }
         catch (SocketException ex) when (!token.IsCancellationRequested)
@@ -398,7 +497,7 @@ internal sealed class DnsResolver
             if (dohPreferred.Length > 0)
             {
                 MarkHostDohPreferred(PreferredHost);
-                return dohPreferred;
+                return (dohPreferred, "DoH兜底");
             }
         }
 
@@ -411,7 +510,7 @@ internal sealed class DnsResolver
             _logger.LogWarning("{PreferredHost} 未返回 Cloudflare IPv4 地址，使用 {Hostname} 的原始地址", PreferredHost, hostname);
         }
 
-        return [];
+        return ([], string.Empty);
     }
 
     private async Task<IPAddress[]> LookupSystemWithOptionalTimeoutAsync(
@@ -452,7 +551,8 @@ internal sealed class DnsResolver
         catch (Exception ex) when (ex is HttpRequestException or SocketException or IOException or TimeoutException
                                        or FormatException or OperationCanceledException)
         {
-            _logger.LogDebug(ex, "DoH 解析 {Hostname} 失败", hostname);
+            _logger.LogTrace("[DNS] DoH 查询失败: {Hostname} | {ErrorType}: {ErrorMessage}",
+                hostname, ex.GetType().Name, ex.Message);
             return [];
         }
     }
@@ -509,6 +609,12 @@ internal sealed class DnsResolver
 
     private static bool IsCloudflareAddress(IPAddress address) =>
         address.AddressFamily == AddressFamily.InterNetwork && CloudflareRanges.Any(range => range.Contains(address));
+
+    private static string FormatAddresses(IEnumerable<IPAddress> addresses)
+    {
+        var list = addresses.Select(address => address.ToString()).ToArray();
+        return list.Length == 0 ? "空" : string.Join(", ", list);
+    }
 
     private readonly record struct HostResolutionRecord(
         IPAddress[] OriginalAddresses,

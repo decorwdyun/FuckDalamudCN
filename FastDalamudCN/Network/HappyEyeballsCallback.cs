@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using Dalamud.Utility;
@@ -64,7 +65,7 @@ internal class HappyEyeballsCallback : IDisposable
 
         try
         {
-            return await ConnectToAddressesAsync(resolution.Addresses, port, token)
+            return await ConnectToAddressesAsync(host, resolution.Addresses, port, resolution.UsedDoh, token)
                 .ConfigureAwait(false);
         }
         catch (Exception) when (!resolution.UsedDoh &&
@@ -83,15 +84,22 @@ internal class HappyEyeballsCallback : IDisposable
                 throw;
             }
 
-            _logger.LogDebug("使用 DoH 返回地址重新连接 {Host}", host);
-            return await ConnectToAddressesAsync(fallbackAddresses, port, token)
+            if (_logger.IsEnabled(LogLevel.Trace))
+            {
+                _logger.LogTrace("[TCP] 初始建连全部失败，使用 DoH 新地址重连: {Host}:{Port} -> [{Addresses}]",
+                    host, port, string.Join(", ", fallbackAddresses.Select(a => a.ToString())));
+            }
+
+            return await ConnectToAddressesAsync(host, fallbackAddresses, port, usedDoh: true, token)
                 .ConfigureAwait(false);
         }
     }
 
     private async Task<Stream> ConnectToAddressesAsync(
+        string host,
         IPAddress[] addresses,
         int port,
+        bool usedDoh,
         CancellationToken token)
     {
         if (addresses.Length == 0)
@@ -122,8 +130,16 @@ internal class HappyEyeballsCallback : IDisposable
                 prioritized.Add(record);
             }
         }
+        var penalizedCount = penalized.Count;
         prioritized.AddRange(penalized);
 
+        if (_logger.IsEnabled(LogLevel.Trace))
+        {
+            _logger.LogTrace("[TCP] 开始建连: {Host}:{Port} | 候选=[{Addresses}] (DoH={UsedDoh}, 降权={PenalizedCount})",
+                host, port, string.Join(", ", prioritized.Select(a => a.ToString())), usedDoh, penalizedCount);
+        }
+
+        var raceStart = Stopwatch.GetTimestamp();
         var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(token);
         var ctsToDispose = new List<CancellationTokenSource>(prioritized.Count + 1) { linkedCts };
         var tasks = new List<Task<Stream>>(prioritized.Count);
@@ -136,7 +152,7 @@ internal class HappyEyeballsCallback : IDisposable
             var record = prioritized[i];
             delayCts.CancelAfter(_connectionBackoffMs * i);
 
-            var task = AttemptConnection(record, port, linkedCts.Token, delayCts.Token);
+            var task = AttemptConnection(host, record, port, linkedCts.Token, delayCts.Token);
             tasks.Add(task);
 
             if (i + 1 < prioritized.Count)
@@ -166,6 +182,16 @@ internal class HappyEyeballsCallback : IDisposable
         try
         {
             winningStream = await AsyncUtils.FirstSuccessfulTask(tasks).ConfigureAwait(false);
+            if (_logger.IsEnabled(LogLevel.Trace))
+            {
+                var remoteIp = winningStream is NetworkStream { Socket.RemoteEndPoint: IPEndPoint ep }
+                    ? ep.Address.ToString()
+                    : "已连接";
+                var elapsedMs = (long)Stopwatch.GetElapsedTime(raceStart).TotalMilliseconds;
+                _logger.LogTrace("[TCP] 建连成功: {Host}:{Port} -> {RemoteIp} (总耗时 {ElapsedMs}ms)",
+                    host, port, remoteIp, elapsedMs);
+            }
+
             return winningStream;
         }
         finally
@@ -178,11 +204,12 @@ internal class HappyEyeballsCallback : IDisposable
             {
             }
 
-            _ = CleanupAfterRaceAsync(tasks, winningStream, ctsToDispose);
+            _ = CleanupAfterRaceAsync(host, port, tasks, winningStream, ctsToDispose, _logger);
         }
     }
 
     private async Task<Stream> AttemptConnection(
+        string host,
         IPAddress address,
         int port,
         CancellationToken token,
@@ -193,12 +220,22 @@ internal class HappyEyeballsCallback : IDisposable
 
         using var perAttemptCts = CancellationTokenSource.CreateLinkedTokenSource(token);
         perAttemptCts.CancelAfter(_attemptTimeout);
+        var attemptStart = Stopwatch.GetTimestamp();
 
         try
         {
             var stream = await _connector(address, port, perAttemptCts.Token).ConfigureAwait(false);
             _penalizedAddresses.TryRemove(address, out _);
             return stream;
+        }
+        catch (Exception ex) when (!token.IsCancellationRequested)
+        {
+            var elapsedMs = (long)Stopwatch.GetElapsedTime(attemptStart).TotalMilliseconds;
+            _penalizedAddresses[address] = DateTime.UtcNow.Add(FailurePenalty);
+            var reason = ex is OperationCanceledException ? $"超时({(int)_attemptTimeout.TotalMilliseconds}ms)" : $"{ex.GetType().Name}: {ex.Message}";
+            _logger.LogTrace("[TCP] 单点建连失败: {Host} -> {IpAddress}:{Port} | {Reason} (耗时 {ElapsedMs}ms, 惩罚 {PenaltySec}s)",
+                host, address, port, reason, elapsedMs, (int)FailurePenalty.TotalSeconds);
+            throw;
         }
         catch
         {
@@ -227,9 +264,12 @@ internal class HappyEyeballsCallback : IDisposable
     }
 
     private static async Task CleanupAfterRaceAsync(
+        string host,
+        int port,
         List<Task<Stream>> tasks,
         Stream? winningStream,
-        List<CancellationTokenSource> ctsToDispose)
+        List<CancellationTokenSource> ctsToDispose,
+        ILogger logger)
     {
         try
         {
@@ -240,6 +280,7 @@ internal class HappyEyeballsCallback : IDisposable
             // 落败任务的取消与连接异常在此统一吸收，防止出现未观察异常
         }
 
+        var disposedLosers = 0;
         foreach (var task in tasks)
         {
             if (task.IsCompletedSuccessfully && !ReferenceEquals(task.Result, winningStream))
@@ -247,11 +288,17 @@ internal class HappyEyeballsCallback : IDisposable
                 try
                 {
                     task.Result.Dispose();
+                    disposedLosers++;
                 }
                 catch
                 {
                 }
             }
+        }
+
+        if (disposedLosers > 0)
+        {
+            logger.LogTrace("[TCP] 已释放 {Count} 个竞速落败连接: {Host}:{Port}", disposedLosers, host, port);
         }
 
         foreach (var cts in ctsToDispose)

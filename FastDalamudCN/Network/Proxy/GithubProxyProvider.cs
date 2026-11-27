@@ -133,6 +133,8 @@ internal sealed class GithubProxyProvider : IDisposable
         }
 
         var now = _utcNow();
+        int nextFailures;
+        TimeSpan backoff;
         lock (_penaltyLock)
         {
             var previousFailures = 0;
@@ -142,10 +144,13 @@ internal sealed class GithubProxyProvider : IDisposable
                 previousFailures = existing.ConsecutiveFailures;
             }
 
-            var nextFailures = previousFailures + 1;
-            var backoff = PenaltyBackoffSteps[Math.Min(nextFailures - 1, PenaltyBackoffSteps.Length - 1)];
+            nextFailures = previousFailures + 1;
+            backoff = PenaltyBackoffSteps[Math.Min(nextFailures - 1, PenaltyBackoffSteps.Length - 1)];
             _proxyPenalties[prefix] = new ProxyPenaltyState(nextFailures, now.Add(backoff));
         }
+
+        _logger.LogTrace("[Proxy] 运行时反馈(失败降权): {Prefix} | 连续失败={Failures}, 退避={BackoffSec}s",
+            prefix, nextFailures, (int)backoff.TotalSeconds);
     }
 
     public void ClearProxyPenalty(string prefix)
@@ -187,11 +192,12 @@ internal sealed class GithubProxyProvider : IDisposable
         }
 
         var now = _utcNow();
+        var remainingFailures = 0;
         lock (_penaltyLock)
         {
             if (_proxyPenalties.TryGetValue(prefix, out var existing))
             {
-                var remainingFailures = existing.ConsecutiveFailures - 1;
+                remainingFailures = Math.Max(0, existing.ConsecutiveFailures - 1);
                 if (remainingFailures <= 0)
                 {
                     _proxyPenalties.TryRemove(prefix, out _);
@@ -205,16 +211,18 @@ internal sealed class GithubProxyProvider : IDisposable
         }
 
         var sampleMs = Math.Clamp(elapsedMs, 1L, MaxProxyLatencyMs - 1);
+        long oldLatency;
+        long updatedLatency;
         lock (_latencyLock)
         {
             var current = _proxyLatencies;
-            if (!current.TryGetValue(prefix, out var existingLatency))
+            if (!current.TryGetValue(prefix, out oldLatency))
             {
                 return;
             }
 
-            var updatedLatency = existingLatency < MaxProxyLatencyMs
-                ? Math.Max(1L, (long)Math.Round(existingLatency * (1.0 - EwmaAlpha) + sampleMs * EwmaAlpha))
+            updatedLatency = oldLatency < MaxProxyLatencyMs
+                ? Math.Max(1L, (long)Math.Round(oldLatency * (1.0 - EwmaAlpha) + sampleMs * EwmaAlpha))
                 : sampleMs;
 
             var updated = new Dictionary<string, long>(current, StringComparer.OrdinalIgnoreCase)
@@ -222,6 +230,13 @@ internal sealed class GithubProxyProvider : IDisposable
                 [prefix] = updatedLatency
             };
             _proxyLatencies = updated;
+        }
+
+        if (_logger.IsEnabled(LogLevel.Trace))
+        {
+            var oldText = oldLatency < MaxProxyLatencyMs ? $"{oldLatency}ms" : "未知";
+            _logger.LogTrace("[Proxy] 运行时反馈(成功): {Prefix} | TTFB={SampleMs}ms, EWMA: {OldLatency} -> {NewLatency}ms (剩余失败计数={RemainingFailures})",
+                prefix, sampleMs, oldText, updatedLatency, remainingFailures);
         }
     }
 
@@ -245,7 +260,10 @@ internal sealed class GithubProxyProvider : IDisposable
         try
         {
             cancellationToken.ThrowIfCancellationRequested();
-            var knownNodes = _bootstrapNodes.Concat(_remoteNodes).Distinct(StringComparer.OrdinalIgnoreCase);
+            var knownNodes = _bootstrapNodes.Concat(_remoteNodes).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
+            _logger.LogTrace("[Proxy] 开始检测代理池 | 节点数={Count}, 刷新远端={RefreshConfig}",
+                knownNodes.Length, refreshConfiguration);
+
             var measured = await MeasureNodesAsync(knownNodes, PublishIncrementalLatency, cancellationToken);
             UpdateProxyLatencies(measured);
 
@@ -260,10 +278,14 @@ internal sealed class GithubProxyProvider : IDisposable
                 return;
             }
 
-            var newNodes = remoteNodes.Where(prefix => !measured.ContainsKey(prefix));
-            foreach (var (prefix, latency) in await MeasureNodesAsync(newNodes, null, cancellationToken))
+            var newNodes = remoteNodes.Where(prefix => !measured.ContainsKey(prefix)).ToArray();
+            if (newNodes.Length > 0)
             {
-                measured[prefix] = latency;
+                _logger.LogTrace("[Proxy] 发现 {Count} 个新远端节点，开始测速", newNodes.Length);
+                foreach (var (prefix, latency) in await MeasureNodesAsync(newNodes, null, cancellationToken))
+                {
+                    measured[prefix] = latency;
+                }
             }
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -289,13 +311,22 @@ internal sealed class GithubProxyProvider : IDisposable
         }
 
         var minLatency = pool.Min(node => node.Value);
-        var maxLatency = minLatency + ComputeFastWindowMs(minLatency);
+        var windowMs = ComputeFastWindowMs(minLatency);
+        var maxLatency = minLatency + windowMs;
         var candidates = pool
             .Where(node => node.Value <= maxLatency)
             .OrderBy(node => node.Value)
             .ToArray();
 
-        return candidates[PickIndex(candidates.Length)].Key;
+        var selected = candidates[PickIndex(candidates.Length)];
+        if (_logger.IsEnabled(LogLevel.Trace))
+        {
+            var poolType = healthy.Count > 0 ? "健康池" : "降权兜底池";
+            _logger.LogTrace("[Proxy] 节点择优(单点/{PoolType}): 选中={Selected} ({LatencyMs}ms) | 窗口={MinMs}+{WindowMs}ms, 第一梯队={TopTierCount}/{PoolCount}",
+                poolType, selected.Key, selected.Value, minLatency, windowMs, candidates.Length, pool.Count);
+        }
+
+        return selected.Key;
     }
 
     public List<string> SelectMultipleFastProxies(int count, IEnumerable<string>? excludePrefixes = null)
@@ -309,26 +340,39 @@ internal sealed class GithubProxyProvider : IDisposable
         var orderedHealthy = healthy.OrderBy(node => node.Value).ToList();
         var orderedPenalized = penalized.OrderBy(node => node.Value).ToList();
 
+        var topTierCount = 0;
+        long windowMin = 0;
+        long windowMs = 0;
         if (orderedHealthy.Count > 1)
         {
-            PromoteTopTierPrimary(orderedHealthy);
+            (topTierCount, windowMin, windowMs) = PromoteTopTierPrimary(orderedHealthy);
         }
         else if (orderedHealthy.Count == 0 && orderedPenalized.Count > 1)
         {
-            PromoteTopTierPrimary(orderedPenalized);
+            (topTierCount, windowMin, windowMs) = PromoteTopTierPrimary(orderedPenalized);
         }
 
-        return orderedHealthy
+        var selected = orderedHealthy
             .Concat(orderedPenalized)
             .Take(count)
-            .Select(node => node.Key)
             .ToList();
+
+        if (_logger.IsEnabled(LogLevel.Trace) && selected.Count > 0)
+        {
+            var summary = string.Join(", ", selected.Select(node => $"{node.Key}({node.Value}ms)"));
+            _logger.LogTrace("[Proxy] 节点择优(竞速): 候选=[{Candidates}] | 健康={HealthyCount}, 降权={PenalizedCount}, 第一梯队={TopTierCount} (窗口={MinMs}+{WindowMs}ms)",
+                summary, orderedHealthy.Count, orderedPenalized.Count, topTierCount, windowMin, windowMs);
+        }
+
+        return selected.Select(node => node.Key).ToList();
     }
 
-    private void PromoteTopTierPrimary(List<KeyValuePair<string, long>> orderedNodes)
+    private (int TopTierCount, long MinLatency, long WindowMs) PromoteTopTierPrimary(
+        List<KeyValuePair<string, long>> orderedNodes)
     {
         var minLatency = orderedNodes[0].Value;
-        var maxLatency = minLatency + ComputeFastWindowMs(minLatency);
+        var windowMs = ComputeFastWindowMs(minLatency);
+        var maxLatency = minLatency + windowMs;
 
         var topTierCount = 0;
         while (topTierCount < orderedNodes.Count && orderedNodes[topTierCount].Value <= maxLatency)
@@ -338,18 +382,19 @@ internal sealed class GithubProxyProvider : IDisposable
 
         if (topTierCount <= 1)
         {
-            return;
+            return (topTierCount, minLatency, windowMs);
         }
 
         var chosenIndex = PickIndex(topTierCount);
         if (chosenIndex == 0)
         {
-            return;
+            return (topTierCount, minLatency, windowMs);
         }
 
         var chosen = orderedNodes[chosenIndex];
         orderedNodes.RemoveAt(chosenIndex);
         orderedNodes.Insert(0, chosen);
+        return (topTierCount, minLatency, windowMs);
     }
 
     private int PickIndex(int count)
@@ -429,20 +474,32 @@ internal sealed class GithubProxyProvider : IDisposable
             };
             _proxyLatencies = updated;
         }
+
+        _logger.LogTrace("[Proxy] 测速增量发布: {Prefix} -> {LatencyMs}ms", prefix, latency);
     }
 
     private void UpdateProxyLatencies(IReadOnlyDictionary<string, long> measured)
     {
-        var activeNodes = _remoteNodes.Any(prefix => measured.TryGetValue(prefix, out var latency) && latency < MaxProxyLatencyMs)
-            ? _remoteNodes
-            : _bootstrapNodes;
+        var usingRemote = _remoteNodes.Any(prefix => measured.TryGetValue(prefix, out var latency) && latency < MaxProxyLatencyMs);
+        var activeNodes = usingRemote ? _remoteNodes : _bootstrapNodes;
 
+        Dictionary<string, long> snapshot;
         lock (_latencyLock)
         {
-            _proxyLatencies = activeNodes.ToDictionary(
+            snapshot = activeNodes.ToDictionary(
                 prefix => prefix,
                 prefix => measured.TryGetValue(prefix, out var latency) ? latency : long.MaxValue,
                 StringComparer.OrdinalIgnoreCase);
+            _proxyLatencies = snapshot;
+        }
+
+        if (_logger.IsEnabled(LogLevel.Trace))
+        {
+            var summary = string.Join(", ", snapshot
+                .OrderBy(kvp => kvp.Value)
+                .Select(kvp => kvp.Value < MaxProxyLatencyMs ? $"{kvp.Key}={kvp.Value}ms" : $"{kvp.Key}=不可用"));
+            _logger.LogTrace("[Proxy] 代理池更新完成 ({Source}): {Summary}",
+                usingRemote ? "远端配置" : "内置节点", summary);
         }
     }
 
@@ -481,16 +538,22 @@ internal sealed class GithubProxyProvider : IDisposable
                 var nodes = await ProxyNodeConfiguration.ReadRemoteNodesAsync(response.Content, timeout.Token);
                 if (nodes.Length > 0)
                 {
-                    _logger.LogDebug("已通过 {Proxy} 加载 {NodeCount} 个远端代理节点", prefix, nodes.Length);
+                    if (_logger.IsEnabled(LogLevel.Trace))
+                    {
+                        _logger.LogTrace("[Proxy] 已通过 {Proxy} 加载 {NodeCount} 个远端代理节点: [{Nodes}]",
+                            prefix, nodes.Length, string.Join(", ", nodes));
+                    }
+
                     return nodes;
                 }
 
-                _logger.LogDebug("通过 {Proxy} 获取的远端列表没有有效代理节点", prefix);
+                _logger.LogTrace("[Proxy] 通过 {Proxy} 获取的远端列表没有有效代理节点", prefix);
             }
             catch (Exception ex) when (ex is HttpRequestException or JsonException or IOException ||
                                        (ex is OperationCanceledException && !cancellationToken.IsCancellationRequested))
             {
-                _logger.LogDebug(ex, "通过 {Proxy} 获取远端代理节点失败", prefix);
+                _logger.LogTrace("[Proxy] 通过 {Proxy} 获取远端代理节点失败 | {ErrorType}: {ErrorMessage}",
+                    prefix, ex.GetType().Name, ex.Message);
             }
         }
 
@@ -543,8 +606,10 @@ internal sealed class GithubProxyProvider : IDisposable
                         break;
                     }
                 }
-                catch (Exception) when (!cancellationToken.IsCancellationRequested)
+                catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
                 {
+                    var reason = ex is OperationCanceledException ? $"超时({(int)_probeTimeout.TotalMilliseconds}ms)" : $"{ex.GetType().Name}: {ex.Message}";
+                    _logger.LogTrace("[Proxy] 探测失败: {Prefix} (第 {Attempt}/2 次) | {Reason}", prefix, attempt + 1, reason);
                     break;
                 }
             }

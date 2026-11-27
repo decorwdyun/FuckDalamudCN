@@ -92,6 +92,13 @@ internal sealed class DohDnsClient : IDohDnsClient, IDisposable
         {
             if (cached.ExpiresAtUtc > now)
             {
+                if (_logger.IsEnabled(LogLevel.Trace))
+                {
+                    var remainingSec = Math.Max(0, (cached.ExpiresAtUtc - now).TotalSeconds);
+                    _logger.LogTrace("[DoH] 命中缓存: {Hostname} ({Family}) -> [{Addresses}] (剩余 {RemainingSec:F0}s)",
+                        normalizedHost, addressFamily, FormatAddresses(cached.Addresses), remainingSec);
+                }
+
                 return cached.Addresses;
             }
 
@@ -99,14 +106,21 @@ internal sealed class DohDnsClient : IDohDnsClient, IDisposable
         }
 
         var generation = Volatile.Read(ref _cacheGeneration);
-        var sharedLazy = _inFlight.GetOrAdd(key, static (cacheKey, state) =>
+        var joinedInFlight = true;
+        var sharedLazy = _inFlight.GetOrAdd(key, cacheKey =>
         {
+            joinedInFlight = false;
             Lazy<Task<IPAddress[]>>? self = null;
             self = new Lazy<Task<IPAddress[]>>(
-                () => state.Client.ExecuteLookupAndCleanupAsync(cacheKey, state.Generation, self!),
+                () => ExecuteLookupAndCleanupAsync(cacheKey, generation, self!),
                 LazyThreadSafetyMode.ExecutionAndPublication);
             return self;
-        }, (Client: this, Generation: generation));
+        });
+
+        if (joinedInFlight && _logger.IsEnabled(LogLevel.Trace))
+        {
+            _logger.LogTrace("[DoH] 合并并发查询: {Hostname} ({Family})", normalizedHost, addressFamily);
+        }
 
         try
         {
@@ -123,6 +137,7 @@ internal sealed class DohDnsClient : IDohDnsClient, IDisposable
         Interlocked.Increment(ref _cacheGeneration);
         _cache.Clear();
         _penalizedEndpoints.Clear();
+        _logger.LogTrace("[DoH] 已清空缓存与端点惩罚记录");
     }
 
     public void Dispose()
@@ -162,6 +177,7 @@ internal sealed class DohDnsClient : IDohDnsClient, IDisposable
         var startTimestamp = Stopwatch.GetTimestamp();
 
         Exception? lastException = null;
+        var attemptedCount = 0;
 
         foreach (var endpoint in orderedEndpoints)
         {
@@ -172,14 +188,17 @@ internal sealed class DohDnsClient : IDohDnsClient, IDisposable
                 break;
             }
 
+            attemptedCount++;
             var endpointBudget = remaining < _perEndpointTimeout ? remaining : _perEndpointTimeout;
             using var endpointCts = CancellationTokenSource.CreateLinkedTokenSource(overallCts.Token);
             endpointCts.CancelAfter(endpointBudget);
+            var endpointStart = Stopwatch.GetTimestamp();
 
             try
             {
                 var wireResponse = await SendQueryAsync(endpoint, queryPacket, key.AddressFamily, endpointCts.Token)
                     .ConfigureAwait(false);
+                var endpointMs = (long)Stopwatch.GetElapsedTime(endpointStart).TotalMilliseconds;
 
                 if (wireResponse.ResponseCode == DnsWireCodec.NoError)
                 {
@@ -189,20 +208,29 @@ internal sealed class DohDnsClient : IDohDnsClient, IDisposable
                         StoreCacheEntry(key, wireResponse.Addresses, wireResponse.MinTtl, generation);
                     }
 
+                    if (_logger.IsEnabled(LogLevel.Trace))
+                    {
+                        var clampedTtlSec = (int)ClampTtl(wireResponse.MinTtl).TotalSeconds;
+                        _logger.LogTrace("[DoH] 解析成功: {Hostname} ({Family}) via {Endpoint} -> [{Addresses}] (TTL={TtlSec}s, 耗时 {ElapsedMs}ms)",
+                            key.Hostname, key.AddressFamily, endpoint.Host, FormatAddresses(wireResponse.Addresses), clampedTtlSec, endpointMs);
+                    }
+
                     return wireResponse.Addresses;
                 }
 
                 if (wireResponse.ResponseCode == DnsWireCodec.NameError)
                 {
                     _penalizedEndpoints.TryRemove(endpoint, out _);
+                    _logger.LogTrace("[DoH] 域名不存在(NXDOMAIN): {Hostname} ({Family}) via {Endpoint} (耗时 {ElapsedMs}ms)",
+                        key.Hostname, key.AddressFamily, endpoint.Host, endpointMs);
                     return [];
                 }
 
                 _penalizedEndpoints[endpoint] = _utcNow().Add(EndpointFailurePenalty);
                 lastException = new HttpRequestException(
                     $"DoH 端点 {endpoint} 返回异常 RCODE={wireResponse.ResponseCode}");
-                _logger.LogDebug("DoH 端点 {Endpoint} 解析 {Hostname} 返回 RCODE={RCode}",
-                    endpoint, key.Hostname, wireResponse.ResponseCode);
+                _logger.LogTrace("[DoH] 端点异常响应: {Hostname} via {Endpoint} | RCODE={RCode} (耗时 {ElapsedMs}ms, 惩罚 {PenaltySec}s)",
+                    key.Hostname, endpoint.Host, wireResponse.ResponseCode, endpointMs, (int)EndpointFailurePenalty.TotalSeconds);
             }
             catch (OperationCanceledException ex) when (_disposeCts.IsCancellationRequested)
             {
@@ -210,11 +238,18 @@ internal sealed class DohDnsClient : IDohDnsClient, IDisposable
             }
             catch (Exception ex)
             {
+                var endpointMs = (long)Stopwatch.GetElapsedTime(endpointStart).TotalMilliseconds;
                 _penalizedEndpoints[endpoint] = _utcNow().Add(EndpointFailurePenalty);
                 lastException = ex;
-                _logger.LogDebug(ex, "DoH 端点 {Endpoint} 解析 {Hostname} 失败", endpoint, key.Hostname);
+                var reason = ex is OperationCanceledException ? "超时" : $"{ex.GetType().Name}: {ex.Message}";
+                _logger.LogTrace("[DoH] 端点失败: {Hostname} via {Endpoint} | {Reason} (耗时 {ElapsedMs}ms, 惩罚 {PenaltySec}s)",
+                    key.Hostname, endpoint.Host, reason, endpointMs, (int)EndpointFailurePenalty.TotalSeconds);
             }
         }
+
+        var totalMs = (long)Stopwatch.GetElapsedTime(startTimestamp).TotalMilliseconds;
+        _logger.LogTrace("[DoH] 全部端点失败: {Hostname} ({Family}) | 已尝试 {AttemptedCount}/{TotalEndpoints} 个端点, 总耗时 {TotalMs}ms",
+            key.Hostname, key.AddressFamily, attemptedCount, orderedEndpoints.Count, totalMs);
 
         throw lastException ?? new TimeoutException($"DoH 解析 {key.Hostname} 超时");
     }
@@ -347,6 +382,9 @@ internal sealed class DohDnsClient : IDohDnsClient, IDisposable
         EnableMultipleHttp2Connections = true,
         AutomaticDecompression = DecompressionMethods.None
     };
+
+    private static string FormatAddresses(IPAddress[] addresses) =>
+        addresses.Length == 0 ? "空" : string.Join(", ", addresses.Select(a => a.ToString()));
 
     private readonly record struct CacheKey(string Hostname, AddressFamily AddressFamily);
 
