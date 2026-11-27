@@ -2,48 +2,79 @@
 using System.Net;
 using System.Net.Sockets;
 using Dalamud.Utility;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace FastDalamudCN.Network;
 
-internal class HappyEyeballsCallback(
-    ILogger<HappyEyeballsCallback> logger,
-    Configuration configuration,
-    DnsResolver dnsResolver)
-    : IDisposable
+internal class HappyEyeballsCallback : IDisposable
 {
-    private readonly ILogger _logger = logger;
-    private const int ConnectionBackoff = 100;
-    private static readonly TimeSpan AttemptTimeout = TimeSpan.FromSeconds(3);
+    private const int DefaultConnectionBackoffMs = 100;
+    private static readonly TimeSpan DefaultAttemptTimeout = TimeSpan.FromMilliseconds(2_200);
     private static readonly TimeSpan FailurePenalty = TimeSpan.FromSeconds(60);
+
+    private readonly ILogger _logger;
+    private readonly Configuration _configuration;
+    private readonly DnsResolver _dnsResolver;
+    private readonly Func<IPAddress, int, CancellationToken, Task<Stream>> _connector;
+    private readonly int _connectionBackoffMs;
+    private readonly TimeSpan _attemptTimeout;
     private readonly ConcurrentDictionary<IPAddress, DateTime> _penalizedAddresses = new();
+
+    [ActivatorUtilitiesConstructor]
+    public HappyEyeballsCallback(
+        ILogger<HappyEyeballsCallback> logger,
+        Configuration configuration,
+        DnsResolver dnsResolver)
+        : this(logger, configuration, dnsResolver, ConnectTcpAsync, DefaultConnectionBackoffMs, DefaultAttemptTimeout)
+    {
+    }
+
+    internal HappyEyeballsCallback(
+        ILogger<HappyEyeballsCallback> logger,
+        Configuration configuration,
+        DnsResolver dnsResolver,
+        Func<IPAddress, int, CancellationToken, Task<Stream>> connector,
+        int connectionBackoffMs = DefaultConnectionBackoffMs,
+        TimeSpan? attemptTimeout = null)
+    {
+        _logger = logger;
+        _configuration = configuration;
+        _dnsResolver = dnsResolver;
+        _connector = connector;
+        _connectionBackoffMs = connectionBackoffMs;
+        _attemptTimeout = attemptTimeout ?? DefaultAttemptTimeout;
+    }
 
     public void Dispose()
     {
         GC.SuppressFinalize(this);
     }
 
-    public async ValueTask<Stream> ConnectCallback(SocketsHttpConnectionContext context, CancellationToken token)
+    public ValueTask<Stream> ConnectCallback(SocketsHttpConnectionContext context, CancellationToken token) =>
+        ConnectAsync(context.DnsEndPoint.Host, context.DnsEndPoint.Port, token);
+
+    internal async ValueTask<Stream> ConnectAsync(string host, int port, CancellationToken token)
     {
-        var resolution = await dnsResolver.ResolveAsync(
-            context.DnsEndPoint.Host,
-            configuration.EnableCloudflarePreferredIp,
-            configuration.EnableDohFallback,
+        var resolution = await _dnsResolver.ResolveAsync(
+            host,
+            _configuration.EnableCloudflarePreferredIp,
+            _configuration.EnableDohFallback,
             token).ConfigureAwait(false);
 
         try
         {
-            return await ConnectToAddressesAsync(resolution.Addresses, context.DnsEndPoint.Port, token)
+            return await ConnectToAddressesAsync(resolution.Addresses, port, token)
                 .ConfigureAwait(false);
         }
         catch (Exception) when (!resolution.UsedDoh &&
-                                configuration.EnableDohFallback &&
+                                _configuration.EnableDohFallback &&
                                 !token.IsCancellationRequested)
         {
-            var fallbackAddresses = await dnsResolver.TryResolveFallbackViaDohAsync(
-                context.DnsEndPoint.Host,
+            var fallbackAddresses = await _dnsResolver.TryResolveFallbackViaDohAsync(
+                host,
                 resolution.Addresses,
-                configuration.EnableCloudflarePreferredIp,
+                _configuration.EnableCloudflarePreferredIp,
                 enableDohFallback: true,
                 token).ConfigureAwait(false);
 
@@ -52,13 +83,13 @@ internal class HappyEyeballsCallback(
                 throw;
             }
 
-            _logger.LogDebug("使用 DoH 返回地址重新连接 {Host}", context.DnsEndPoint.Host);
-            return await ConnectToAddressesAsync(fallbackAddresses, context.DnsEndPoint.Port, token)
+            _logger.LogDebug("使用 DoH 返回地址重新连接 {Host}", host);
+            return await ConnectToAddressesAsync(fallbackAddresses, port, token)
                 .ConfigureAwait(false);
         }
     }
 
-    private async Task<NetworkStream> ConnectToAddressesAsync(
+    private async Task<Stream> ConnectToAddressesAsync(
         IPAddress[] addresses,
         int port,
         CancellationToken token)
@@ -93,42 +124,91 @@ internal class HappyEyeballsCallback(
         }
         prioritized.AddRange(penalized);
 
-        var linkedToken = CancellationTokenSource.CreateLinkedTokenSource(token);
-        var tasks = new List<Task<NetworkStream>>();
+        var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(token);
+        var ctsToDispose = new List<CancellationTokenSource>(prioritized.Count + 1) { linkedCts };
+        var tasks = new List<Task<Stream>>(prioritized.Count);
 
-        var delayCts = CancellationTokenSource.CreateLinkedTokenSource(linkedToken.Token);
+        var delayCts = CancellationTokenSource.CreateLinkedTokenSource(linkedCts.Token);
+        ctsToDispose.Add(delayCts);
+
         for (var i = 0; i < prioritized.Count; i++)
         {
             var record = prioritized[i];
+            delayCts.CancelAfter(_connectionBackoffMs * i);
 
-            delayCts.CancelAfter(ConnectionBackoff * i);
-
-            var task = AttemptConnection(record, port, linkedToken.Token, delayCts.Token);
+            var task = AttemptConnection(record, port, linkedCts.Token, delayCts.Token);
             tasks.Add(task);
 
-            var nextDelayCts = CancellationTokenSource.CreateLinkedTokenSource(linkedToken.Token);
-            _ = task.ContinueWith(_ => { nextDelayCts.Cancel(); }, TaskContinuationOptions.OnlyOnFaulted);
-            delayCts = nextDelayCts;
+            if (i + 1 < prioritized.Count)
+            {
+                var nextDelayCts = CancellationTokenSource.CreateLinkedTokenSource(linkedCts.Token);
+                ctsToDispose.Add(nextDelayCts);
+                _ = task.ContinueWith(
+                    static (_, state) =>
+                    {
+                        try
+                        {
+                            ((CancellationTokenSource)state!).Cancel();
+                        }
+                        catch (ObjectDisposedException)
+                        {
+                        }
+                    },
+                    nextDelayCts,
+                    CancellationToken.None,
+                    TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously,
+                    TaskScheduler.Default);
+                delayCts = nextDelayCts;
+            }
         }
 
-        var stream = await AsyncUtils.FirstSuccessfulTask(tasks).ConfigureAwait(false);
+        Stream? winningStream = null;
+        try
+        {
+            winningStream = await AsyncUtils.FirstSuccessfulTask(tasks).ConfigureAwait(false);
+            return winningStream;
+        }
+        finally
+        {
+            try
+            {
+                linkedCts.Cancel();
+            }
+            catch (ObjectDisposedException)
+            {
+            }
 
-        // If we're here, it means we have a successful connection. A failure to connect would have caused the above
-        // line to explode, so we're safe to clean everything up.
-        linkedToken.Cancel();
-        tasks.ForEach(task => { task.ContinueWith(CleanupConnectionTask); });
-        return stream;
+            _ = CleanupAfterRaceAsync(tasks, winningStream, ctsToDispose);
+        }
     }
 
-    private async Task<NetworkStream> AttemptConnection(IPAddress address, int port, CancellationToken token,
+    private async Task<Stream> AttemptConnection(
+        IPAddress address,
+        int port,
+        CancellationToken token,
         CancellationToken delayToken)
     {
         await AsyncUtils.CancellableDelay(-1, delayToken).ConfigureAwait(false);
         token.ThrowIfCancellationRequested();
 
         using var perAttemptCts = CancellationTokenSource.CreateLinkedTokenSource(token);
-        perAttemptCts.CancelAfter(AttemptTimeout);
+        perAttemptCts.CancelAfter(_attemptTimeout);
 
+        try
+        {
+            var stream = await _connector(address, port, perAttemptCts.Token).ConfigureAwait(false);
+            _penalizedAddresses.TryRemove(address, out _);
+            return stream;
+        }
+        catch
+        {
+            _penalizedAddresses[address] = DateTime.UtcNow.Add(FailurePenalty);
+            throw;
+        }
+    }
+
+    private static async Task<Stream> ConnectTcpAsync(IPAddress address, int port, CancellationToken token)
+    {
         var socket = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp)
         {
             NoDelay = true
@@ -136,19 +216,47 @@ internal class HappyEyeballsCallback(
 
         try
         {
-            await socket.ConnectAsync(address, port, perAttemptCts.Token).ConfigureAwait(false);
-            _penalizedAddresses.TryRemove(address, out _);
+            await socket.ConnectAsync(address, port, token).ConfigureAwait(false);
             return new NetworkStream(socket, true);
         }
         catch
         {
-            _penalizedAddresses[address] = DateTime.UtcNow.Add(FailurePenalty);
             socket.Dispose();
             throw;
         }
     }
 
-    private void CleanupConnectionTask(Task task)
+    private static async Task CleanupAfterRaceAsync(
+        List<Task<Stream>> tasks,
+        Stream? winningStream,
+        List<CancellationTokenSource> ctsToDispose)
     {
+        try
+        {
+            await Task.WhenAll(tasks).ConfigureAwait(false);
+        }
+        catch
+        {
+            // 落败任务的取消与连接异常在此统一吸收，防止出现未观察异常
+        }
+
+        foreach (var task in tasks)
+        {
+            if (task.IsCompletedSuccessfully && !ReferenceEquals(task.Result, winningStream))
+            {
+                try
+                {
+                    task.Result.Dispose();
+                }
+                catch
+                {
+                }
+            }
+        }
+
+        foreach (var cts in ctsToDispose)
+        {
+            cts.Dispose();
+        }
     }
 }

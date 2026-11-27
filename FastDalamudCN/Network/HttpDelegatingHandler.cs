@@ -8,7 +8,8 @@ using Microsoft.Extensions.Logging;
 
 namespace FastDalamudCN.Network;
 
-internal sealed class HttpDelegatingHandler : DelegatingHandler
+internal sealed class 
+    HttpDelegatingHandler : DelegatingHandler
 {
     private const int MaxErrorCount = 10;
     private const string OfficialRepoPattern = "https://aonyx.ffxiv.wang/Plugin/PluginMaster";
@@ -50,7 +51,7 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
         InnerHandler = new SocketsHttpHandler
         {
             UseProxy = true,
-            ConnectTimeout = TimeSpan.FromSeconds(5),
+            ConnectTimeout = TimeSpan.FromSeconds(8),
             MaxConnectionsPerServer = 50,
             EnableMultipleHttp2Connections = true,
             PooledConnectionLifetime = TimeSpan.FromMinutes(1),
@@ -117,7 +118,7 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
             return response;
         }
 
-        _errorCount = 0;
+        Interlocked.Exchange(ref _errorCount, 0);
         await _pluginLocalizationService.TranslatePluginDescriptionsAsync(response, originalUri, ct);
 
         if (_configuration.EnablePluginManifestCache)
@@ -131,9 +132,9 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
 
     private void RecordFailure()
     {
-        _errorCount++;
-        if (_errorCount >= MaxErrorCount)
+        if (Interlocked.Increment(ref _errorCount) >= MaxErrorCount)
         {
+            Interlocked.Exchange(ref _errorCount, 0);
             _ = _proxyProvider.CheckProxiesAsync();
         }
     }
@@ -169,7 +170,7 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
         HttpRequestMessage request,
         CancellationToken cancellationToken)
     {
-        var overallBudget = TimeSpan.FromSeconds(11);
+        var overallBudget = TimeSpan.FromSeconds(10);
         var perAttemptBudget = TimeSpan.FromSeconds(5);
         var stopwatch = Stopwatch.StartNew();
 
@@ -196,7 +197,7 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
                 lastResponse?.Dispose();
                 lastResponse = await _requestExecutor.ExecuteAsync(clonedRequest, SendWithDohFallbackAsync, cts.Token);
 
-                if (lastResponse.IsSuccessStatusCode)
+                if (lastResponse.IsSuccessStatusCode || !ShouldRetryPluginMasterStatus(lastResponse.StatusCode))
                 {
                     return lastResponse;
                 }
@@ -226,6 +227,10 @@ internal sealed class HttpDelegatingHandler : DelegatingHandler
 
         throw new TimeoutException($"请求 {request.RequestUri} 超过 {overallBudget.TotalSeconds} 秒未完成");
     }
+
+    private static bool ShouldRetryPluginMasterStatus(HttpStatusCode statusCode) =>
+        (int)statusCode >= 500 ||
+        statusCode is HttpStatusCode.RequestTimeout or HttpStatusCode.TooManyRequests or HttpStatusCode.Forbidden;
 
     private async Task<HttpResponseMessage> SendWithDohFallbackAsync(
         HttpRequestMessage request,

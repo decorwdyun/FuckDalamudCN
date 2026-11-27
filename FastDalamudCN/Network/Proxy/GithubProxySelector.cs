@@ -53,7 +53,11 @@ internal sealed partial class GithubProxySelector(
 
         return proxyUris;
     }
-    
+
+    public void ReportProxyFailure(Uri proxyUri) => proxyProvider.ReportProxyFailure(proxyUri);
+
+    public void ReportProxySuccess(Uri proxyUri) => proxyProvider.ReportProxySuccess(proxyUri);
+
     private static Uri NormalizeGithubRawUri(Uri uri)
     {
         if (uri.Host != "raw.githubusercontent.com")

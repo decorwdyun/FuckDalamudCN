@@ -36,7 +36,7 @@ internal sealed class PluginRepositoryHijack : IDisposable
 
         _newHttpClient = new HttpClient(httpDelegatingHandler)
         {
-            Timeout = TimeSpan.FromSeconds(10)
+            Timeout = TimeSpan.FromSeconds(18)
         };
 
         var dalamudService = dalamudAssembly.GetType("Dalamud.Service`1", true);

@@ -18,6 +18,7 @@ internal sealed class DnsResolver
     private static readonly TimeSpan DohPreferenceDuration = TimeSpan.FromMinutes(15);
     private static readonly TimeSpan DohCooldownDuration = TimeSpan.FromMinutes(5);
     private static readonly TimeSpan RecentResolutionWindow = TimeSpan.FromMinutes(2);
+    private static readonly TimeSpan DefaultSystemLookupTimeout = TimeSpan.FromMilliseconds(1_500);
 
     private static readonly IPNetwork FakeIpRange = IPNetwork.Parse("198.18.0.0/15");
     private static readonly IPNetwork[] SuspiciousSystemRanges =
@@ -61,6 +62,7 @@ internal sealed class DnsResolver
     private readonly Func<string, AddressFamily, CancellationToken, Task<IPAddress[]>> _lookup;
     private readonly IDohDnsClient? _dohClient;
     private readonly Func<DateTime> _utcNow;
+    private readonly TimeSpan _systemLookupTimeout;
 
     private readonly ConcurrentDictionary<string, DateTime> _dohPreferredHosts = new(StringComparer.OrdinalIgnoreCase);
     private readonly ConcurrentDictionary<string, DateTime> _dohCooldownHosts = new(StringComparer.OrdinalIgnoreCase);
@@ -68,19 +70,19 @@ internal sealed class DnsResolver
 
     [ActivatorUtilitiesConstructor]
     public DnsResolver(ILogger<DnsResolver> logger, IDohDnsClient dohClient)
-        : this(logger, System.Net.Dns.GetHostAddressesAsync, dohClient, null)
+        : this(logger, System.Net.Dns.GetHostAddressesAsync, dohClient, null, null)
     {
     }
 
     public DnsResolver(ILogger<DnsResolver> logger)
-        : this(logger, System.Net.Dns.GetHostAddressesAsync, null, null)
+        : this(logger, System.Net.Dns.GetHostAddressesAsync, null, null, null)
     {
     }
 
     public DnsResolver(
         ILogger<DnsResolver> logger,
         Func<string, AddressFamily, CancellationToken, Task<IPAddress[]>> lookup)
-        : this(logger, lookup, null, null)
+        : this(logger, lookup, null, null, null)
     {
     }
 
@@ -88,12 +90,14 @@ internal sealed class DnsResolver
         ILogger<DnsResolver> logger,
         Func<string, AddressFamily, CancellationToken, Task<IPAddress[]>> lookup,
         IDohDnsClient? dohClient,
-        Func<DateTime>? utcNow = null)
+        Func<DateTime>? utcNow = null,
+        TimeSpan? systemLookupTimeout = null)
     {
         _logger = logger;
         _lookup = lookup;
         _dohClient = dohClient;
         _utcNow = utcNow ?? (() => DateTime.UtcNow);
+        _systemLookupTimeout = systemLookupTimeout ?? DefaultSystemLookupTimeout;
     }
 
     public async Task<IPAddress[]> GetSortedAddressesAsync(
@@ -131,16 +135,23 @@ internal sealed class DnsResolver
 
         IPAddress[] original = [];
         SocketException? systemException = null;
+        var systemTimedOut = false;
         try
         {
-            original = await _lookup(hostname, AddressFamily.InterNetwork, token).ConfigureAwait(false);
+            original = await LookupSystemWithOptionalTimeoutAsync(hostname, canUseDoh, token).ConfigureAwait(false);
         }
         catch (SocketException ex) when (!token.IsCancellationRequested)
         {
             systemException = ex;
         }
+        catch (OperationCanceledException) when (canUseDoh && !token.IsCancellationRequested)
+        {
+            systemTimedOut = true;
+            systemException = new SocketException((int)SocketError.TimedOut);
+        }
 
         var isSystemInvalid = systemException is not null ||
+                              systemTimedOut ||
                               original.Length == 0 ||
                               original.Any(IsSuspiciousSystemAddress);
 
@@ -363,7 +374,8 @@ internal sealed class DnsResolver
         SocketException? systemException = null;
         try
         {
-            var candidates = await _lookup(PreferredHost, AddressFamily.InterNetwork, token).ConfigureAwait(false);
+            var candidates = await LookupSystemWithOptionalTimeoutAsync(PreferredHost, canUseDoh, token)
+                .ConfigureAwait(false);
             var preferred = ExtractCloudflarePreferred(candidates);
             if (preferred.Length > 0)
             {
@@ -373,6 +385,10 @@ internal sealed class DnsResolver
         catch (SocketException ex) when (!token.IsCancellationRequested)
         {
             systemException = ex;
+        }
+        catch (OperationCanceledException) when (canUseDoh && !token.IsCancellationRequested)
+        {
+            systemException = new SocketException((int)SocketError.TimedOut);
         }
 
         if (canUseDoh)
@@ -396,6 +412,21 @@ internal sealed class DnsResolver
         }
 
         return [];
+    }
+
+    private async Task<IPAddress[]> LookupSystemWithOptionalTimeoutAsync(
+        string hostname,
+        bool enforceTimeout,
+        CancellationToken token)
+    {
+        if (!enforceTimeout)
+        {
+            return await _lookup(hostname, AddressFamily.InterNetwork, token).ConfigureAwait(false);
+        }
+
+        using var systemCts = CancellationTokenSource.CreateLinkedTokenSource(token);
+        systemCts.CancelAfter(_systemLookupTimeout);
+        return await _lookup(hostname, AddressFamily.InterNetwork, systemCts.Token).ConfigureAwait(false);
     }
 
     private async Task<IPAddress[]> TryDohLookupAsync(string hostname, CancellationToken token)

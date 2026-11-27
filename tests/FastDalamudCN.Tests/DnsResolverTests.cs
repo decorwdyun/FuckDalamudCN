@@ -302,6 +302,52 @@ public class DnsResolverTests
             new HttpRequestException("Not Found", null, HttpStatusCode.NotFound)));
     }
 
+    [Fact]
+    public async Task Stage1SystemDnsTimeoutFallsBackToDohForTargetAndPreferredHost()
+    {
+        var doh = new StubDohDnsClient((host, _, _) => host switch
+        {
+            Host => Task.FromResult(Addresses("104.16.0.1")),
+            "cf.951886.xyz" => Task.FromResult(Addresses("172.64.0.55")),
+            _ => throw new InvalidOperationException($"Unexpected DoH host {host}")
+        });
+        var resolver = new DnsResolver(
+            NullLogger<DnsResolver>.Instance,
+            async (_, _, ct) =>
+            {
+                await Task.Delay(Timeout.InfiniteTimeSpan, ct);
+                return [];
+            },
+            doh,
+            systemLookupTimeout: TimeSpan.FromMilliseconds(50));
+
+        var result = await resolver.ResolveAsync(Host, preferCloudflare: true, enableDohFallback: true, default);
+
+        Assert.True(result.UsedDoh);
+        Assert.Equal(Addresses("172.64.0.55", "104.16.0.1"), result.Addresses);
+        Assert.Equal(2, doh.CallCount);
+    }
+
+    [Fact]
+    public async Task Stage1SystemDnsTimeoutThrowsTimedOutWhenDohAlsoFails()
+    {
+        var doh = new StubDohDnsClient((_, _, _) => throw new HttpRequestException("DoH down"));
+        var resolver = new DnsResolver(
+            NullLogger<DnsResolver>.Instance,
+            async (_, _, ct) =>
+            {
+                await Task.Delay(Timeout.InfiniteTimeSpan, ct);
+                return [];
+            },
+            doh,
+            systemLookupTimeout: TimeSpan.FromMilliseconds(50));
+
+        var ex = await Assert.ThrowsAsync<SocketException>(() =>
+            resolver.ResolveAsync(Host, preferCloudflare: false, enableDohFallback: true, default));
+
+        Assert.Equal(SocketError.TimedOut, ex.SocketErrorCode);
+    }
+
     private static IPAddress[] Addresses(params string[] records) => records.Select(IPAddress.Parse).ToArray();
 
     private static DnsResolver CreateResolver(IPAddress[] original, Func<CancellationToken, Task<IPAddress[]>> preferredLookup)
